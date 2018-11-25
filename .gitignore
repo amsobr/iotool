@@ -1,0 +1,6 @@
+build/**
+build.pc/**
+build.arm/**
+.codelite/**
+.vscode/**
+
