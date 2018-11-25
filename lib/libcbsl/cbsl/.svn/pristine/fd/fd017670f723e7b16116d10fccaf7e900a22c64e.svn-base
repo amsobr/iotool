@@ -1,0 +1,42 @@
+#ifndef GETKEYVAL_HPP
+#define GETKEYVAL_HPP
+
+#include <stdlib.h>
+
+
+namespace cbsl 
+{
+    
+namespace KeyVal
+{
+
+/** \brief Extrace key and value from a token
+ * \details Parses a token in the form 'key=value' into key and value elements.
+ * \param tok String to parse. Must be a '\0' terminated string. 
+ * \param key buffer that will hold the extracted key.
+ *           If no key is extracted \a key is terminated with a '\0' character.
+ *           If there is not enough room to fully extract the key, the buffer
+ *            is still terminated with the terminating '\0'.
+ * \param keyLen Capacity of \a key.
+ * \param value buffer that will hold the extracted value.
+ *        If no value is extracted \a vaue is terminated with a '\0' character.
+ *        If there is not enough room to fully extract the value, the buffer
+ *         is still terminated with the terminating '\0'.
+ * \param valLen Capacity of \a value
+ * \return True on success or false in case it was not possible to fully parse
+ * the provided token.
+ */
+extern bool parse(
+    char const *tok
+    , char *key
+    , size_t keyLen 
+    , char *value
+    , size_t valLen 
+);
+
+}; /* namespace cbsl::KeyVal */
+
+}; /* namespace cbsl */
+
+
+#endif /* ! GETKEYVAL_HPP */

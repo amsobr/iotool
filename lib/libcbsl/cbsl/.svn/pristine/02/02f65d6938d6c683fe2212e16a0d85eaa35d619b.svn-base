@@ -1,0 +1,73 @@
+
+#include "keyval.hpp"
+
+namespace cbsl
+{
+    
+namespace KeyVal
+{
+
+bool parse( char const *tok
+    , char *key
+    , size_t keyLen 
+    , char *value
+    , size_t valLen 
+)
+{
+    bool doneWithErrors     = false;
+    unsigned int tokIdx     = 0;
+    unsigned int outIdx     = 0;
+    
+/*     printf( "getting keyval from '%s'\n" , tok ); */
+    if ( key!=0 ) {
+/*        printf( "getting key...\n" ); */
+        while ( tok[tokIdx]!='=' && tok[tokIdx]!='\0' ) {
+            if ( outIdx==keyLen-1 ) {
+                key[outIdx] = '\0';
+                doneWithErrors  = true;
+/*                 printf( "key storage exausted. truncated to '%s'\n" , key ); */
+                break;
+            }
+            key[outIdx++]   = tok[tokIdx++];
+            //printf( "key << %c\n" , key[outIdx-1] );
+        }
+        key[outIdx] = '\0';
+
+        /* skip any remaining characters of key (in case key was trunked) */
+        while ( tok[tokIdx]!='=' && tok[tokIdx]!='\0' ) {
+            ++tokIdx;
+        }
+
+        /* If we stopped at an '=', advance to the begginning of the value. */
+        if ( tok[tokIdx]== '=' ) {
+            ++tokIdx;
+        }
+    }
+    
+    if ( value!=0 ) {
+/*        printf( "reading value. string = '%s'\n", tok+tokIdx ); */
+        value[0]    = '\0';
+        outIdx      = 0;
+        while( tok[tokIdx]!='\0' ) {
+            if ( outIdx==valLen-1 ) {
+                value[outIdx]   = '\0';
+/*                printf( "value storage exausted. truncated to '%s'\n", value ); */
+                return false;
+            }
+            value[outIdx++]     = tok[tokIdx++];
+            //printf( "value << %c\n" , tok[tokIdx-1] );
+        }
+        
+        /* make sure we left the loop when whole value was read. */
+        if ( tok[tokIdx]=='\0' ) {
+            value[outIdx]   = '\0';
+/*            printf( "read whole value: '%s'\n", value ); */
+        }
+    }
+    return doneWithErrors ? false : true;
+}
+
+}; /* namespace cbsl::KeyVal */
+
+}; /* namespace cbsl */
+

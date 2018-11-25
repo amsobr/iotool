@@ -1,0 +1,39 @@
+
+#include <stdio.h>
+#include <pthread.h>
+
+#include "mutex.hpp"
+#include "waitcondition.hpp"
+
+namespace cbsl {
+
+/*** PUBLIC MEMBERS ***/
+bool WaitCondition::wait( Mutex *pMutex )
+{
+	/* Cannot execute if the mutex was unlocked because it may not guarantee
+	 * the atomic blocking behaviour.
+	 */
+// 	if( pMutex->tryLock() ) {
+// 		pMutex->unlock();
+// 		fprintf( stderr , "Cannot call wait() on an unlocked mutex!\n" );
+// 		return false;
+// 	}
+	/* mutex will be atomically unlocked */
+	int ret	= pthread_cond_wait( &myCond , &pMutex->m_mymutex );
+	/* mutex is locked again */
+	return ( 0==ret );
+}
+		
+bool WaitCondition::signalOne()
+{
+	int ret	= pthread_cond_signal( &myCond );
+	return (0==ret);
+}
+
+bool WaitCondition::signalAll()
+{
+	int ret	= pthread_cond_broadcast( &myCond );
+	return (0==ret);
+}
+
+}; /* namespace Wcommon */

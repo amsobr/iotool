@@ -1,0 +1,2 @@
+/home/to/Documents/withus/shunt/cbsl-trunk/build/CMakeFiles/cbsl-static.dir
+/home/to/Documents/withus/shunt/cbsl-trunk/build/CMakeFiles/cbsl.dir

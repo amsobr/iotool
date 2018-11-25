@@ -1,0 +1,99 @@
+# Either run this standalone or include it within another project.
+cmake_minimum_required( VERSION 3.0.0 )
+
+if( NOT PROJECT_NAME )
+    project( cbsl )
+    
+    # Test sources are processed only when building standalone.
+    # We also avoid polluting other build tree with duplicate resources
+    # set by gtest.
+    add_subdirectory( tools/gtest-1.7.0/ )
+    add_subdirectory( tests )
+
+else( NOT PROJECT_NAME )
+    message( STATUS "cbsl included from project '${PROJECT_NAME}'" )
+endif( NOT PROJECT_NAME )
+
+
+#add_definitions(-fstrict-aliasing)
+#list( APPEND CMAKE_C_FLAGS -std=gnu99 )
+
+if ( CBSL_ENABLE_SSL_CONNECTION )
+    find_package( OpenSSL REQUIRED )
+    if ( NOT OPENSSL_FOUND )
+        message( FATAL_ERROR "OpenSSL is required by cbsl." )
+    endif()
+endif( CBSL_ENABLE_SSL_CONNECTION )
+
+
+
+set(CBSL_SRCS
+    result.hpp
+	hex_dump.c
+	logger.c
+	keyval.cpp
+	norder_fifo.c
+	util
+	addrmap
+	base64
+	crc
+	memchk
+#	threadpool
+#	threadpoolworker
+#	threadpooltask
+	thread
+	runner_pool.cpp
+	waitcondition
+	fs_ops
+	net/name_resolver.cpp
+	net/base_sock_addr.cpp
+	net/sock_addr_4.cpp
+	net/arp_querier.cpp
+	net/udp_skt.cpp
+	net/tcp_connection.cpp
+	timer
+	Timeout.cpp
+	hoststats
+#	one_shot.cpp
+	cksum/ieee_crc32
+	shellHelpers.cpp
+	strings.cpp
+)
+
+if( CBSL_ENABLE_SSL_CONNECTION )
+    list( APPEND CBSL_SRCS  net/ssl_connection.cpp )
+endif()
+
+
+#add_definitions( -pthread -D_REENTRANT )
+ 
+#add_library(cbsl STATIC ${CBSL_SRCS})
+#set_property( TARGET cbsl PROPERTY C_STANDARD 99 )
+
+
+add_library(cbsl SHARED ${CBSL_SRCS})
+add_library(cbsl-static STATIC ${CBSL_SRCS} )
+
+
+
+# Set and propagate variables to upper scope, if included from within a
+# project. Otherwise, these variables are not relevant/needed at all
+if( PROJECT_NAME )
+    set( CBSL_SHARED_LIBRARIES cbsl PARENT_SCOPE )
+
+    set( CBSL_STATIC_LIBRARIES cbsl-static PARENT_SCOPE )
+
+    set( CBSL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/.. PARENT_SCOPE )
+    set( CBSL_LIBRARY_DIRS ${CMAKE_CURRENT_BIN_DIR}/.. PARENT_SCOPE )
+    
+    if ( CBSL_ENABLE_SHARED )
+        set( CBSL_LIBRARIES cbsl PARENT_SCOPE)
+    else( CBSL_ENABLE_SHARED )
+        set( CBSL_LIBRARIES cbsl-static PARENT_SCOPE)
+    endif( CBSL_ENABLE_SHARED )
+    if ( CBSL_ENABLE_SSL_CONNECTION )
+        list( APPEND CBSL_LIBRARIES ${OPENSSL_LIBRARIES} )
+        set( CBSL_LIBRARIES ${CBSL_LIBRARIES} PARENT_SCOPE )
+    endif()
+endif( PROJECT_NAME )
+
