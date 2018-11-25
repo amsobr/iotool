@@ -2,6 +2,7 @@
 #define PERIPHERAL_HPP
 
 #include <string>
+#include <memory>
 
 class Peripheral
 {
@@ -28,5 +29,7 @@ public:
     virtual std::string getDriverVersion() const { return ""; }
     virtual std::string getAuthor() const { return ""; }
 }; /* class Peripheral */
+
+typedef std::shared_ptr<Peripheral> PeripheralPtr;
 
 #endif /* !defined PERIPHERAL_HPP */

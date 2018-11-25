@@ -12,6 +12,7 @@ class CmdAds126xRead : public CmdHandler
 {
 private:
     Ads126xPtr myAdc;
+    std::string myHelp;
 
 public:
     CmdAds126xRead( Ads126xPtr adc ) :

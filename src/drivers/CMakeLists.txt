@@ -3,6 +3,7 @@
 
 add_library( drivers STATIC 
     ads126x.cpp
+    max581x.cpp
 )
 
 target_include_directories( drivers PRIVATE include/drivers )

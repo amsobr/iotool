@@ -291,7 +291,7 @@ public:
             else {
                 if ( rd[1]!=0x00 ) {
                     cerr << "STATUS is " << hex << rd[1] << "\n";
-                    exit(1);                
+                    //exit(1);                
                 }
                 if ( iteration>=10000 ) {
                     cerr << "Number of iterations exceeded. Giving up.\n";

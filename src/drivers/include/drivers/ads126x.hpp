@@ -42,7 +42,6 @@ public:
     void init();
     void calibrate();
 
-    virtual std::string getName() const;
     virtual std::string getClass() const;
     virtual std::string getVendor() const;
     virtual std::string getModel() const;

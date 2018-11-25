@@ -12,7 +12,6 @@ class CmdHandler
 protected:
     std::string myName;
     std::string myBrief;
-    std::string myHelp;
 
 public:
     CmdHandler( std::string name , std::string brief="" ) :
@@ -29,8 +28,8 @@ public:
     virtual CmdResult execute( CmdArguments const &args )    = 0;
 
     std::string name() const { return myName; }
-    std::string brief() const { return myBrief; }
-    std::string help() const { return myHelp; }
+    virtual std::string brief() const { return myBrief; }
+    virtual std::string help() const { return ""; }
 };
 
 typedef std::shared_ptr<CmdHandler> CmdHandlerPtr;

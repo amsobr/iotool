@@ -56,6 +56,11 @@ std::string getValue( std::string const &name) const
     }
     return "";
 }
+
+size_t size() const
+{
+    return myArgs.size();
+}
     
 
 }; /* class CmdArguments */

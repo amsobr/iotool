@@ -26,7 +26,12 @@
 #include <drivers/ads126x.hpp>
 #include <drivers/cmd_ads126x_read.hpp>
 #include <drivers/cmd_ads126x_cal.hpp>
+#include <drivers/max581x.hpp>
+#include <drivers/cmd_dac_set_out.hpp>
+
+/* applets */
 #include <applets/cmd_exit.hpp>
+#include <applets/cmd_device_info.hpp>
 
 
 using namespace std;
@@ -84,6 +89,7 @@ int main(int /*argc*/, char ** /*argv*/)
      *  - a telnet session accessible over the network
      *  - a TCP socket used to communicate with external apps....
      */
+    std::list<PeripheralPtr> peripherals;
     Ads126xConfig adcConfig;
     adcConfig.spiDevice = "/dev/spidev0.0";
     adcConfig.inpGain   = { 
@@ -99,13 +105,28 @@ int main(int /*argc*/, char ** /*argv*/)
         0.5
         };
     cout << "Creating ADC...\n";
-    Ads126xPtr adc(new Ads126x("adc0" ,adcConfig));
+    Ads126xPtr adc(new Ads126x("adc0",adcConfig));
+    peripherals.push_back(adc);
+
+    cout << "Creating DAC...\n";
+    Max581x::Config dacConfig;
+    dacConfig.i2cAddr   = 0x1a;
+    dacConfig.i2cDev    = "/dev/i2c-0";
+    dacConfig.fullScale = 5000;
+    dacConfig.outputGain= 2.47;
+    Max581xPtr dac(new Max581x("dac0",dacConfig));
+    dac->init();
+    peripherals.push_back(dac);
 
     cout << "Loading commands...\n";
     std::list<CmdHandlerPtr> allCmds;
     allCmds.push_back( CmdHandlerPtr(new CmdExit()) );
+    allCmds.push_back( CmdHandlerPtr(new CmdDeviceInfo(peripherals)) );
     allCmds.push_back( CmdHandlerPtr(new CmdAds126xRead(adc)) );
     allCmds.push_back( CmdHandlerPtr(new CmdAds126xCal(adc)));
+
+    allCmds.push_back( CmdHandlerPtr(new CmdDacSetOut(dac)));
+
 
     cout << "Creating engine...\n";
     ShellEnginePtr engine(new ShellEngine(allCmds));
