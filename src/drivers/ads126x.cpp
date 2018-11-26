@@ -221,7 +221,7 @@ public:
 
     void calibrate()
     {
-        printf( "Performing self-calibration...\n");
+        //printf( "Performing self-calibration...\n");
         setInput(ADS126x_AINCOM,ADS126x_AINCOM);
         doCommand(ADS126X_CMD_SYOCAL1);
         sleep(1);
@@ -290,7 +290,7 @@ public:
             }
             else {
                 if ( rd[1]!=0x00 ) {
-                    cerr << "STATUS is " << hex << rd[1] << "\n";
+                    cerr << "STATUS is " << hex << (int)rd[1] << "\n";
                     //exit(1);                
                 }
                 if ( iteration>=10000 ) {
@@ -301,7 +301,7 @@ public:
             }
         } while ( !adcDone );
         if ( iteration>10 ) {
-            cerr << "Conversion complete after " << iteration << " iterations\n";
+            //cerr << "Conversion complete after " << iteration << " iterations\n";
         }
 
         uint8_t cksum   = rd[2]+rd[3]+rd[4]+rd[5]+0x9b;
@@ -365,7 +365,7 @@ public:
             fprintf( stderr , "REG 0x%02x: wrote 0x%02x but read 0x%02x\n",reg,value,u8);
         }
         else {
-            fprintf( stderr , "REG 0x%02x: wrote 0x%02x\n",reg,value);
+            //fprintf( stderr , "REG 0x%02x: wrote 0x%02x\n",reg,value);
         }
         return 0;
     }

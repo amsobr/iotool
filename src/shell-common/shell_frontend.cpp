@@ -38,11 +38,11 @@ void ShellFrontend::shellLoop()
         istringstream is(cmdLine);
         vector<string> tokens;
         string t;
-        cout << "command is " << cmdLine << "\n";
+        //cout << "command is " << cmdLine << "\n";
         while ( getline(is, t,' ') ) {
             tokens.push_back(t);
         }
-        cout << "tokenization complete...\n";
+        //cout << "tokenization complete...\n";
 
         if ( tokens.size()==0 ) {
             cerr << "No Input given...\n";
@@ -50,7 +50,7 @@ void ShellFrontend::shellLoop()
         }
 
         string cmdName  = tokens[0];
-        cout << "cmd name is " << cmdName << "\n";
+        //cout << "cmd name is " << cmdName << "\n";
 
         if ( cmdName=="help" ) {
             if ( tokens.size()==2 ) {
