@@ -150,7 +150,7 @@ public:
         }
     }
     
-    ~Impl()
+    virtual ~Impl()
     {
     }
 

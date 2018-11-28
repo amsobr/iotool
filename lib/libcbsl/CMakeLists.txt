@@ -49,7 +49,9 @@ endif()
 
 add_library(cbsl STATIC ${CBSL_SRCS})
 
-target_compile_options( cbsl PUBLIC -std=c++11 -static )
+#target_compile_options( cbsl PUBLIC )
+target_compile_features(cbsl PUBLIC cxx_std_11)
+set_target_properties(cbsl PROPERTIES CXX_EXTENSIONS OFF)
 
 target_include_directories( cbsl PRIVATE cbsl/ )
 target_include_directories( cbsl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} )
