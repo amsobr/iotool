@@ -22,7 +22,7 @@
 #include <shell-common/shell_frontend.hpp>
 
 #include <drivers/ads126x_config.hpp>
-#include <hal/adc.hpp>
+#include <common/adc.hpp>
 #include <drivers/ads126x.hpp>
 #include <drivers/cmd_ads126x_read.hpp>
 #include <drivers/cmd_ads126x_cal.hpp>
@@ -105,7 +105,7 @@ int main(int /*argc*/, char ** /*argv*/)
         0.5
         };
     cout << "Creating ADC...\n";
-    Ads126xPtr adc(new Ads126x("adc0",adcConfig));
+    Ads126xPtr adc(new Ads126x(0,adcConfig));
     peripherals.push_back(adc);
 
     cout << "Creating DAC...\n";
@@ -114,7 +114,7 @@ int main(int /*argc*/, char ** /*argv*/)
     dacConfig.i2cDev    = "/dev/i2c-0";
     dacConfig.fullScale = 5000;
     dacConfig.outputGain= 2.47;
-    Max581xPtr dac(new Max581x("dac0",dacConfig));
+    Max581xPtr dac(new Max581x(0,dacConfig));
     dac->init();
     peripherals.push_back(dac);
 

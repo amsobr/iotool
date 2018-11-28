@@ -1,13 +1,15 @@
 #ifndef PERIPHERAL_HPP
 #define PERIPHERAL_HPP
 
-#include <string>
 #include <memory>
+
+#include "peripheral_type.hpp"
 
 class Peripheral
 {
 private:
-    std::string myName;
+    PeripheralType  myType;
+    unsigned int    myId;
 
     /* Every peripheral must have name! */
     Peripheral() {}
@@ -15,14 +17,15 @@ private:
 
 
 public:
-    Peripheral( std::string name ) :
-    myName(name)
+    Peripheral( PeripheralType t , unsigned int id ) :
+    myType(t) ,
+    myId(id)
     {}
 
     virtual ~Peripheral() {}
 
-    std::string getName() const { return myName; }
-    virtual std::string getClass() const { return ""; }
+    PeripheralType getType() const { return myType; }
+    unsigned int getId() const { return myId; }
     virtual std::string getVendor() const { return ""; }
     virtual std::string getModel() const { return "";} 
     virtual std::string getRevision() const { return ""; }

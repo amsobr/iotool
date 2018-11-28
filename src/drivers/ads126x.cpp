@@ -13,9 +13,10 @@
 
 #include <cbsl/strings.hpp>
 
-#include <hal/adc.hpp>
+#include <common/adc.hpp>
+#include <common/peripheral_type.hpp>
 
-#include <ads126x.hpp>
+#include "ads126x.hpp"
 #include <ads126x_config.hpp>
 #include "ads126x_defs.hpp"
 
@@ -88,7 +89,6 @@ private:
     double      myVref;
     std::vector<double> myInpGain;
     
-    string      myName;
     std::string myModel;
     std::string myRevision;
     
@@ -115,8 +115,7 @@ private:
     
 public:
     
-    Ads126xImpl( string name , Ads126xConfig const &cfg ) :
-    myName(name)
+    Ads126xImpl( Ads126xConfig const &cfg )
     {
         mySpiDev    = cfg.spiDevice;
         myVref      = 2.5;
@@ -207,16 +206,6 @@ public:
         
         readRegisters(ADS126X_REG_FSCAL0,3,rd);
         printf( "fscal0=0x%02x\nfscal1=0x%02x\nfscal2=0x%02x\n",rd[0],rd[1],rd[2] );        
-    }
-
-    string getName() const
-    {
-        return myName;
-    }
-
-    string getClass() const
-    {
-        return "adc";
     }
 
     void calibrate()
@@ -461,10 +450,10 @@ public:
 
 
 
-Ads126x::Ads126x( string name , Ads126xConfig const &cfg ) :
-Peripheral(name)
+Ads126x::Ads126x( unsigned int id , Ads126xConfig const &cfg ) :
+Peripheral(PeripheralType::ADC,id)
 {
-    impl    = new Ads126xImpl( name , cfg );
+    impl    = new Ads126xImpl( cfg );
     impl->init();
 }
 
@@ -481,11 +470,6 @@ void Ads126x::init()
 void Ads126x::calibrate()
 {
     impl->calibrate();
-}
-
-string Ads126x::getClass() const
-{
-    return impl->getClass();
 }
 
 string Ads126x::getVendor() const

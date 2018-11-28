@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "peripheral.hpp"
+#include <common/peripheral.hpp>
 
 
 class Max581x: public Peripheral
@@ -38,11 +38,10 @@ private:
 
 public:
 
-    Max581x( std::string name , Config const& config );
+    Max581x( unsigned int id , Config const& config );
 
     ~Max581x();
 
-    virtual std::string getClass() const { return "dac"; }
     virtual std::string getVendor() const;
     virtual std::string getModel() const;
     virtual std::string getRevision() const;

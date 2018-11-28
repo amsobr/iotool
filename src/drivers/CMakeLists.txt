@@ -7,6 +7,6 @@ add_library( drivers STATIC
 )
 
 target_include_directories( drivers PRIVATE include/drivers )
-target_include_directories( drivers INTERFACE include )
+target_include_directories( drivers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
-target_link_libraries( drivers hal shell-common cbsl )
+target_link_libraries( drivers shell-common common cbsl )

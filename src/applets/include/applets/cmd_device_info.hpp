@@ -9,7 +9,7 @@
 #include <shell-common/cmd_arguments.hpp>
 
 
-#include <drivers/peripheral.hpp>
+#include <common/peripheral.hpp>
 
 class CmdDeviceInfo : public CmdHandler
 {
@@ -21,7 +21,7 @@ private:
 private:
     std::string getPeripheralBlock( PeripheralPtr p )
     {
-        return "device         : " + p->getName() + " Class=" + p->getClass() + "\n" +
+        return "device         : " " Class=" + peripheralTypeName(p->getType()) + "Id=" + std::to_string(p->getId()) + "\n" +
                "vendor         : " + p->getVendor() + "\n" +
                "model (rev)    : " + p->getModel() + " (rev. " + p->getRevision() + ")\n" +
                "driver version : " + p->getDriverVersion() + "\n" +
@@ -66,11 +66,12 @@ public:
         if ( args.hasArg("list") ) {
             std::string msg;
             for ( PeripheralPtr p : myPeripherals ) {
-                msg += p->getName() + "\n";
+                msg += std::string("Class=") + peripheralTypeName(p->getType()) + " Id=" + std::to_string(p->getId()) + "\n";
             }
             return CmdResult(0,msg+"\n");
         }
         else if ( args.hasArg("device") ) {
+            #if 0
             std::string v   = args.getValue("device");
             if ( v=="*" ) {
                 std::string msg;
@@ -87,6 +88,8 @@ public:
                 }
                 return CmdResult(1,"Unknown device: " + v );
             }
+            #endif
+            return CmdResult(0,"TO BE REFACTORED...");
         }
         else {
             return CmdResult(1,"Unsupported argument");

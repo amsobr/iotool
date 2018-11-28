@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include <common/peripheral_type.hpp>
+
 #include "max581x.hpp"
 
 using namespace std;
@@ -186,8 +188,8 @@ public:
 
 
 
-Max581x::Max581x( string name , Config const &config ) :
-Peripheral(name)
+Max581x::Max581x( unsigned int id , Config const &config ) :
+Peripheral(PeripheralType::DAC , id )
 {
     impl    = new Impl(config);
 

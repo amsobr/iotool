@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include <hal/adc.hpp>
+#include <common/adc.hpp>
+#include <common/peripheral.hpp>
 
 #include "ads126x_config.hpp"
-#include "peripheral.hpp"
 
 typedef enum {
     ADS126x_AIN0    = 0 ,
@@ -35,14 +35,13 @@ private:
     Ads126xImpl *impl;
     
 public:
-    Ads126x( std::string name , Ads126xConfig const &cfg );
+    Ads126x( unsigned int id , Ads126xConfig const &cfg );
     
     virtual ~Ads126x();
    
     void init();
     void calibrate();
 
-    virtual std::string getClass() const;
     virtual std::string getVendor() const;
     virtual std::string getModel() const;
     virtual std::string getRevision() const;
