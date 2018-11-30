@@ -11,10 +11,9 @@
 
 #include <common/peripheral.hpp>
 
-class CmdDeviceInfo : public CmdHandler
+class CmdDeviceInfo : public SystemApplet
 {
 private:
-    std::list<PeripheralPtr> myPeripherals;
     std::string myHelp;
 
 
@@ -30,9 +29,8 @@ private:
     }
 
 public:
-    CmdDeviceInfo( std::list<PeripheralPtr> peripherals ):
-    CmdHandler("dev-info" , "Shows information about a device" ) ,
-    myPeripherals(peripherals)
+    CmdDeviceInfo():
+    CmdHandler("devinfo" , "Shows information about a device" )
     {
         myHelp  = 
         "Usage: \n"
@@ -63,6 +61,8 @@ public:
         }
         std::string msg;
 
+        return CmdResult(1,"devinfo::execute() <-- please implement me");
+#if 0
         if ( args.hasArg("list") ) {
             std::string msg;
             for ( PeripheralPtr p : myPeripherals ) {
@@ -96,6 +96,7 @@ public:
         }
         
     }
+#endif
 
 };
 

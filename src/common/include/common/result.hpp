@@ -1,41 +1,41 @@
-#ifndef CMD_RESULT_HPP
-#define CMD_RESULT_HPP
+#ifndef RESULT_HPP
+#define RESULT_HPP
 
 #include <string>
 
-class CmdResult
+class Result
 {
 private:
     int         myCode;
     std::string myMessage;
 
 public:
-    CmdResult( int code=0 , std::string msg="" ) :
+    Result( int code=0 , std::string msg="" ) :
     myCode(code) ,
     myMessage(msg)
     {
     }
 
-    CmdResult( CmdResult const &other ) :
+    Result( Result const &other ) :
     myCode(other.myCode)  ,
     myMessage(other.myMessage)
     {
     }
 
-    CmdResult operator=( CmdResult const &other ) 
+    Result operator=( Result const &other ) 
     {
         myCode      = other.myCode;
         myMessage   = other.myMessage;
         return *this;
     }
 
-    ~CmdResult() { }
+    ~Result() { }
 
     int code() const { return myCode; }
 
     std::string message() const { return myMessage; }
 
-}; /* class CmdResult */
+}; /* class Result */
 
 
 #endif /* !defined CMD_RESULT_HPP */

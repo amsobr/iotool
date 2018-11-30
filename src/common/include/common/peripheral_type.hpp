@@ -2,26 +2,18 @@
 #define PERIPHERAL_TYPE_HPP
 
 #include <string>
+#include <ostream>
 
 enum class PeripheralType
 {
     ADC ,
     DAC ,
     GPIO ,
-
 }; /* class enum PeripheralType */
 
-static inline std::string const peripheralTypeName( PeripheralType t )
-{
-    switch ( t) {
-        case PeripheralType::ADC: return "ADC";
-        case PeripheralType::DAC: return "DAC";
-        case PeripheralType::GPIO: return "GPIO";
-        default: return "UNKNOWN";
-    }
 
-}
-
-
+extern std::ostream & operator << (std::ostream &out, const PeripheralType &t);
+extern std::string operator + ( std::string s , PeripheralType const &t );
+extern std::string operator +=( std::string s , PeripheralType const &t );
 
 #endif /* !defined( PERIPHERAL_TYPE_HPP) */

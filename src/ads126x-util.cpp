@@ -18,20 +18,12 @@
 #include <cbsl/keyval.hpp>
 #include <cbsl/strings.hpp>
 
-#include <shell-common/shell_engine.hpp>
-#include <shell-common/shell_frontend.hpp>
+#include <common/board.hpp>
+#include <common/board_factory.hpp>
+#include <common/applet_factory.hpp>
 
-#include <drivers/ads126x_config.hpp>
-#include <common/adc.hpp>
-#include <drivers/ads126x.hpp>
-#include <drivers/cmd_ads126x_read.hpp>
-#include <drivers/cmd_ads126x_cal.hpp>
-#include <drivers/max581x.hpp>
-#include <drivers/cmd_dac_set_out.hpp>
-
-/* applets */
-#include <applets/cmd_exit.hpp>
-#include <applets/cmd_device_info.hpp>
+#include <shell/shell_backend.hpp>
+#include <shell/shell_frontend.hpp>
 
 
 using namespace std;
@@ -60,6 +52,7 @@ void exitWithUsage( int exitCode=0 , string message="" )
 
 int main(int /*argc*/, char ** /*argv*/)
 {
+
     /* Following code must be moved to some sort of board init module
      *
      * A SharedBus mechanism may provide concurrent access to the 
@@ -89,49 +82,23 @@ int main(int /*argc*/, char ** /*argv*/)
      *  - a telnet session accessible over the network
      *  - a TCP socket used to communicate with external apps....
      */
-    std::list<PeripheralPtr> peripherals;
-    Ads126xConfig adcConfig;
-    adcConfig.spiDevice = "/dev/spidev0.0";
-    adcConfig.inpGain   = { 
-        1, /* AIN1 to AIN6 - gain=1.0 (direct connection to ADC) */
-        1,
-        1,
-        1,
-        1,
-        1,
-        0.5, /* AIN7 to AIN10 - gain=0.5 (buffer + 100k/100k) */
-        0.5,
-        0.5,
-        0.5
-        };
-    cout << "Creating ADC...\n";
-    Ads126xPtr adc(new Ads126x(0,adcConfig));
-    peripherals.push_back(adc);
 
-    cout << "Creating DAC...\n";
-    Max581x::Config dacConfig;
-    dacConfig.i2cAddr   = 0x1a;
-    dacConfig.i2cDev    = "/dev/i2c-0";
-    dacConfig.fullScale = 5000;
-    dacConfig.outputGain= 2.47;
-    Max581xPtr dac(new Max581x(0,dacConfig));
-    dac->init();
-    peripherals.push_back(dac);
+    BoardPtr board  = createBoard();
+    //cerr << "Current Board configutation:\n" << *(board->get()) << "\n";
+    vector<DeviceAppletPtr> deviceApplets( createDeviceApplets() );
+    vector<SystemAppletPtr> systemApplets( createSystemApplets() );
 
-    cout << "Loading commands...\n";
-    std::list<CmdHandlerPtr> allCmds;
-    allCmds.push_back( CmdHandlerPtr(new CmdExit()) );
-    allCmds.push_back( CmdHandlerPtr(new CmdDeviceInfo(peripherals)) );
-    allCmds.push_back( CmdHandlerPtr(new CmdAds126xRead(adc)) );
-    allCmds.push_back( CmdHandlerPtr(new CmdAds126xCal(adc)));
+    ShellBackendPtr shellBackend    = make_shared<ShellBackend>();
+    shellBackend->setPeripherals( board->getPeripherals() );
+    shellBackend->setSystemApplets( systemApplets );
+    shellBackend->setDeviceApplets( deviceApplets );
+    shellBackend->rebuildIndex();
 
-    allCmds.push_back( CmdHandlerPtr(new CmdDacSetOut(dac)));
 
 
     cout << "Creating engine...\n";
-    ShellEnginePtr engine(new ShellEngine(allCmds));
     cout << "Setting up shell frontend...\n";
-    ShellFrontendPtr frontend( new ShellFrontend(cin,cerr,cout,engine) );
+    ShellFrontendPtr frontend( new ShellFrontend(cin,cerr,cout,shellBackend) );
     cout << "Launching shell frontend...\n";
     frontend->start();
     cout << "Waiting for shell to terminate...\n";

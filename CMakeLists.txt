@@ -7,7 +7,7 @@ project( ads1262-util )
 
 set( VER_MAJOR 0 )
 set( VER_MINOR 0 )
-set( VER_PATCH 0 )
+set( VER_PATCH 1 )
 set( VER_EXTRA proto )
 
 set( USE_MCHECK FALSE )
@@ -18,19 +18,6 @@ set( USE_MTRACE FALSE )
 #set(CMAKE_BUILD_TYPE Release)
 
 #configure_file( "tools/mk_pkg.sh.cmake" ${CMAKE_BINARY_DIR}/tools/mk_pkg.sh @ONLY )
-
-add_definitions(
-  -static
-  -Wall
-  -Wextra
-  -Warray-bounds
-  -DVER_MAJOR="${VER_MAJOR}"
-  -DVER_MINOR="${VER_MINOR}"
-  -DVER_PATCH="${VER_PATCH}"
-  -DVER_EXTRA="${VER_EXTRA}"
-  -Werror=implicit-function-declaration
-  -Wno-psabi
-)
 
 if ( USE_MCHECK )
     add_definitions( -DUSE_MCHECK )

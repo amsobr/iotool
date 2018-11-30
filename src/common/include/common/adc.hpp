@@ -4,44 +4,38 @@
 
 #include <string>
 
-class Adc
+#include "peripheral.hpp"
+#include "peripheral_type.hpp"
+
+class Adc : public Peripheral
 {
+protected:
+    Adc( unsigned int id) :
+    Peripheral(PeripheralType::ADC,id)
+    {
+
+    }
+
 public:
-    virtual unsigned int getNumChannels() const = 0;
-    
-    virtual std::string getVendor() const
+    virtual ~Adc()
     {
-        return std::string("");
-    }
+
+    }   
+
+    virtual std::string getVendor() const = 0;
     
-    virtual std::string getModel() const
-    {
-        return "";
-    }
+    virtual std::string getModel() const = 0;
     
-    virtual std::string getHwVersion() const
-    {
-        return "";
-    }
+    virtual std::string getRevision() const = 0;
     
-    virtual int getDriverVersion() const
-    {
-        return 0;
-    }
+    virtual std::string getDriverVersion() const = 0;
     
-    virtual std::string getUnits() const = 0;
-    virtual double getResolution() const = 0;
-   
-    virtual std::string getChName( unsigned int chId ) const = 0;
-    virtual void startConversion(unsigned int chId ) = 0;
-    virtual long getRegisterValue() = 0;
-    virtual double getValue() = 0;
-    virtual double getUpperValue() const = 0;
-    virtual double getLowerValue() const = 0;
-    virtual bool isSingleEnded() const = 0;    
-    
-    
+    virtual double readAnalog( unsigned int ch) = 0;
+    virtual long int readDigital(unsigned int ch) = 0;
+    virtual std::string getUnits() const = 0;    
 }; /* class Adc */
+
+typedef std::shared_ptr<Adc> AdcPtr;
 
 
 #endif /* ADC_HPP */

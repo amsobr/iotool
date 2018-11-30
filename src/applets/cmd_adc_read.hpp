@@ -1,26 +1,30 @@
-#ifndef ADS126X_READ_HPP
-#define ADS126X_READ_HPP
+#ifndef CMD_ADC_READ_HPP
+#define CMD_ADC_READ_HPP
 
 #include <string>
 #include <memory>
 
-#include <shell-common/cmd_result.hpp>
-#include <shell-common/cmd_arguments.hpp>
-#include "ads126x.hpp"
+#include <common/result.hpp>
+#include <common/cmd_arguments.hpp>
+#include <common/device_applet.hpp>
+#include <common/adc.hpp>
+#include <drivers/ads126x.hpp>
 
-class CmdAds126xRead : public CmdHandler
+/**
+ * @brief Read one ADC channel
+ * 
+ */
+class CmdAdcRead : public DeviceApplet
 {
 private:
-    Ads126xPtr myAdc;
     std::string myHelp;
 
 public:
-    CmdAds126xRead( Ads126xPtr adc ) :
-    CmdHandler("ads126x.read","Read one ADC channel of ADS126x") ,
-    myAdc(adc)
+    CmdAdcRead() :
+    DeviceApplet( PeripheralType::ADC , "read","Read one ADC channel")
     {
         myHelp  =   "Usage:\n"
-                    "  ads126x.read ch=ARG\n"
+                    "  DEV read ch=ARG\n"
                     "\n"
                     "Arguments:\n"
                     "ch        ID of the ADC channel: 0 .. 9\n"
@@ -31,25 +35,26 @@ public:
 
     }
 
-    ~CmdAds126xRead() { }
+    ~CmdAdcRead() { }
 
-    virtual CmdResult execute( CmdArguments const &args )
+    virtual Result execute( CmdArguments const &args , PeripheralPtr p )
     {
+        AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
         if ( !args.hasArg("ch") ) {
-            return CmdResult(1,"Missing argument: ch\n");
+            return Result(1,"Missing argument: ch\n");
         }
 
         std::string ch  = args.getValue("ch");
         int channel     = std::atoi(ch.c_str());
         int count       = args.hasArg("count") ? std::atoi(args.getValue("count").c_str()) : 1 ;
         for ( int i=0 ; i<count ; i++ ) {
-            double val      = myAdc->readAnalog(channel);
+            double val      = adc->readAnalog(channel);
             //char str[128];
             printf( "[% 2d/%d] ADS126x channel %d: %.8f V\n" , i+1 , count , channel , val );
         }
-        return CmdResult(0,"OK");
+        return Result(0,"OK");
     }
-}; /* class CmdAds126xRead */
+}; /* class CmdAdcRead */
 
 
-#endif /* !defined ADS126X_READ_HPP */
+#endif /* !defined CMD_ADC_READ_HPP */

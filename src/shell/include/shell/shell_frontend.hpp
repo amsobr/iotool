@@ -5,7 +5,7 @@
 #include <iostream>
 #include <thread>
 
-#include "shell_engine.hpp"
+#include "shell_backend.hpp"
 
 class ShellFrontend
 {
@@ -15,10 +15,10 @@ private:
     std::ostream &myOut;
     bool myTerminate;
     std::thread myThread;
-    ShellEnginePtr myEngine;
+    ShellBackendPtr myEngine;
 
 public:
-    ShellFrontend( std::istream &is , std::ostream &er , std::ostream &os , ShellEnginePtr engine );
+    ShellFrontend( std::istream &is , std::ostream &er , std::ostream &os , ShellBackendPtr engine );
 
     ~ShellFrontend();
 

@@ -1,5 +1,5 @@
-#ifndef Ads126x_HPP
-#define Ads126x_HPP
+#ifndef ADS126X_HPP
+#define ADS126X_HPP
 
 #include <memory>
 
@@ -27,7 +27,7 @@ typedef enum {
     ADS126x_FLOAT   = 15 ,
 } Ads126xInput;
 
-class Ads126x : public Peripheral
+class Ads126x : public Adc
 {
     class Ads126xImpl;
 private:
@@ -51,14 +51,16 @@ public:
     /** \brief Read one channel, as digital
      * \param ch  ID of the channel: 0 to 9
      */
-    int32_t readDigital( unsigned int ch );
+    virtual long int readDigital( unsigned int ch );
 
     /** \brief Read one channel, as real value
      * \details Read and convert the channel, referenced to
      * board input, considering PGA, and board gain.
      * \paran ch Channel to convert: 0 to 9
      */
-    double readAnalog( unsigned int ch );
+    virtual double readAnalog( unsigned int ch );
+
+    std::string getUnits() const;
 
     unsigned int setSampleRate( unsigned int sampleRate );
 }; /* class Ads126x */
@@ -67,4 +69,4 @@ typedef std::shared_ptr<Ads126x> Ads126xPtr;
 
 
 
-#endif
+#endif /* !defined ADS126X_HPP */

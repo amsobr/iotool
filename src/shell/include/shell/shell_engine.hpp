@@ -19,7 +19,7 @@ public:
     ShellEngine( std::list<CmdHandlerPtr> const &cmds );
     ~ShellEngine();
 
-    CmdResult runCommand( std::string const &cmdName , CmdArguments const &args );
+    Result runCommand( std::string const &cmdName , CmdArguments const &args );
 
     std::string help( std::string const &cmdName="" ) const;
 

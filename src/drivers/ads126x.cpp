@@ -16,9 +16,9 @@
 #include <common/adc.hpp>
 #include <common/peripheral_type.hpp>
 
-#include "ads126x.hpp"
+#include <ads126x.hpp>
 #include <ads126x_config.hpp>
-#include "ads126x_defs.hpp"
+#include <ads126x_defs.hpp>
 
 using namespace std;
 
@@ -404,7 +404,7 @@ public:
         usleep(50000); /* hardcoded for ~20SPS */
     }
     
-    int32_t readDigital( unsigned int ch )
+    long int readDigital( unsigned int ch )
     {
         startConversion(ch);
         int32_t result = 0;
@@ -451,7 +451,7 @@ public:
 
 
 Ads126x::Ads126x( unsigned int id , Ads126xConfig const &cfg ) :
-Peripheral(PeripheralType::ADC,id)
+Adc(id)
 {
     impl    = new Ads126xImpl( cfg );
     impl->init();
@@ -499,7 +499,7 @@ string Ads126x::getAuthor() const
     return impl->getAuthor();
 }
 
-int32_t Ads126x::readDigital( unsigned int ch)
+long int Ads126x::readDigital( unsigned int ch)
 {
     return impl->readDigital(ch);
 }
@@ -509,6 +509,10 @@ double Ads126x::readAnalog( unsigned int ch)
     return impl->readAnalog(ch);
 }
 
+string Ads126x::getUnits() const
+{
+    return "V";
+}
 
 unsigned int Ads126x::setSampleRate( unsigned int sampleRate )
 { 

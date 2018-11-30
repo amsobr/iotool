@@ -1,5 +1,5 @@
-#ifndef ADS126X_HPP
-#define ADS126X_HPP
+#ifndef ADS126X_DEFS_HPP
+#define ADS126X_DEFS_HPP
 
 typedef enum {
     ADS126X_REG_ID          = 0x00 ,
