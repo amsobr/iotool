@@ -30,7 +30,6 @@ Board("agp01" , "1.0")
     Ads126xPtr adc(new Ads126x(0,adcConfig));
     myPeripherals.push_back(adc);
 
-#if 0
     cout << "Creating DAC...\n";
     Max581x::Config dacConfig;
     dacConfig.i2cAddr   = 0x1a;
@@ -40,7 +39,6 @@ Board("agp01" , "1.0")
     Max581xPtr dac(new Max581x(0,dacConfig));
     dac->init();
     myPeripherals.push_back(dac);
-#endif
 }
 
 Agripino::~Agripino()

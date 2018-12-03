@@ -1,5 +1,5 @@
-#ifndef ADC_HPP
-#define ADC_HPP
+#ifndef DAC_HPP
+#define DAC_HPP
 
 
 #include <string>
@@ -7,17 +7,17 @@
 #include "peripheral.hpp"
 #include "peripheral_type.hpp"
 
-class Adc : public Peripheral
+class Dac : public Peripheral
 {
 protected:
-    Adc( unsigned int id) :
-    Peripheral(PeripheralType::ADC,id)
+    Dac( unsigned int id) :
+    Peripheral(PeripheralType::DAC,id)
     {
 
     }
 
 public:
-    virtual ~Adc()
+    virtual ~Dac()
     {
 
     }   
@@ -31,12 +31,12 @@ public:
     virtual std::string getDriverVersion() const = 0;
     
     virtual size_t getNumChannels() const = 0;
-    virtual double readAnalog( unsigned int ch) = 0;
-    virtual long int readDigital(unsigned int ch) = 0;
-    virtual std::string getUnits() const = 0;    
-}; /* class Adc */
 
-typedef std::shared_ptr<Adc> AdcPtr;
+    virtual int setOutput( unsigned int ch , unsigned int level ) = 0;
+
+}; /* class Dac */
+
+typedef std::shared_ptr<Dac> DacPtr;
 
 
-#endif /* ADC_HPP */
+#endif /* DAC_HPP */

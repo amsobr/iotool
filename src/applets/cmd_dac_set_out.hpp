@@ -4,23 +4,23 @@
 #include <string>
 #include <memory>
 
-#include <shell-common/cmd_result.hpp>
-#include <shell-common/cmd_arguments.hpp>
-#include "max581x.hpp"
+#include <common/result.hpp>
+#include <common/cmd_arguments.hpp>
+#include <common/dac.hpp>
+#include <common/device_applet.hpp>
+#include <common/peripheral_type.hpp>
 
-class CmdDacSetOut : public CmdHandler
+class CmdDacSetOut : public DeviceApplet
 {
 private:
-    Max581xPtr myDac;
     std::string myHelp;
 
 public:
-    CmdDacSetOut( Max581xPtr dac ) :
-    CmdHandler("dac.set","Set one DAC output") ,
-    myDac(dac)
+    CmdDacSetOut() :
+    DeviceApplet(PeripheralType::DAC,"set","Set one DAC output")
     {
         myHelp  =   "Usage:\n"
-                    "  dac.set ch=ARG level=ARG\n"
+                    "  set ch=ARG level=ARG\n"
                     "\n"
                     "Arguments:\n"
                     "ch        ID of the DAC channel: 0 .. n\n"
@@ -31,25 +31,27 @@ public:
 
     ~CmdDacSetOut() { }
 
-    virtual CmdResult execute( CmdArguments const &args )
+    virtual Result execute( CmdArguments const &args , PeripheralPtr p )
     {
+        DacPtr  dac = std::dynamic_pointer_cast<Dac>(p);
+
         if ( !args.hasArg("ch") ) {
-            return CmdResult(1,"Missing argument: ch\n");
+            return Result(1,"Missing argument: ch\n");
         }
 
         if ( !args.hasArg("level") ) {
-            return CmdResult(1,"Missing argument: level\n");
+            return Result(1,"Missing argument: level\n");
         }
 
         if ( args.size()!=2 ) {
-            return CmdResult(1,"Invalid number of arguments\n");
+            return Result(1,"Invalid number of arguments\n");
         }
 
         unsigned int ch     = std::atoi(args.getValue("ch").c_str());
         unsigned int level  = std::atoi(args.getValue("level").c_str());
         
-        myDac->setOutput(ch,level);
-        return CmdResult(0,"OK");
+        dac->setOutput(ch,level);
+        return Result(0,"OK");
     }
 }; /* class CmdDacSetOut */
 

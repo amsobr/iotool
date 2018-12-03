@@ -25,6 +25,8 @@
 #include <shell/shell_backend.hpp>
 #include <shell/shell_frontend.hpp>
 
+#include "data_sender.hpp"
+
 
 using namespace std;
 
@@ -98,11 +100,19 @@ int main(int /*argc*/, char ** /*argv*/)
 
     cout << "Creating engine...\n";
     cout << "Setting up shell frontend...\n";
-    ShellFrontendPtr frontend( new ShellFrontend(cin,cerr,cout,shellBackend) );
+    //ShellFrontendPtr frontend( new ShellFrontend(cin,cerr,cout,shellBackend) );
     cout << "Launching shell frontend...\n";
-    frontend->start();
+    //frontend->start();
+    DataSender sender( board , 3123 , 60 );
+    sender.start();
     cout << "Waiting for shell to terminate...\n";
-    frontend->join();
+    //frontend->join();
+
+    while(true)
+        sleep(10);
+
+
+    sender.stop();
     cout << "Shell terminated. Exit.\n";
     return 0;
 }

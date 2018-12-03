@@ -189,7 +189,7 @@ public:
 
 
 Max581x::Max581x( unsigned int id , Config const &config ) :
-Peripheral(PeripheralType::DAC , id )
+Dac(id)
 {
     impl    = new Impl(config);
 

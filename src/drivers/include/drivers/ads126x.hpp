@@ -47,6 +47,8 @@ public:
     virtual std::string getRevision() const;
     virtual std::string getDriverVersion() const;
     virtual std::string getAuthor() const;
+
+    virtual size_t getNumChannels() const { return 10; }
     
     /** \brief Read one channel, as digital
      * \param ch  ID of the channel: 0 to 9

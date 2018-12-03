@@ -4,10 +4,10 @@
 #include <string>
 #include <memory>
 
-#include <common/peripheral.hpp>
+#include <common/dac.hpp>
 
 
-class Max581x: public Peripheral
+class Max581x: public Dac
 {
 public:
     struct Config {
@@ -40,7 +40,7 @@ public:
 
     Max581x( unsigned int id , Config const& config );
 
-    ~Max581x();
+    virtual ~Max581x();
 
     virtual std::string getVendor() const;
     virtual std::string getModel() const;
@@ -50,7 +50,8 @@ public:
 
     int init();
     int setPower( unsigned int ch , PowerMode mode );
-    int setOutput( unsigned int ch , unsigned int level );
+    virtual size_t getNumChannels() const { return 4; }
+    virtual int setOutput( unsigned int ch , unsigned int level );
     int setAutoStandby( bool autoStandBy );
 }; /* class MAX581x */
 

@@ -8,6 +8,7 @@
 
 #include "cmd_exit.hpp"
 #include "cmd_adc_read.hpp"
+#include "cmd_dac_set_out.hpp"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ vector<DeviceAppletPtr> createDeviceApplets()
     vector<DeviceAppletPtr> applets;
     
     applets.push_back( DeviceAppletPtr(new CmdAdcRead()) );
+    applets.push_back( DeviceAppletPtr(new CmdDacSetOut()));
 
     return applets;
 }

@@ -10,6 +10,7 @@ add_subdirectory( shell )
 
 set( ADS126x_UTIL_SRCS
     ads126x-util.cpp
+    data_sender.cpp
     )
     
     
@@ -36,4 +37,5 @@ target_compile_options( ads126x-util PRIVATE
 target_compile_features(ads126x-util PUBLIC cxx_std_11)
 set_target_properties(ads126x-util PROPERTIES CXX_EXTENSIONS OFF)
 
-target_link_libraries( ads126x-util brd applets shell common cbsl )
+target_link_libraries( ads126x-util brd applets shell common cbsl -lpthread -lrt
+ )
