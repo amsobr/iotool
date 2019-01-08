@@ -2,6 +2,8 @@
 #define ADS126X_HPP
 
 #include <memory>
+#include <list>
+#include <string>
 
 #include <common/adc.hpp>
 #include <common/peripheral.hpp>
@@ -48,7 +50,7 @@ public:
     virtual std::string getDriverVersion() const;
     virtual std::string getAuthor() const;
 
-    virtual size_t getNumChannels() const { return 10; }
+    virtual size_t getNumChannels() const;
     
     /** \brief Read one channel, as digital
      * \param ch  ID of the channel: 0 to 9
@@ -62,9 +64,16 @@ public:
      */
     virtual double readAnalog( unsigned int ch );
 
-    std::string getUnits() const;
+    virtual std::string getUnits() const;
 
     unsigned int setSampleRate( unsigned int sampleRate );
+
+    virtual size_t getNumCurrentSources() const;
+
+    virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const;
+
+    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag );
+
 }; /* class Ads126x */
 
 typedef std::shared_ptr<Ads126x> Ads126xPtr;

@@ -31,7 +31,7 @@ public:
 
     ~CmdDacSetOut() { }
 
-    virtual Result execute( CmdArguments const &args , PeripheralPtr p )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p )
     {
         DacPtr  dac = std::dynamic_pointer_cast<Dac>(p);
 

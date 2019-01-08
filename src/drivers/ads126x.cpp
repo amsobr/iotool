@@ -88,6 +88,7 @@ private:
     int         myFd;
     double      myVref;
     std::vector<double> myInpGain;
+    std::list<string> myIdacMagnitudes;
     
     std::string myModel;
     std::string myRevision;
@@ -121,6 +122,7 @@ public:
         myVref      = 2.5;
         assert( cfg.inpGain.size()==10 );
         myInpGain   = cfg.inpGain;
+        myIdacMagnitudes    = {"50u" ,"100u","250u","500u","750u","1000u","1500u","2000u","3000u" };
     }
     
     ~Ads126xImpl()
@@ -386,9 +388,9 @@ public:
     }
 
     string getAuthor() const
-{
-    return "to.oliveira AT gmail DOT com";
-}
+    {
+        return "to.oliveira AT gmail DOT com";
+    }
 
     
     
@@ -403,6 +405,8 @@ public:
         doCommand(ADS126X_CMD_START1);
         usleep(50000); /* hardcoded for ~20SPS */
     }
+
+    size_t getNumChannels() const { return 10; }
     
     long int readDigital( unsigned int ch )
     {
@@ -440,7 +444,90 @@ public:
     {
         return true;
     }
-    
+
+    size_t getNumCurrentSources() const { return 2; }
+
+    list<string> getCurSourceMagnitudes( unsigned int srcId ) const {
+        if ( srcId>=2 ) {
+            return list<string>();
+        }
+        
+        return myIdacMagnitudes;
+    }
+
+    int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag )
+    {
+        if ( srcId>=2 ) {
+            return -1;
+        }
+
+        if ( ch>=getNumChannels() ) {
+            return -1;
+        }
+
+        uint8_t idacCtl[2];
+        readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+
+        uint8_t muxVal;
+        uint8_t magVal;
+        if ( enabled==false || mag=="off" ) {
+            muxVal  = 0x0b;
+            magVal  = 0x00;
+        }
+        else {
+            muxVal  = (uint8_t)ch; /* guaranteed OK b/c ch<numChannels... */
+
+            if ( mag=="50u" ) {
+                magVal  = 0x01;
+            }
+            else if ( mag=="100u" ) {
+                magVal  = 0x02;
+            }
+            else if ( mag=="250u" ) {
+                magVal  = 0x03;
+            }
+            else if ( mag=="500u" ) {
+                magVal  = 0x04;
+            }
+            else if ( mag=="750u" ) {
+                magVal  = 0x05;
+            }
+            else if ( mag=="1000u" ) {
+                magVal  = 0x06;
+            }
+            else if ( mag=="1500u" ) {
+                magVal  = 0x07;
+            }
+            else if ( mag=="2000u" ) {
+                magVal  = 0x08;
+            }
+            else if ( mag=="2500u" ) {
+                magVal  = 0x09;
+            }
+            else if ( mag=="3000u" ) {
+                magVal  = 0x0a;
+            }
+            else {
+                return -1;
+            }
+        }
+        
+        if ( srcId==0 ) {
+            idacCtl[0]  &= 0xf0;
+            idacCtl[1]  &= 0xf0;
+            idacCtl[0]  |= muxVal;
+            idacCtl[1]  |= magVal;
+        }
+        else {
+            /* must be srcId==1 , which is IDAC2 */
+            idacCtl[0]  &= 0x0f;
+            idacCtl[1]  &= 0x0f;
+            idacCtl[0]  |= (muxVal<<4);
+            idacCtl[1]  |= (magVal<<4);
+        }
+        return writeRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+    }
+   
 
 }; /* class Ads126x::Ads126xImpl */
 
@@ -499,6 +586,11 @@ string Ads126x::getAuthor() const
     return impl->getAuthor();
 }
 
+size_t Ads126x::getNumChannels() const
+{
+    return impl->getNumChannels();
+}
+
 long int Ads126x::readDigital( unsigned int ch)
 {
     return impl->readDigital(ch);
@@ -518,5 +610,22 @@ unsigned int Ads126x::setSampleRate( unsigned int sampleRate )
 { 
     return impl->setSampleRate(sampleRate);
 }
+
+
+size_t Ads126x::getNumCurrentSources() const
+{
+    return impl->getNumCurrentSources();
+}
+
+list<string> Ads126x::getCurSourceMagnitudes( unsigned int srcId ) const
+{
+    return impl->getCurSourceMagnitudes(srcId);
+}
+
+int Ads126x::setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag )
+{
+    return impl->setCurrentSource(srcId,enabled,ch,mag);
+}
+
 
     

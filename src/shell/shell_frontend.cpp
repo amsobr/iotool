@@ -6,11 +6,15 @@
 
 #include <cbsl/keyval.hpp>
 
+#include <Poco/Logger.h>
+#include <Poco/Format.h>
+
 #include "shell_frontend.hpp"
 #include <common/cmd_arguments.hpp>
 #include "shell_backend.hpp"
 
 using namespace std;
+using namespace Poco;
 
 ShellFrontend::ShellFrontend( std::istream &is , std::ostream &er , std::ostream &os, ShellBackendPtr engine ) :
 myInputStream(is) ,
@@ -52,6 +56,8 @@ string usage()
 
 void ShellFrontend::shellLoop()
 {
+    Logger &logger  = Logger::get("iotool");
+
     cout << "Welcome to HW manager shell.\n";
     cout << usage();
     
@@ -62,11 +68,11 @@ void ShellFrontend::shellLoop()
         istringstream is(cmdLine);
         vector<string> tokens;
         string t;
-        //cout << "command is " << cmdLine << "\n";
+        logger.debug( format("Got input: '%s'. Tokenizing...",cmdLine) );
         while ( getline(is, t,' ') ) {
             tokens.push_back(t);
         }
-        //cout << "tokenization complete...\n";
+        logger.debug( "tokenization complete..." );
 
         if ( tokens.size()==0 ) {
             cerr << "No Input given...\n";
@@ -74,10 +80,10 @@ void ShellFrontend::shellLoop()
         }
 
         string first  = tokens[0];
-        //cout << "cmd name is " << cmdName << "\n";
+        logger.debug( format("First/Command is '%s' numTokens=%u",first,tokens.size()) );
 
         if ( first=="help" || first=="h" || first=="?" ) {
-            cout << usage();
+            logger.debug( "Checking help modes...");
             if ( first=="help" ) {
                 /* Possibilities are:
                     help         --> list commands
@@ -85,12 +91,16 @@ void ShellFrontend::shellLoop()
                     help devType cmd --> detailed help for command of devType
                 */
                 if ( tokens.size()>=3 ) {
+                    logger.debug( format("Showing help for class=%s cmd=%s",tokens[1],tokens[2]));
                     myOut << myEngine->help(tokens[1] , tokens[2]) << "\n";
                 }
                 else if ( tokens.size()==2 ) {
+                    logger.debug( format("Showing help for class=%s",tokens[1]));
                     myOut << myEngine->help(tokens[1]) << "\n";
                 }
                 else {
+                    logger.debug( "Showing full help" );
+                    myOut << usage();
                     myOut << myEngine->help() << "\n";
                 }
             }
@@ -119,6 +129,13 @@ void ShellFrontend::shellLoop()
                     cbsl::KeyVal::parseArg(tokens[i].c_str(),&pair);
                     args.addArg(pair);
                 }
+
+                /* handle special commands first... */
+                if ( cmdName=="exit") {
+                    logger.information( "received 'exit'. Leaving shell event loop.");
+                    return;
+                }
+
                 Result res = myEngine->runDeviceApplet(deviceId,cmdName,args);
                 if ( res.code()==0 ) {
                     cout << res.message();

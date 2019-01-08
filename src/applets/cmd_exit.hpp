@@ -20,7 +20,7 @@ public:
     }
 
 
-    virtual Result execute( CmdArguments const &/*args*/ )
+    virtual Result execute( CmdArguments &/*args*/ )
     {
         exit(0);
         return Result(); /* just making the compiler happy... :-) */

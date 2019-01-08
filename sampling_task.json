@@ -1,0 +1,35 @@
+{
+    "id" : "some_task_id" ,
+    "sample-time" : "sample_time_in_ms" ,
+    "transports" : [
+        {
+            "transport-id" : "some_id" ,
+            "engines" : [
+                "engine-id1" ,
+                "engine-id2" ,
+                "enging-idn"
+            ],
+            "samples" : [
+                "adc0.0" ,
+                "adc0.1-0" ,
+                "adc0.2-0" ,
+                "din0.0" ,
+                "pwrmon0.v"
+            ]
+        }
+
+    ]
+}
+
+"example-report" : {
+    "type" : "sample???" ,
+    "timestamp" : "unix timestamp, in ms" ,
+    "id" : "the_task_id" ,
+    "samples" : {
+        "adc.0" : "nnn.nn" ,
+        "adc0.1-0" : "vvv.v" ,
+        "adc0.2-0" : "nnnnn.nn" ,
+        "din0.0" : "H(or L or Z??)" ,
+        "pwrmon0.v" : "v.vvv"
+    }
+}

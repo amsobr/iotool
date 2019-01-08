@@ -1,8 +1,12 @@
 #include <iostream>
 
+#include <Poco/Logger.h>
+#include <Poco/Format.h>
+
 #include <shell_backend.hpp>
 
 using namespace std;
+using namespace Poco;
 
 ShellBackend::ShellBackend()
 {
@@ -62,52 +66,54 @@ SystemAppletPtr ShellBackend::getSystemApplet( std::string name ) const
 
 void ShellBackend::rebuildIndex()
 {
-    cerr << "Rebuilding Index...\n";
+    Logger &logger  = Logger::get("iotool");
+
+    logger.information("Rebuilding Index...");
     myPeripheralsByName.clear();
     myAppletsByType.clear();
 
-    cerr << "Indexing peripherals...\n";
+    logger.information("Indexing peripherals...");
     for ( PeripheralPtr p : myPeripherals ) {
         string name = "" + p->getType() + to_string(p->getId());
 
         if ( myPeripheralsByName.find(name)!=myPeripheralsByName.end() ) {
-            cerr << "OOPS peripheral '" << name << "' has already been indexed!\n";
+            logger.warning(format("OOPS: peripheral '%s' has already been indexed!",name));
         }
         else {
-            cerr << "Indexed peripheral: '" << name << "'\n";
+            logger.information( format("Indexed peripheral: '%s'",name) );
             myPeripheralsByName[name]   = p;
         }
     }
 
-    cerr << "Indexing applets for each peripheral type...\n";
+    logger.information("Indexing applets for each peripheral type...");
     for ( DeviceAppletPtr p : myDevApplets ) {
         auto it = myAppletsByType.find(p->getType());
         if ( it==myAppletsByType.end() ) {
-            cerr << "Found applet group: '" << p->getType() << "'\n";
+            logger.information( format("Found applet group: '%s'",p->getType()) );
             list<DeviceAppletPtr> l;
             l.push_back(p);
             myAppletsByType[p->getType()]   = l;
-            cerr << p->getName() << " added to group '" << p->getType() << "'\n";
+            logger.information( format("'%s' added to group '%s'",p->getName(),p->getType()) );
         }
         else {
             list<DeviceAppletPtr> &applets(it->second);
             bool dupe = false;
             for ( AppletPtr app : applets ) {
                 if ( app->getName()==p->getName() ) {
-                    cerr << "Applet " << p->getName() << " is already registered for group '" << p->getType() << "'!\n";
+                    logger.warning( format("Applet '%s' is already registered for group '%s'",p->getName(),p->getType()) );
                     dupe    = true;
                     break;
                 }
             }
             if ( !dupe ) {
                 applets.push_back(p);
-                cerr << p->getName() << " added to group '" << p->getType() << "'\n";
+                logger.information( format("'%s' added to group '%s'",p->getName(),p->getType()) );
             }
         }
     }
 }
 
-Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments const &args )
+Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args )
 {
     PeripheralPtr peripheral    = getPeripheral(devName);
     if ( peripheral==nullptr) {
@@ -121,7 +127,7 @@ Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdN
     return applet->execute(args,peripheral);
 }
 
-Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments const &args )
+Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args )
 {
     SystemAppletPtr applet  = getSystemApplet(cmdName);
     if ( applet==nullptr ) {
@@ -159,7 +165,10 @@ static string generateSystemHelp( vector<SystemAppletPtr> const &applets )
 
 string ShellBackend::help( string const &devType , string const &cmdName ) const
 {
+    Logger &logger  = Logger::get("iotool");
+
     if ( devType=="" ) {
+        logger.information( "No devType given. Generating full help" );
         string msg;
         for ( auto node : myAppletsByType ) {
             msg += generateFamilyHelp( ""+node.first , node.second );

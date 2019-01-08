@@ -1,0 +1,11 @@
+#ifndef IOTOOL_CONFIG_HPP
+#define IOTOOL_CONFIG_HPP
+
+#define IOTOOL_VERSION VER_MAJOR VER_MINOR VER_PATCH "-" VER_EXTRA
+
+#define IOTOOL_LOG_FILE_GENERAL "/var/log/iotool.log"
+
+
+
+
+#endif

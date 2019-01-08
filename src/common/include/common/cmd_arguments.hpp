@@ -7,6 +7,47 @@
 
 #include <cbsl/keyval.hpp>
 
+class Argument
+{
+private:
+    cbsl::KeyVal::Pair pair;
+
+public:
+    Argument() {}
+
+    Argument( cbsl::KeyVal::Pair const &p ) :
+    pair(p)
+    {
+
+    }
+
+    Argument( Argument const &other ) :
+    pair(other.pair)
+    {
+    }
+
+    Argument operator=( Argument const &other )
+    {
+        pair    = other.pair;
+        return *this;
+    }
+
+    std::string name() const {
+        return pair.isAnonymous() ? pair.value : pair.key;
+    }
+
+    std::string value() const {
+        return pair.value;
+    }
+
+    std::string token() const {
+        return pair.isAnonymous() ? pair.value : pair.key;
+    }
+
+    bool isToken() const { return pair.isAnonymous(); }
+
+}; /* class Argument */
+
 class CmdArguments
 {
 private:
@@ -60,6 +101,18 @@ std::string getValue( std::string const &name) const
 size_t size() const
 {
     return myArgs.size();
+}
+
+Argument shift()
+{
+    if ( myArgs.empty() ) {
+        return Argument();
+    }
+    else {
+        Argument a(myArgs.front());
+        myArgs.pop_front();
+        return a;
+    }
 }
     
 

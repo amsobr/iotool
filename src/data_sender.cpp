@@ -58,7 +58,7 @@ void DataSender::iterate()
     }
     msg += "\n}";
 
-    cout << "Sending message:\n" << msg << "\n";
+    //cout << "Sending message:\n" << msg << "\n";
 
 
     mySocket->sendMsg(0x7f000001,myDestPort,msg.c_str(),msg.size() );

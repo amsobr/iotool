@@ -26,7 +26,7 @@ public:
     }
 
 
-    virtual Result execute( CmdArguments const &args )    = 0;
+    virtual Result execute( CmdArguments &args )    = 0;
     virtual std::string help() const { return ""; }
 };
 

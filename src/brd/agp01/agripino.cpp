@@ -3,9 +3,13 @@
 #include <drivers/ads126x.hpp>
 #include <drivers/ads126x_config.hpp>
 #include <drivers/max581x.hpp>
+#include <drivers/sysfs_gpio.hpp>
+
 
 
 #include "agripino.hpp"
+#include "agp01_indicators.hpp"
+#include "acme-a5.hpp"
 
 using namespace std;
 
@@ -39,6 +43,11 @@ Board("agp01" , "1.0")
     Max581xPtr dac(new Max581x(0,dacConfig));
     dac->init();
     myPeripherals.push_back(dac);
+
+    PinMapperPtr pinMapper(new AcmeA5PinMapper());
+    SysfsGpioPtr gpios(new SysfsGpio(pinMapper));
+    IndicatorPtr leds(new Agp01Indicators(0,gpios));
+    myPeripherals.push_back(leds);
 }
 
 Agripino::~Agripino()

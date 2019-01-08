@@ -35,9 +35,9 @@ public:
 
     }
 
-    ~CmdAdcRead() { }
+    virtual ~CmdAdcRead() { }
 
-    virtual Result execute( CmdArguments const &args , PeripheralPtr p )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p )
     {
         AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
         if ( !args.hasArg("ch") ) {
@@ -54,6 +54,8 @@ public:
         }
         return Result(0,"OK");
     }
+
+    virtual std::string help() const { return myHelp; }
 }; /* class CmdAdcRead */
 
 

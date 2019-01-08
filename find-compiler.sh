@@ -33,14 +33,22 @@ else
 	exit -1
 fi
 
+if ${GCC} -print-sysroot > /dev/null 2>&1  && test ! -z $(${GCC} -print-sysroot);  then	
+	SYSROOT=$(${GCC} -print-sysroot)
+	echo "Using SYSROOT=${SYSROOT}"
+else
+	echo "No SYSROOT found in toolchain"
+fi
+
+
 
 GENFILE="./toolchain.cmake"
 
 echo "Creating ${GENFILE} ..."
 
-cat > ${GENFILE} <<EOF;
+cat <<EOF > ${GENFILE}
 # compiler.inc
-# This file was automatically generated at `date`
+# This file was automatically generated at $(date)
 # Use ${0} to regenerate it if needed.
 
 SET(CMAKE_SYSTEM_NAME Linux)
@@ -50,12 +58,15 @@ SET(CMAKE_C_COMPILER ${GCC})
 SET(CMAKE_CXX_COMPILER ${GXX})
 SET(CMAKE_TOOLCHAIN_PREFIX ${1})
 
-#SET(CMAKE_C_FLAGS )
-#SET(CMAKE_CXX_FLAGS -mcpu=cortex-a5 -mfloat-abi=hard )
+$( test ! -z "${SYSROOT}" && echo SET\(CMAKE_SYSROOT ${SYSROOT}\))
+$( test ! -z "${STAGING}" && echo SET\(CMAKE_STAGING_PREFIX ${STAGING}\))
 
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 EOF
 
+
 echo "All set now. The project should be ready for build."
+
+

@@ -34,7 +34,7 @@ public:
 
     PeripheralType getType() const { return myType; }
     
-    virtual Result execute( CmdArguments const &args , PeripheralPtr dev )    = 0;
+    virtual Result execute( CmdArguments &args , PeripheralPtr dev )    = 0;
 
 };
 

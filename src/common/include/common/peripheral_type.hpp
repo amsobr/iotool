@@ -9,6 +9,9 @@ enum class PeripheralType
     ADC ,
     DAC ,
     GPIO ,
+    INDICATOR ,
+    RELAY ,
+    DIN ,
 }; /* class enum PeripheralType */
 
 

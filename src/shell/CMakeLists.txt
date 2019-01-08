@@ -7,4 +7,4 @@ add_library( shell STATIC
 target_include_directories( shell INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
 target_include_directories( shell PRIVATE include/shell )
 
-target_link_libraries( shell common cbsl )
+target_link_libraries( shell common cbsl Poco::Foundation Poco::Util )

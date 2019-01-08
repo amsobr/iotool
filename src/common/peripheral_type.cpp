@@ -9,6 +9,9 @@ static std::string getStr( PeripheralType const &t )
         case PeripheralType::ADC: return "adc";
         case PeripheralType::DAC: return "dac";
         case PeripheralType::GPIO: return "gpio";
+        case PeripheralType::INDICATOR: return "indicator";
+        case PeripheralType::RELAY: return "relay";
+        case PeripheralType::DIN: return "din";
         default: return "????";
     }
 }

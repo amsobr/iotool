@@ -50,7 +50,7 @@ endif()
 add_library(cbsl STATIC ${CBSL_SRCS})
 
 #target_compile_options( cbsl PUBLIC )
-target_compile_features(cbsl PUBLIC cxx_std_11)
+target_compile_features(cbsl PUBLIC cxx_std_11 c_std_11 )
 set_target_properties(cbsl PROPERTIES CXX_EXTENSIONS OFF)
 
 target_include_directories( cbsl PRIVATE cbsl/ )

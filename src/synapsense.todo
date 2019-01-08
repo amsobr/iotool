@@ -1,0 +1,9 @@
+Client/Server Architecture:
+    ☐ @high Server accepts connections and creates ConnectedClient instances
+    ☐ @high Server keeps registry of connected clients
+    ☐ @low SystemApplet to list all ConnectedClients
+    ☐ Telnet shell
+Signal Acquisition:
+    ☐ @high ADC Differenticial reads
+    ☐ @high Digital inputs
+    ☐ @low Digital input Event Counter (clear-on-read)
