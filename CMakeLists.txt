@@ -42,6 +42,3 @@ add_subdirectory( lib/libcbsl )
 
 
 add_subdirectory( src )
-
-
-#TODO: some new task...

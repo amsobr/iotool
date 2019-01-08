@@ -38,4 +38,4 @@ public:
 }; /* class Result */
 
 
-#endif /* !defined CMD_RESULT_HPP */
+#endif /* !defined RESULT_HPP */

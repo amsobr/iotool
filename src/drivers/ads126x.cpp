@@ -458,15 +458,19 @@ public:
     int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag )
     {
         if ( srcId>=2 ) {
+            cout << "ERROR srcId>=2\n";
             return -1;
         }
 
-        if ( ch>=getNumChannels() ) {
+        if ( (ch>0) && ch>=getNumChannels() ) {
+            cout << "ERROR ch>=numChannels!!\n";
+            cout << "ERROR ch value is " << ch << " numCh is " << getNumChannels() << "\n";
             return -1;
         }
 
         uint8_t idacCtl[2];
         readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+        fprintf(stdout,"READ: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
 
         uint8_t muxVal;
         uint8_t magVal;
@@ -525,7 +529,14 @@ public:
             idacCtl[0]  |= (muxVal<<4);
             idacCtl[1]  |= (magVal<<4);
         }
-        return writeRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+        fprintf(stdout,"WRITING: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
+
+        writeRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+
+        readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+        fprintf(stdout,"READ(again): mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
+        return 0;
+
     }
    
 

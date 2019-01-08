@@ -4,6 +4,7 @@
 #include <memory>
 #include <list>
 #include <algorithm>
+#include <string>
 
 #include <cbsl/keyval.hpp>
 
@@ -45,6 +46,14 @@ public:
     }
 
     bool isToken() const { return pair.isAnonymous(); }
+
+    operator std::string() const
+    {
+        if ( isToken() ) {
+            return token();
+        }
+        return pair.key + "=" + pair.value;
+    }
 
 }; /* class Argument */
 

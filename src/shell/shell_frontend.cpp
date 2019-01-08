@@ -138,9 +138,11 @@ void ShellFrontend::shellLoop()
 
                 Result res = myEngine->runDeviceApplet(deviceId,cmdName,args);
                 if ( res.code()==0 ) {
+                    logger.debug( format("Command %s result: OK (%d)",cmdName,res.code()) );
                     cout << res.message();
                 }
                 else {
+                    logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
                     cerr << res.message();
                 }            
             }

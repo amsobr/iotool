@@ -72,7 +72,7 @@ public:
 
     virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const;
 
-    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag );
+    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" );
 
 }; /* class Ads126x */
 
