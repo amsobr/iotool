@@ -406,6 +406,14 @@ public:
         usleep(50000); /* hardcoded for ~20SPS */
     }
 
+    void startConversion( unsigned int chp, unsigned int chn )
+    {
+        setInput( getChInput(chp) , getChInput(chn) );
+        doCommand(ADS126X_CMD_START1);
+        usleep(50000); /* hardcoded for ~20SPS */
+    }
+
+
     size_t getNumChannels() const { return 10; }
     
     long int readDigital( unsigned int ch )
@@ -420,6 +428,14 @@ public:
     double readAnalog( unsigned int ch )
     {
         return readDigital(ch)*getResolution();
+    }
+
+    double readDifferential( unsigned int chp , unsigned int chn )
+    {
+        startConversion(chp,chn);
+        int32_t result = 0;
+        readData(1,&result);;
+        return result*getResolution();
     }
 
     unsigned int setSampleRate( unsigned int sampleRate )
@@ -610,6 +626,11 @@ long int Ads126x::readDigital( unsigned int ch)
 double Ads126x::readAnalog( unsigned int ch)
 {
     return impl->readAnalog(ch);
+}
+
+double Ads126x::readDifferential( unsigned int chP , unsigned int chN )
+{
+    return impl->readDifferential(chP,chN);
 }
 
 string Ads126x::getUnits() const

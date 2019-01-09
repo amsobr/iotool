@@ -1,9 +1,17 @@
+Core features:
+    ☐ @high Exceptions
+    ☐ @high Console I/O handle
 Client/Server Architecture:
     ☐ @high Server accepts connections and creates ConnectedClient instances
     ☐ @high Server keeps registry of connected clients
     ☐ @low SystemApplet to list all ConnectedClients
     ☐ Telnet shell
 Signal Acquisition:
-    ☐ @high ADC Differenticial reads
+    ✔ @high ADC Differential reads @done (09/01/2019, 22:36:06)
     ☐ @high Digital inputs
     ☐ @low Digital input Event Counter (clear-on-read)
+    ☐ @high ADS126X: Use timings depending on ADC config (delay, sampling time)
+    ☐ @high DAC: Implement method to increment/decrement DAC output (steps)
+    ☐ @high DAC: Implement aliases: full-scale, zero, others??
+    ☐ @low ADS126X: reduce code duplication: startConversion/readData/sleeps, etc...
+

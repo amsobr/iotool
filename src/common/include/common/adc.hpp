@@ -38,6 +38,17 @@ public:
     virtual std::string getUnits() const = 0;
 
     /**
+     * @brief Read a differential input
+     * 
+     * @param chp Positive input 
+     * @param chn  Negative input
+     * @return The sampled value.
+     * @note On early versions, this method returns 0, leavind up to the
+     *      client code to make sure that differential read is supported.
+     */
+    virtual double readDifferential( unsigned int chp , unsigned int chn ) { return 0; }
+
+    /**
      * @brief Get the Number of current sources
      * 
      * @return The number of current sources. By default returns 0;
@@ -53,8 +64,6 @@ public:
      */
     virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const { return std::list<std::string>(); }
     
-
-
     /**
      * @brief Configure a current source.
      * Configures (or disables) a current source.

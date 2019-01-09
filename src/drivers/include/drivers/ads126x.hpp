@@ -57,6 +57,8 @@ public:
      */
     virtual long int readDigital( unsigned int ch );
 
+    virtual double readDifferential( unsigned int chP , unsigned int chN );
+
     /** \brief Read one channel, as real value
      * \details Read and convert the channel, referenced to
      * board input, considering PGA, and board gain.
