@@ -16,12 +16,8 @@
 using namespace std;
 using namespace Poco;
 
-ShellFrontend::ShellFrontend( std::istream &is , std::ostream &er , std::ostream &os, ShellBackendPtr engine ) :
-myInputStream(is) ,
-myErr(er) ,
-myOut(os) ,
-myTerminate(false) ,
-myThread() ,
+ShellFrontend::ShellFrontend( StreamAdapter *ioStream, ShellBackendPtr engine ) :
+myStream(ioStream) ,
 myEngine(engine)
 {
 
@@ -29,8 +25,6 @@ myEngine(engine)
 
 ShellFrontend::~ShellFrontend()
 {
-    stop();
-    myThread.join();
 }
 
 
@@ -54,17 +48,18 @@ string usage()
     ;
 }
 
-void ShellFrontend::shellLoop()
+void ShellFrontend::run()
 {
     Logger &logger  = Logger::get("iotool");
 
-    cout << "Welcome to HW manager shell.\n";
-    cout << usage();
+    myStream->write("Welcome to HW manager shell.\n");
+    myStream->write( usage() );
     
-    while( !myTerminate ) {
-        cout << "\n> " << std::flush;
+    while( true ) {
+        myStream->write("\n");
         string cmdLine;
-        getline(myInputStream,cmdLine);
+        cmdLine = myStream->readLine();
+
         istringstream is(cmdLine);
         vector<string> tokens;
         string t;
@@ -75,7 +70,7 @@ void ShellFrontend::shellLoop()
         logger.debug( "tokenization complete..." );
 
         if ( tokens.size()==0 ) {
-            cerr << "No Input given...\n";
+            //cerr << "No Input given...\n";
             continue;
         }
 
@@ -92,34 +87,33 @@ void ShellFrontend::shellLoop()
                 */
                 if ( tokens.size()>=3 ) {
                     logger.debug( format("Showing help for class=%s cmd=%s",tokens[1],tokens[2]));
-                    myOut << myEngine->help(tokens[1] , tokens[2]) << "\n";
+                    myStream->write(  myEngine->help(tokens[1],tokens[2]) +"\n" );
                 }
                 else if ( tokens.size()==2 ) {
                     logger.debug( format("Showing help for class=%s",tokens[1]));
-                    myOut << myEngine->help(tokens[1]) << "\n";
+                    myStream->write( myEngine->help(tokens[1]) +"\n" );
                 }
                 else {
                     logger.debug( "Showing full help" );
-                    myOut << usage();
-                    myOut << myEngine->help() << "\n";
+                    myStream->write( usage() );
+                    myStream->write( myEngine->help() + "\n" );
                 }
             }
         }
         else if ( first[0]=='!' ) {
             string cmdName  = first.substr(1);
             if ( cmdName=="usage" ) {
-                cout << usage();
+                myStream->write( usage() );
             }
             else {
-                cout << cmdName << ": Command not found\n";
+                myStream->write( cmdName + ": Command not found\n" );
             }
 
         }
         else {
             string deviceId(first);
             if ( tokens.size()<2 ) {
-                cerr << "Invalid input.\n";
-                cerr << usage();
+                myStream->write( "Invalid input.\n" + usage() );
             }
             else {
                 string cmdName(tokens[1]);
@@ -139,28 +133,13 @@ void ShellFrontend::shellLoop()
                 Result res = myEngine->runDeviceApplet(deviceId,cmdName,args);
                 if ( res.code()==0 ) {
                     logger.debug( format("Command %s result: OK (%d)",cmdName,res.code()) );
-                    cout << res.message();
+                    myStream->write( res.message() );
                 }
                 else {
                     logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
-                    cerr << res.message();
+                    myStream->write( res.message() );
                 }            
             }
         }
     }
-}
-
-void ShellFrontend::start()
-{
-    myThread = thread( [=] {shellLoop();} );
-}
-
-void ShellFrontend::stop()
-{
-    myTerminate = true;
-}
-    
-void ShellFrontend::join()
-{
-    myThread.join();
 }

@@ -5,30 +5,23 @@
 #include <iostream>
 #include <thread>
 
+
+#include <common/stream_adapter.hpp>
+
 #include "shell_backend.hpp"
 
 class ShellFrontend
 {
 private:
-    std::istream &myInputStream;
-    std::ostream &myErr;
-    std::ostream &myOut;
-    bool myTerminate;
-    std::thread myThread;
+    StreamAdapter *myStream;
     ShellBackendPtr myEngine;
 
 public:
-    ShellFrontend( std::istream &is , std::ostream &er , std::ostream &os , ShellBackendPtr engine );
+    ShellFrontend( StreamAdapter *ioAdapter , ShellBackendPtr engine );
 
     ~ShellFrontend();
 
-    void shellLoop();
-
-    void start();
-    void stop();
-    
-    void join();
-
+    void run();
 };
 
 typedef std::shared_ptr<ShellFrontend> ShellFrontendPtr;

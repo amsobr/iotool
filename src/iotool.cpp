@@ -23,6 +23,7 @@
 
 #include <shell/shell_backend.hpp>
 #include <shell/shell_frontend.hpp>
+#include <shell/stdio_stream_adapter.hpp>
 
 #include "iotool_config.hpp"
 #include "data_sender.hpp"
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
             help();
             return 0;
         }
-        else if ( arg.value=="--shell") {
+        else if ( arg.value=="--local-shell") {
             startShell  = true;
         }
         else if ( arg.value=="--server") {
@@ -175,23 +176,22 @@ int main(int argc, char **argv)
         //sender  = new DataSender( board , 3123 , 60 );
         ///sender->start();
     }
+
+    ShellBackendPtr shellBackend    = make_shared<ShellBackend>();
+    shellBackend->setPeripherals( board->getPeripherals() );
+    shellBackend->setSystemApplets( systemApplets );
+    shellBackend->setDeviceApplets( deviceApplets );
+    shellBackend->rebuildIndex();
+
+
     
     if ( startShell ) {
         logger.debug( "Starting shell...");
-        ShellBackendPtr shellBackend    = make_shared<ShellBackend>();
-        shellBackend->setPeripherals( board->getPeripherals() );
-        shellBackend->setSystemApplets( systemApplets );
-        shellBackend->setDeviceApplets( deviceApplets );
-        shellBackend->rebuildIndex();
-
-
-
-        logger.debug("Creating engine...");
-        logger.debug("Setting up shell frontend...");
-        ShellFrontendPtr frontend( new ShellFrontend(cin,cerr,cout,shellBackend) );
-        logger.debug("Launching shell frontend...");
-        frontend->start();
-        frontend->join();
+        StdioStreamAdapter *iostreams   = new StdioStreamAdapter();
+        ShellFrontend *shellFrontend    = new ShellFrontend( iostreams,shellBackend );
+        shellFrontend->run();
+        delete shellFrontend;
+        delete iostreams;
         logger.information( "Returned from shell. Moving on...");
     }
 
