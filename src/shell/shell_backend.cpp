@@ -1,4 +1,5 @@
 #include <iostream>
+#include <mutex>
 
 #include <Poco/Logger.h>
 #include <Poco/Format.h>
@@ -8,7 +9,8 @@
 using namespace std;
 using namespace Poco;
 
-ShellBackend::ShellBackend()
+ShellBackend::ShellBackend() :
+myMutex()
 {
 
 }
@@ -66,6 +68,8 @@ SystemAppletPtr ShellBackend::getSystemApplet( std::string name ) const
 
 void ShellBackend::rebuildIndex()
 {
+    lock_guard<recursive_mutex> locker(myMutex);
+
     Logger &logger  = Logger::get("iotool");
 
     logger.information("Rebuilding Index...");
@@ -115,6 +119,8 @@ void ShellBackend::rebuildIndex()
 
 Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args )
 {
+    lock_guard<recursive_mutex> locker(myMutex);
+
     PeripheralPtr peripheral    = getPeripheral(devName);
     if ( peripheral==nullptr) {
         return Result(1,"Device not found: " + devName );
@@ -129,6 +135,8 @@ Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdN
 
 Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args )
 {
+        lock_guard<recursive_mutex> locker(myMutex);
+
     SystemAppletPtr applet  = getSystemApplet(cmdName);
     if ( applet==nullptr ) {
         return Result(1,"command not found:" + cmdName );
@@ -163,8 +171,10 @@ static string generateSystemHelp( vector<SystemAppletPtr> const &applets )
     return msg;
 }
 
-string ShellBackend::help( string const &devType , string const &cmdName ) const
+string ShellBackend::help( string const &devType , string const &cmdName )
 {
+    lock_guard<recursive_mutex> locker(myMutex);
+
     Logger &logger  = Logger::get("iotool");
 
     if ( devType=="" ) {

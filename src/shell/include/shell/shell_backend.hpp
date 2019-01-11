@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include <common/system_applet.hpp>
 #include <common/device_applet.hpp>
@@ -15,6 +16,8 @@
 
 class ShellBackend {
 private:
+    std::recursive_mutex myMutex;
+
     std::vector<PeripheralPtr>    myPeripherals;
     std::vector<DeviceAppletPtr>  myDevApplets;
     std::vector<SystemAppletPtr>  mySysApplets;
@@ -51,7 +54,7 @@ public:
     Result runDeviceApplet( std::string const &devName , std::string const &cmdName , CmdArguments &args );
     Result runSystemApplet( std::string const &cmdName , CmdArguments &args );
 
-    std::string help( std::string const &devType="" , std::string const &cmdName="" ) const;
+    std::string help( std::string const &devType="" , std::string const &cmdName="" );
 
 }; /* class ShellBackend */
 

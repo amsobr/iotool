@@ -2,7 +2,7 @@ Core features:
     ☐ @high Exceptions
     ✔ @high Console I/O handle @done (11/01/2019, 02:28:59)
     ☐ @high Default Result values
-    ☐ @high Shell backend: one command at a time (mutex)
+    ✔ @high Shell backend: one command at a time (mutex) @done (11/01/2019, 02:50:20)
     ☐ @low  Peripherals: Ensure adequate concurrency policy
     ☐ @low  Shell backend: remove mutex
     ☐ @low Provide logger for Peripherals
