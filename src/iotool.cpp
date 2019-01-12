@@ -28,12 +28,14 @@
 #include "iotool_config.hpp"
 #include "data_sender.hpp"
 #include "tcp_server.hpp"
+#include "shell/connected_telnet_client_factory.hpp"
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
 #include <Poco/PatternFormatter.h>
 #include <Poco/Logger.h>
-
+#include <Poco/Net/TCPServer.h>
+#include <Poco/Net/TCPServerConnectionFactory.h>
 
 using namespace std;
 using namespace Poco;
@@ -166,22 +168,31 @@ int main(int argc, char **argv)
     vector<DeviceAppletPtr> deviceApplets( createDeviceApplets() );
     logger.debug( "Creating system applets...");
     vector<SystemAppletPtr> systemApplets( createSystemApplets() );
-    //DataSender *sender;
-     TcpServer *sender;
-    if ( startServer ) {
-        logger.information( "Starting TCP server...");
-        sender  = new TcpServer(board,2308,10000);
-        sender->start();
-        logger.information( "TCP logger started.");
-        //sender  = new DataSender( board , 3123 , 60 );
-        ///sender->start();
-    }
 
     ShellBackendPtr shellBackend    = make_shared<ShellBackend>();
     shellBackend->setPeripherals( board->getPeripherals() );
     shellBackend->setSystemApplets( systemApplets );
     shellBackend->setDeviceApplets( deviceApplets );
     shellBackend->rebuildIndex();
+
+
+    Poco::Net::TCPServer *tcpServer;
+    if ( startServer ) {
+        Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend));
+        tcpServer  = new Poco::Net::TCPServer(connectionFactory,IOTOOL_TCP_LISTEN_PORT);
+        tcpServer->start();
+
+        /* OLD TCP DUMB DATA PUMPER */
+        //DataSender *sender;
+        //TcpServer *sender;
+        //logger.information( "Starting TCP server...");
+        //sender  = new TcpServer(board,2308,10000);
+        //sender->start();
+        //logger.information( "TCP logger started.");
+        //sender  = new DataSender( board , 3123 , 60 );
+        ///sender->start();
+    }
+
 
 
     
@@ -194,11 +205,6 @@ int main(int argc, char **argv)
         delete iostreams;
         logger.information( "Returned from shell. Moving on...");
     }
-
-    if ( startServer ) {
-        sender->stop();
-    }
-    
 
     return 0;
 }

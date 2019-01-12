@@ -4,7 +4,7 @@
 #define IOTOOL_VERSION VER_MAJOR VER_MINOR VER_PATCH "-" VER_EXTRA
 
 #define IOTOOL_LOG_FILE_GENERAL "/var/log/iotool.log"
-
+#define IOTOOL_TCP_LISTEN_PORT 1337
 
 
 

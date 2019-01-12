@@ -56,7 +56,7 @@ void ShellFrontend::run()
     myStream->write( usage() );
     
     while( true ) {
-        myStream->write("\n");
+        myStream->write("\n>");
         string cmdLine;
         cmdLine = myStream->readLine();
 
