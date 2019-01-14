@@ -9,9 +9,9 @@ list( APPEND  CMAKE_PREFIX_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 
 set( VER_MAJOR 0 )
-set( VER_MINOR 1 )
+set( VER_MINOR 2 )
 set( VER_PATCH 0 )
-set( VER_EXTRA m0 )
+set( VER_EXTRA m1 )
 
 set( USE_MCHECK FALSE )
 set( USE_MTRACE FALSE )
@@ -22,7 +22,7 @@ set( USE_MTRACE FALSE )
 
 #configure_file( "tools/mk_pkg.sh.cmake" ${CMAKE_BINARY_DIR}/tools/mk_pkg.sh @ONLY )
 
-add_compile_options( -Wno-psabi )
+add_compile_options( -Wno-psabi -Wno-unused-parameter )
 
 if ( USE_MCHECK )
     add_definitions( -DUSE_MCHECK )

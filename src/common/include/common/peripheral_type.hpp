@@ -12,6 +12,7 @@ enum class PeripheralType
     INDICATOR ,
     RELAY ,
     DIN ,
+    PWR_MON ,
 }; /* class enum PeripheralType */
 
 

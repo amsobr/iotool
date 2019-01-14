@@ -28,7 +28,7 @@ public:
 
     virtual std::string readLine() = 0;
     virtual char readChar() = 0;
-    virtual void write(std::string const &s) = 0;
+    virtual void writeLine(std::string const &s) = 0;
     virtual void putc(char c) = 0;
 
 }; /* class StreamAdapter */

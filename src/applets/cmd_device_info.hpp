@@ -4,9 +4,9 @@
 #include <string>
 #include <memory>
 
-#include <shell-common/cmd_handler.hpp>
-#include <shell-common/cmd_result.hpp>
-#include <shell-common/cmd_arguments.hpp>
+#include <common/system_applet.hpp>
+#include <common/result.hpp>
+#include <common/cmd_arguments.hpp>
 
 
 #include <common/peripheral.hpp>

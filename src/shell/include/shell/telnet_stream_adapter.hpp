@@ -32,7 +32,7 @@ public:
         return (char) myStream.get();
     }
 
-    virtual void write(std::string const &s)
+    virtual void writeLine(std::string const &s)
     {
         myStream.sendMessage(s);
     }

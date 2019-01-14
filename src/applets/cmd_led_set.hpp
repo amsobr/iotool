@@ -9,6 +9,7 @@
 #include <common/device_applet.hpp>
 #include <common/peripheral_type.hpp>
 #include <common/indicator.hpp>
+#include <common/stream_adapter.hpp>
 
 class CmdLedSet : public DeviceApplet
 {
@@ -30,7 +31,7 @@ public:
 
     ~CmdLedSet() { }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
     {
         IndicatorPtr  leds = std::dynamic_pointer_cast<Indicator>(p);
 

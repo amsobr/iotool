@@ -36,6 +36,8 @@
 #include <Poco/Logger.h>
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnectionFactory.h>
+#include <Poco/Net/ServerSocket.h>
+#include <Poco/Net/SocketAddress.h>
 
 using namespace std;
 using namespace Poco;
@@ -141,7 +143,7 @@ int main(int argc, char **argv)
     /* We don't care much about memory management for the loggers as, these will
      * live for the lifetime of the process...
      */
-    FileChannel *logFile  = new FileChannel(IOTOOL_LOG_FILE_GENERAL);
+    FileChannel *logFile  = new FileChannel(Iotool::LOG_FILE);
     logFile->setProperty("rotation","5 M");
     logFile->setProperty("compress","true");
     logFile->setProperty("archive","number");
@@ -157,10 +159,7 @@ int main(int argc, char **argv)
     Logger &logger = Logger::get("iotool");
     logger.setLevel(Message::PRIO_DEBUG);
 
-    logger.information("\n\n\n-------------------------------------");
-    logger.information("iotool-" + string("") + IOTOOL_VERSION + " starting..." );
-    logger.information("\n\n\n-------------------------------------");
-    
+    logger.information( Poco::format("\n\n\n-------------------------------------\niotool-%s starting...\n-------------------------------------" , string(Iotool::VERSION)) );
 
     logger.debug( "Creating board...");
     BoardPtr board  = createBoard();
@@ -179,7 +178,13 @@ int main(int argc, char **argv)
     Poco::Net::TCPServer *tcpServer;
     if ( startServer ) {
         Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend));
-        tcpServer  = new Poco::Net::TCPServer(connectionFactory,IOTOOL_TCP_LISTEN_PORT);
+        Poco::Net::ServerSocket srvSkt;
+        logger.information( Poco::format("telnet server: binding to 0.0.0.0:%d...",Iotool::TCP_LISTEN_PORT) );
+        srvSkt.bind( Poco::Net::SocketAddress("0.0.0.0",Iotool::TCP_LISTEN_PORT),true,true);
+        logger.information( "telnet server: entering LISTENING state..." );
+        srvSkt.listen();
+        logger.information( "telnet server: launching server..." );
+        tcpServer  = new Poco::Net::TCPServer(connectionFactory,srvSkt);
         tcpServer->start();
 
         /* OLD TCP DUMB DATA PUMPER */

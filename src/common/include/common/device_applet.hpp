@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <common/stream_adapter.hpp>
+
 #include "peripheral_type.hpp"
 #include "peripheral.hpp"
 
@@ -34,7 +36,7 @@ public:
 
     PeripheralType getType() const { return myType; }
     
-    virtual Result execute( CmdArguments &args , PeripheralPtr dev )    = 0;
+    virtual Result execute( CmdArguments &args , PeripheralPtr dev , StreamAdapter &stream )    = 0;
 
 };
 

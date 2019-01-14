@@ -26,9 +26,9 @@ public:
         return c;
     }
 
-    virtual void write(std::string const &s) // throw ( StreamDisconnectedException )
+    virtual void writeLine(std::string const &s) // throw ( StreamDisconnectedException )
     {
-        std::cout << s;
+        std::cout << s << "\n";
     }
 
 

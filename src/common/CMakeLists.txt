@@ -1,6 +1,7 @@
 
 add_library( common STATIC 
     peripheral_type.cpp
+    result.cpp
 )
 
 target_link_libraries( common cbsl )

@@ -52,11 +52,11 @@ void ShellFrontend::run()
 {
     Logger &logger  = Logger::get("iotool");
 
-    myStream->write("Welcome to HW manager shell.\n");
-    myStream->write( usage() );
+    myStream->writeLine("Welcome to HW manager shell.");
+    myStream->writeLine( usage() );
     
     while( true ) {
-        myStream->write("\n>");
+        myStream->putc('>');
         string cmdLine;
         cmdLine = myStream->readLine();
 
@@ -87,33 +87,38 @@ void ShellFrontend::run()
                 */
                 if ( tokens.size()>=3 ) {
                     logger.debug( format("Showing help for class=%s cmd=%s",tokens[1],tokens[2]));
-                    myStream->write(  myEngine->help(tokens[1],tokens[2]) +"\n" );
+                    myStream->writeLine(  myEngine->help(tokens[1],tokens[2]) );
                 }
                 else if ( tokens.size()==2 ) {
                     logger.debug( format("Showing help for class=%s",tokens[1]));
-                    myStream->write( myEngine->help(tokens[1]) +"\n" );
+                    myStream->writeLine( myEngine->help(tokens[1]) );
                 }
                 else {
                     logger.debug( "Showing full help" );
-                    myStream->write( usage() );
-                    myStream->write( myEngine->help() + "\n" );
+                    myStream->writeLine( usage() );
+                    myStream->writeLine( myEngine->help() );
                 }
             }
         }
         else if ( first[0]=='!' ) {
             string cmdName  = first.substr(1);
             if ( cmdName=="usage" ) {
-                myStream->write( usage() );
+                myStream->writeLine( usage() );
             }
             else {
-                myStream->write( cmdName + ": Command not found\n" );
+                myStream->writeLine( cmdName + ": Command not found" );
             }
 
+        }
+        else if ( first=="exit" ) {
+            myStream->writeLine("Leaving shell...");
+            return;
+            logger.information( "received 'exit'. Leaving shell event loop.");
         }
         else {
             string deviceId(first);
             if ( tokens.size()<2 ) {
-                myStream->write( "Invalid input.\n" + usage() );
+                myStream->writeLine( "Invalid input.\n" + usage() );
             }
             else {
                 string cmdName(tokens[1]);
@@ -124,20 +129,14 @@ void ShellFrontend::run()
                     args.addArg(pair);
                 }
 
-                /* handle special commands first... */
-                if ( cmdName=="exit") {
-                    logger.information( "received 'exit'. Leaving shell event loop.");
-                    return;
-                }
-
-                Result res = myEngine->runDeviceApplet(deviceId,cmdName,args);
+                Result res = myEngine->runDeviceApplet(deviceId,cmdName,args,*myStream);
                 if ( res.code()==0 ) {
                     logger.debug( format("Command %s result: OK (%d)",cmdName,res.code()) );
-                    myStream->write( res.message() );
+                    myStream->writeLine( res.message() );
                 }
                 else {
                     logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
-                    myStream->write( res.message() );
+                    myStream->writeLine( res.message() );
                 }            
             }
         }

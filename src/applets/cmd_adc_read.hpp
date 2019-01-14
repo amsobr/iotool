@@ -16,6 +16,7 @@
 #include <common/device_applet.hpp>
 #include <common/adc.hpp>
 #include <drivers/ads126x.hpp>
+#include <common/stream_adapter.hpp>
 
 /**
  * @brief Read one ADC channel
@@ -45,7 +46,7 @@ public:
 
     virtual ~CmdAdcRead() { }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
     {
         try { 
             AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
@@ -64,8 +65,7 @@ public:
 
                 for ( unsigned int i=0 ; i<count ; i++ ) {
                     double val      = adc->readAnalog(ch);
-                    std::cout << Poco::format("%.10f\n",val);
-                    //printf( "[% 2d/%d] ADS126x channel %d: %.8f V\n" , i+1 , count , channel , val );
+                    stream.writeLine( Poco::format("%.10f",val) );
                 }
                 return Result(0,"OK");
             }
@@ -75,7 +75,7 @@ public:
                 
                 for ( unsigned int i=0 ; i<count ; i++ ) {
                     double val  = adc->readDifferential(chp,chn);
-                    std::cout << Poco::format("%.10f\n",val);
+                    stream.writeLine( Poco::format("%.10f",val) );
                 }
                 return Result(0,"OK");
             }

@@ -4,6 +4,7 @@
 #include <drivers/ads126x_config.hpp>
 #include <drivers/max581x.hpp>
 #include <drivers/sysfs_gpio.hpp>
+#include <drivers/ina21x.hpp>
 
 
 
@@ -48,6 +49,27 @@ Board("agp01" , "1.0")
     SysfsGpioPtr gpios(new SysfsGpio(pinMapper));
     IndicatorPtr leds(new Agp01Indicators(0,gpios));
     myPeripherals.push_back(leds);
+
+    /* Power Monitor 0: System power consumption */
+    Ina21x::Config pm0Config;
+    pm0Config.i2cDev    = "/dev/i2c-0";
+    pm0Config.i2cAddr   = 0x4f;
+    pm0Config.maxCurrent= 2000/12.0; /* 2000mW at 12V */
+    pm0Config.maxVoltage= 12000;
+    pm0Config.shuntResistance = 470000;
+    Ina21xPtr pm0Ptr(new Ina21x(0,pm0Config));
+    myPeripherals.push_back(pm0Ptr);
+    
+    /* Power Monitor 1: Charger Input + System power consumption */
+    Ina21x::Config pm1Config;
+    pm1Config.i2cDev    = "/dev/i2c-0";
+    pm1Config.i2cAddr   = 0x4e;
+    pm1Config.maxCurrent= 25000/12.0; /* 25000mW at 12V */
+    pm1Config.maxVoltage= 12000;
+    pm1Config.shuntResistance = 20000;
+    Ina21xPtr pm1Ptr(new Ina21x(1,pm1Config));
+    myPeripherals.push_back(pm1Ptr);
+    
 }
 
 Agripino::~Agripino()

@@ -13,6 +13,7 @@
 #include <common/cmd_arguments.hpp>
 #include <common/device_applet.hpp>
 #include <common/adc.hpp>
+#include <common/stream_adapter.hpp>
 
 
 /**
@@ -46,7 +47,7 @@ public:
 
     virtual ~CmdAdcIsource() { }
 
-    Result executeInfo( AdcPtr adc )
+    Result executeInfo( AdcPtr adc , StreamAdapter &stream )
     {
         /*
         adc0.isource.count=N
@@ -60,10 +61,11 @@ public:
            std::list<std::string> mags   = adc->getCurSourceMagnitudes(i);
            output  += Poco::format("%s.isource%u.mags=%s\n",adcName,i,Poco::cat(std::string(","),mags.begin(),mags.end()));
        }
-       return Result(0,output);
+       stream.writeLine(output);
+       return Result(0,"OK");
     }
 
-    Result executeDisable(CmdArguments &args , AdcPtr adc )
+    Result executeDisable(CmdArguments &args , AdcPtr adc , StreamAdapter & /*stream*/ )
     {
         try {
             Argument arg    = args.shift();
@@ -80,7 +82,7 @@ public:
         return Result(1,"Unknown error!");
     }
 
-    Result executeSet( CmdArguments &args , AdcPtr adc )
+    Result executeSet( CmdArguments &args , AdcPtr adc , StreamAdapter &stream )
     {
         try {
             if ( !args.hasArg("ch") || !args.hasArg("source") || !args.hasArg("mag") ) {
@@ -100,7 +102,7 @@ public:
 
     virtual std::string help() const { return myHelp; }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
     {
         AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
         if ( args.size()<1 ) {
@@ -113,13 +115,13 @@ public:
         }
 
         if ( arg.token()=="info" ) {
-            return executeInfo(adc);
+            return executeInfo(adc,stream);
         }
         else if ( arg.token()=="disable" ) {
-            return executeDisable(args,adc);
+            return executeDisable(args,adc,stream);
         }
         else if ( arg.token()=="set" ) {
-            return executeSet(args,adc);
+            return executeSet(args,adc,stream);
         }
         else {
             return Result(1,"Invalid isource command: " + arg.token() );

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <common/system_applet.hpp>
+#include <common/stream_adapter.hpp>
 
 class CmdExit : public SystemApplet
 {
@@ -20,7 +21,7 @@ public:
     }
 
 
-    virtual Result execute( CmdArguments &/*args*/ )
+    virtual Result execute( CmdArguments &/*args*/ , StreamAdapter& /*stream*/ )
     {
         exit(0);
         return Result(); /* just making the compiler happy... :-) */

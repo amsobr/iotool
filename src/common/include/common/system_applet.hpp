@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include <common/stream_adapter.hpp>
 
 #include "applet.hpp"
 #include "result.hpp"
@@ -26,7 +27,7 @@ public:
     }
 
 
-    virtual Result execute( CmdArguments &args )    = 0;
+    virtual Result execute( CmdArguments &args , StreamAdapter &stream )    = 0;
     virtual std::string help() const { return ""; }
 };
 

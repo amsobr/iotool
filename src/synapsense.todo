@@ -1,14 +1,14 @@
 Core features:
     ☐ @high Exceptions
     ✔ @high Console I/O handle @done (11/01/2019, 02:28:59)
-    ☐ @high Default Result values
+    ✔ @high Default Result values @done (14/01/2019, 01:09:55)
     ✔ @high Shell backend: one command at a time (mutex) @done (11/01/2019, 02:50:20)
     ☐ @low  Peripherals: Ensure adequate concurrency policy
     ☐ @low  Shell backend: remove mutex
     ☐ @low Provide logger for Peripherals
     ☐ @low Provide logger for applets
-    ☐ @high Applets: make use of stream adapter!!!
-    ☐ @critical StreamAdapter: handle lines properly (consistency between local and telnet)
+    ✔ @high Applets: make use of stream adapter!!! @done (13/01/2019, 20:33:02)
+    ✔ @critical StreamAdapter: handle lines properly (consistency between local and telnet) @done (13/01/2019, 20:11:36)
 Client/Server Architecture:
     ✔ @high Server accepts connections and creates ConnectedClient instances @done (12/01/2019, 01:40:56)
     ✔ @high Server keeps registry of connected clients @done (12/01/2019, 01:41:00)

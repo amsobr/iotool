@@ -117,7 +117,7 @@ void ShellBackend::rebuildIndex()
     }
 }
 
-Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args )
+Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , StreamAdapter &stream )
 {
     lock_guard<recursive_mutex> locker(myMutex);
 
@@ -130,10 +130,10 @@ Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdN
     if ( applet==nullptr ) {
         return Result(1,"Command " + cmdName + " undefined for " + peripheral->getType() + "peripherals\n ");
     }
-    return applet->execute(args,peripheral);
+    return applet->execute(args,peripheral,stream);
 }
 
-Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args )
+Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args , StreamAdapter &stream )
 {
         lock_guard<recursive_mutex> locker(myMutex);
 
@@ -141,7 +141,7 @@ Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args
     if ( applet==nullptr ) {
         return Result(1,"command not found:" + cmdName );
     }
-    return applet->execute(args);
+    return applet->execute(args,stream);
 }
 
 

@@ -35,6 +35,10 @@ public:
 
     std::string message() const { return myMessage; }
 
+    static Result const &OK;
+    static Result const &E_BAD_ARGS;
+    static Result const &E_NOT_SUPPORTED;
+    static Result const &E_INVALID_STATE;
 }; /* class Result */
 
 

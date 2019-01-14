@@ -12,6 +12,7 @@ static std::string getStr( PeripheralType const &t )
         case PeripheralType::INDICATOR: return "indicator";
         case PeripheralType::RELAY: return "relay";
         case PeripheralType::DIN: return "din";
+        case PeripheralType::PWR_MON: return "pwrmon";
         default: return "????";
     }
 }
