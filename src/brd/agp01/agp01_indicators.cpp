@@ -83,5 +83,6 @@ int Agp01Indicators::setLed( string name , bool value )
     myGpio->setValue(gpioLE,true);
     myGpio->setValue(gpioLE,true);
     myGpio->setValue(gpioLE,false);
-    myGpio->setValue(gpioLE,false);    
+    myGpio->setValue(gpioLE,false);
+    return 0;
 }    

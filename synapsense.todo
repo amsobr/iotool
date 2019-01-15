@@ -23,7 +23,7 @@ I/O:
     ☐ @high DAC: Implement aliases: full-scale, zero, others??
     ☐ @low ADS126X: reduce code duplication: startConversion/readData/sleeps, etc...
     ☐ ADC: discoverable and configurable sampling rate
-    ☐ Relay outputs
+    ✔ Relay outputs @done (15/01/2019, 23:43:03)
     
 
 

@@ -11,7 +11,10 @@
 #include "cmd_dac_set_out.hpp"
 #include "cmd_adc_isource.hpp"
 #include "cmd_led_set.hpp"
+#include "cmd_led_status.hpp"
 #include "cmd_pm_state.hpp"
+#include "cmd_relay_set.hpp"
+#include "cmd_relay_status.hpp"
 
 using namespace std;
 
@@ -22,8 +25,11 @@ vector<DeviceAppletPtr> createDeviceApplets()
     applets.push_back( DeviceAppletPtr(new CmdAdcRead()));
     applets.push_back( DeviceAppletPtr(new CmdDacSetOut()));
     applets.push_back( DeviceAppletPtr(new CmdLedSet()));
+    applets.push_back( DeviceAppletPtr(new CmdLedStatus()));
     applets.push_back( DeviceAppletPtr(new CmdAdcIsource()));
     applets.push_back( DeviceAppletPtr(new CmdPmState()));
+    applets.push_back( DeviceAppletPtr(new CmdRelaySet()));
+    applets.push_back( DeviceAppletPtr(new CmdRelayStatus()));
 
     return applets;
 }

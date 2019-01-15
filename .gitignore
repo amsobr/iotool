@@ -3,11 +3,11 @@ build.pc/**
 build.arm/**
 .codelite/**
 staging/**
+.kdev4/**
 
 .directory
 ads1262-util.code-workspace
 send_to_board.sh
-.kdev4/ads1262-util.kdev4
 ads1262-util.kdev4
 ads1262-util.workspace
 arm926ejs-gcc4.toolchain

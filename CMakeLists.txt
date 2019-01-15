@@ -22,7 +22,7 @@ set( USE_MTRACE FALSE )
 
 #configure_file( "tools/mk_pkg.sh.cmake" ${CMAKE_BINARY_DIR}/tools/mk_pkg.sh @ONLY )
 
-add_compile_options( -Wno-psabi -Wno-unused-parameter )
+add_compile_options( -Wall -Wextra -Wno-psabi -Wno-unused-parameter )
 
 if ( USE_MCHECK )
     add_definitions( -DUSE_MCHECK )

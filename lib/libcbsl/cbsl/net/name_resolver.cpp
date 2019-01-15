@@ -18,10 +18,8 @@ namespace NameResolver
  
 IpAddr resolve4( char const *hostname )
 {
-    int sockfd;  
     struct addrinfo hints , *servinfo, *p;
-    int rv;
- 
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family     = AF_INET;
     hints.ai_socktype   = 0;
@@ -43,9 +41,7 @@ IpAddr resolve4( char const *hostname )
 
 IpAddr resolve6( char const *hostname )
 {
-    //int sockfd;  
     struct addrinfo hints , *servinfo, *p;
-    //int rv;
  
     memset(&hints, 0, sizeof hints);
     hints.ai_family     = AF_INET6;
@@ -64,6 +60,7 @@ IpAddr resolve6( char const *hostname )
         freeaddrinfo(servinfo);
         return ipAddr;
     }
+    return ipAddr;
 }
 
 }; /* NameResolver NameResolver */

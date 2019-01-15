@@ -24,7 +24,6 @@ SockAddr4::SockAddr4( char const *ipAddr , unsigned short port )
 SockAddr4::SockAddr4(IpAddr ipAddr, short unsigned int port)
 {
     struct sockaddr_in tmpAddr;
-    socklen_t tmpAddrLen            = ipAddr.getSockAddr(&tmpAddr,sizeof(tmpAddr));
     struct sockaddr_in *ipv4_addr   = (struct sockaddr_in*)&mySockAddr;
     ipv4_addr->sin_family           = tmpAddr.sin_family;
     ipv4_addr->sin_port             = htons(port);

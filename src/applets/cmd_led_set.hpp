@@ -31,6 +31,8 @@ public:
 
     ~CmdLedSet() { }
 
+    virtual std::string help() const { return myHelp; }
+
     virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
     {
         IndicatorPtr  leds = std::dynamic_pointer_cast<Indicator>(p);
@@ -62,7 +64,7 @@ public:
         }
 
         int r   = leds->setLed(a1.value(),state);
-        return Result(0,"OK");
+        return r==0 ? Result::OK : Result(1,"ERROR");
     }
 }; /* class CmdLedSet */
 

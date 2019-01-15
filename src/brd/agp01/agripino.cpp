@@ -10,6 +10,7 @@
 
 #include "agripino.hpp"
 #include "agp01_indicators.hpp"
+#include "agp01_relays.hpp"
 #include "acme-a5.hpp"
 
 using namespace std;
@@ -49,6 +50,8 @@ Board("agp01" , "1.0")
     SysfsGpioPtr gpios(new SysfsGpio(pinMapper));
     IndicatorPtr leds(new Agp01Indicators(0,gpios));
     myPeripherals.push_back(leds);
+    DigitalOutputPtr outs( new Agp01Relays(0,gpios) );
+    myPeripherals.push_back(outs);
 
     /* Power Monitor 0: System power consumption */
     Ina21x::Config pm0Config;

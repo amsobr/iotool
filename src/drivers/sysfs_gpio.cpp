@@ -21,8 +21,9 @@ static int echoToFile( string const &fileName , string const &value )
         return -1;
     }
     
-    int cnt = write(fd,value.c_str(),value.length());
+    write(fd,value.c_str(),value.length());
     close(fd);
+    return 0;
 }
 
 static string catFromFile( string const &fileName )
@@ -34,7 +35,7 @@ static string catFromFile( string const &fileName )
         return "";
     }
     char buf[32];
-    int len = read(fd,buf,sizeof(buf));
+    read(fd,buf,sizeof(buf));
     close(fd);
     /* ensure string is null-terminated */
     buf[sizeof(buf)-1]  = '\0';
