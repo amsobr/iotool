@@ -14,7 +14,7 @@ Client/Server Architecture:
     ✔ @high Server keeps registry of connected clients @done (12/01/2019, 01:41:00)
     ☐ @low SystemApplet to list all ConnectedClients
     ✔ Telnet shell @done (12/01/2019, 01:41:04)
-Signal Acquisition:
+I/O:
     ✔ @high ADC Differential reads @done (09/01/2019, 22:36:06)
     ☐ @high Digital inputs
     ☐ @low Digital input Event Counter (clear-on-read)
@@ -23,5 +23,7 @@ Signal Acquisition:
     ☐ @high DAC: Implement aliases: full-scale, zero, others??
     ☐ @low ADS126X: reduce code duplication: startConversion/readData/sleeps, etc...
     ☐ ADC: discoverable and configurable sampling rate
+    ☐ Relay outputs
+    
 
 
