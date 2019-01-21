@@ -9,7 +9,7 @@
 #include <common/dac.hpp>
 #include <common/device_applet.hpp>
 #include <common/peripheral_type.hpp>
-#include <common/stream_adapter.hpp>
+#include <common/data_bucket.hpp>
 
 class CmdDacSetOut : public DeviceApplet
 {
@@ -32,7 +32,7 @@ public:
 
     ~CmdDacSetOut() { }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , DataBucket &dataBucket )
     {
         DacPtr  dac = std::dynamic_pointer_cast<Dac>(p);
 

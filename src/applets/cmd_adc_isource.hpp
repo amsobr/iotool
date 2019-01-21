@@ -13,7 +13,7 @@
 #include <common/cmd_arguments.hpp>
 #include <common/device_applet.hpp>
 #include <common/adc.hpp>
-#include <common/stream_adapter.hpp>
+#include <common/data_bucket.hpp>
 
 
 /**
@@ -47,25 +47,29 @@ public:
 
     virtual ~CmdAdcIsource() { }
 
-    Result executeInfo( AdcPtr adc , StreamAdapter &stream )
+    Result executeInfo( AdcPtr adc , DataBucket &db )
     {
         /*
         adc0.isource.count=N
         adc0.isource0.mags=mag1,mag2,mag3,mag
         ...
         */
-       std::string adcName  = Poco::format("adc%u",adc->getId());
-       size_t nSources      = adc->getNumCurrentSources();
-       std::string output   = Poco::format("%s.isource.count=%u\n",adcName,adc->getNumCurrentSources());
+        size_t nSources      = adc->getNumCurrentSources();
+        db.addDataPoint("isource.count",nSources,adc.get());
+        //std::string output   = Poco::format("%s.isource.count=%u\n",adcName,adc->getNumCurrentSources());
        for ( size_t i=0 ; i<nSources ; i++ ) {
            std::list<std::string> mags   = adc->getCurSourceMagnitudes(i);
-           output  += Poco::format("%s.isource%u.mags=%s\n",adcName,i,Poco::cat(std::string(","),mags.begin(),mags.end()));
+           //output  += Poco::format("%s.isource%u.mags=%s\n",adcName,i,Poco::cat(std::string(","),mags.begin(),mags.end()));
+            db.addDataPoint( Poco::format("isource%u.mags\n",i) ,
+                             Poco::cat(std::string(","),mags.begin(),mags.end()) ,
+                             adc.get()
+            );
        }
-       stream.writeLine(output);
-       return Result(0,"OK");
+       //stream.writeLine(output);
+       return Result::OK;
     }
 
-    Result executeDisable(CmdArguments &args , AdcPtr adc , StreamAdapter & /*stream*/ )
+    Result executeDisable(CmdArguments &args , AdcPtr adc )
     {
         try {
             Argument arg    = args.shift();
@@ -82,7 +86,7 @@ public:
         return Result(1,"Unknown error!");
     }
 
-    Result executeSet( CmdArguments &args , AdcPtr adc , StreamAdapter &stream )
+    Result executeSet( CmdArguments &args , AdcPtr adc )
     {
         try {
             if ( !args.hasArg("ch") || !args.hasArg("source") || !args.hasArg("mag") ) {
@@ -102,7 +106,7 @@ public:
 
     virtual std::string help() const { return myHelp; }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , DataBucket &dataBucket )
     {
         AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
         if ( args.size()<1 ) {
@@ -115,13 +119,13 @@ public:
         }
 
         if ( arg.token()=="info" ) {
-            return executeInfo(adc,stream);
+            return executeInfo(adc,dataBucket);
         }
         else if ( arg.token()=="disable" ) {
-            return executeDisable(args,adc,stream);
+            return executeDisable(args,adc);
         }
         else if ( arg.token()=="set" ) {
-            return executeSet(args,adc,stream);
+            return executeSet(args,adc);
         }
         else {
             return Result(1,"Invalid isource command: " + arg.token() );

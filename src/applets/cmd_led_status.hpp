@@ -9,7 +9,7 @@
 #include <common/device_applet.hpp>
 #include <common/peripheral_type.hpp>
 #include <common/indicator.hpp>
-#include <common/stream_adapter.hpp>
+#include <common/data_bucket.hpp>
 
 #include <Poco/Format.h>
 
@@ -33,7 +33,7 @@ public:
 
     virtual std::string help() const { return myHelp; }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , DataBucket &db )
     {
         IndicatorPtr  leds = std::dynamic_pointer_cast<Indicator>(p);
 
@@ -45,7 +45,8 @@ public:
         std::string sOn("on");
         std::string sOff("off");
         for ( auto led : ledStatus ) {
-            stream.writeLine( Poco::format("leds%u.%s=%s",leds->getId(),led.name,led.value?sOn:sOff) );
+            db.addDataPoint(led.name,led.value,leds.get());
+            //stream.writeLine( Poco::format("leds%u.%s=%s",leds->getId(),led.name,led.value?sOn:sOff) );
         }
         return Result::OK;
     }

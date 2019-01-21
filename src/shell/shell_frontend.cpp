@@ -9,12 +9,21 @@
 #include <Poco/Logger.h>
 #include <Poco/Format.h>
 
-#include "shell_frontend.hpp"
 #include <common/cmd_arguments.hpp>
+#include <common/data_bucket.hpp>
+
+#include "shell_frontend.hpp"
 #include "shell_backend.hpp"
 
 using namespace std;
 using namespace Poco;
+
+static void printBucket( StreamAdapter *s , DataBucket const &db )
+{
+    for ( auto entry : db.dataPoints ) {
+        s->writeLine( Poco::format("%s=%s",entry.label,entry.value) );
+    }
+}
 
 ShellFrontend::ShellFrontend( StreamAdapter *ioStream, ShellBackendPtr engine ) :
 myStream(ioStream) ,
@@ -54,6 +63,8 @@ void ShellFrontend::run()
 
     myStream->writeLine("Welcome to HW manager shell.");
     myStream->writeLine( usage() );
+
+    DataBucket lastDataBucket;
     
     while( true ) {
         myStream->putc('>');
@@ -70,7 +81,6 @@ void ShellFrontend::run()
         logger.debug( "tokenization complete..." );
 
         if ( tokens.size()==0 ) {
-            //cerr << "No Input given...\n";
             continue;
         }
 
@@ -79,7 +89,7 @@ void ShellFrontend::run()
 
         if ( first=="help" || first=="h" || first=="?" ) {
             logger.debug( "Checking help modes...");
-            if ( first=="help" ) {
+            if ( first=="help" || first=="h" || first=="?" ) {
                 /* Possibilities are:
                     help         --> list commands
                     help devType --> list commands for devType
@@ -129,15 +139,16 @@ void ShellFrontend::run()
                     args.addArg(pair);
                 }
 
-                Result res = myEngine->runDeviceApplet(deviceId,cmdName,args,*myStream);
+                lastDataBucket.reset();
+                Result res = myEngine->runDeviceApplet(deviceId,cmdName,args,lastDataBucket);
                 if ( res.code()==0 ) {
                     logger.debug( format("Command %s result: OK (%d)",cmdName,res.code()) );
-                    myStream->writeLine( res.message() );
                 }
                 else {
                     logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
-                    myStream->writeLine( res.message() );
-                }            
+                }
+                myStream->writeLine( res.message() );
+                printBucket(myStream,lastDataBucket);
             }
         }
     }

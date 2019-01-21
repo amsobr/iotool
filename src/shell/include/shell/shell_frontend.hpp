@@ -8,6 +8,7 @@
 
 #include <common/stream_adapter.hpp>
 
+
 #include "shell_backend.hpp"
 
 class ShellFrontend

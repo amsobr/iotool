@@ -13,7 +13,7 @@
 #include <common/cmd_arguments.hpp>
 #include <common/device_applet.hpp>
 #include <common/power_monitor.hpp>
-#include <common/stream_adapter.hpp>
+#include <common/data_bucket.hpp>
 
 
 /**
@@ -41,7 +41,7 @@ public:
 
     virtual std::string help() const { return myHelp; }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , DataBucket &db )
     {
         try {
             PowerMonitorPtr pm  = std::dynamic_pointer_cast<PowerMonitor>(p);
@@ -53,9 +53,12 @@ public:
             for ( int i=0 ; i<count ; ++i )  {
                 double curr = pm->getCurrent(0);
                 double volt = pm->getVoltage(0);
-                stream.writeLine( Poco::format("%s.current=%.7f",myName,curr) );
-                stream.writeLine( Poco::format("%s.voltage=%.4f",myName,volt) );
-                stream.writeLine( Poco::format("%s.power=%.7f\n",myName,volt*curr) );                    
+                db.addDataPoint("current",curr,pm.get());
+                db.addDataPoint("voltage",volt,pm.get());
+                db.addDataPoint("power",volt*curr,pm.get());
+                //stream.writeLine( Poco::format("%s.current=%.7f",myName,curr) );
+                //stream.writeLine( Poco::format("%s.voltage=%.4f",myName,volt) );
+                //stream.writeLine( Poco::format("%s.power=%.7f\n",myName,volt*curr) );                    
             }
         }
         catch ( Poco::SyntaxException &e ) {

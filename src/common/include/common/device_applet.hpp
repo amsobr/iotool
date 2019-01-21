@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <common/stream_adapter.hpp>
+#include <common/data_bucket.hpp>
 
 #include "peripheral_type.hpp"
 #include "peripheral.hpp"
@@ -19,9 +20,9 @@ private:
     DeviceApplet();    
 
 protected:
-    PeripheralType const myType;
+    PeripheralType const &myType;
 
-    DeviceApplet( PeripheralType t , std::string name , std::string brief="" ) :
+    DeviceApplet( PeripheralType const &t , std::string name , std::string brief="" ) :
     Applet(name,brief) ,
     myType(t)
     {
@@ -34,9 +35,9 @@ public:
     {
     }
 
-    PeripheralType getType() const { return myType; }
+    PeripheralType const &getType() const { return myType; }
     
-    virtual Result execute( CmdArguments &args , PeripheralPtr dev , StreamAdapter &stream )    = 0;
+    virtual Result execute( CmdArguments &args , PeripheralPtr dev , DataBucket &dataBucket )    = 0;
 
 };
 

@@ -14,6 +14,8 @@ Client/Server Architecture:
     ✔ @high Server keeps registry of connected clients @done (12/01/2019, 01:41:00)
     ☐ @low SystemApplet to list all ConnectedClients
     ✔ Telnet shell @done (12/01/2019, 01:41:04)
+    ☐ Data Model: Transmit Data through Shell commands
+
 I/O:
     ✔ @high ADC Differential reads @done (09/01/2019, 22:36:06)
     ☐ @high Digital inputs
@@ -24,6 +26,7 @@ I/O:
     ☐ @low ADS126X: reduce code duplication: startConversion/readData/sleeps, etc...
     ☐ ADC: discoverable and configurable sampling rate
     ✔ Relay outputs @done (15/01/2019, 23:43:03)
+    ☐ ADC: Configurable full-scale (discovery and configuration)
     
 
 

@@ -14,6 +14,7 @@
 #include <common/result.hpp>
 #include <common/cmd_arguments.hpp>
 #include <common/device_applet.hpp>
+#include <common/data_bucket.hpp>
 #include <common/adc.hpp>
 #include <drivers/ads126x.hpp>
 #include <common/stream_adapter.hpp>
@@ -46,7 +47,7 @@ public:
 
     virtual ~CmdAdcRead() { }
 
-    virtual Result execute( CmdArguments &args , PeripheralPtr p , StreamAdapter &stream )
+    virtual Result execute( CmdArguments &args , PeripheralPtr p , DataBucket &dataBucket )
     {
         try { 
             AdcPtr adc  = std::dynamic_pointer_cast<Adc>(p);
@@ -65,7 +66,7 @@ public:
 
                 for ( unsigned int i=0 ; i<count ; i++ ) {
                     double val      = adc->readAnalog(ch);
-                    stream.writeLine( Poco::format("%.10f",val) );
+                    dataBucket.addDataPoint(ch,val,p.get());
                 }
                 return Result(0,"OK");
             }
@@ -73,9 +74,10 @@ public:
                 unsigned int chp = Poco::NumberParser::parseUnsigned(args.getValue("chp"));
                 unsigned int chn = Poco::NumberParser::parseUnsigned(args.getValue("chn"));
                 
+                std::string label( Poco::format("%u-%u",chp,chn) );
                 for ( unsigned int i=0 ; i<count ; i++ ) {
                     double val  = adc->readDifferential(chp,chn);
-                    stream.writeLine( Poco::format("%.10f",val) );
+                    dataBucket.addDataPoint(label,val,adc.get());
                 }
                 return Result(0,"OK");
             }
@@ -87,7 +89,7 @@ public:
             return Result(1,"Invalid number format.");
         }
         catch (...) { }
-        return Result(1,"ERROR");
+        return Result(1,"UNKNOWN EXCEPTION");
     }
 
     virtual std::string help() const { return myHelp; }

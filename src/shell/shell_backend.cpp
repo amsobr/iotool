@@ -78,7 +78,7 @@ void ShellBackend::rebuildIndex()
 
     logger.information("Indexing peripherals...");
     for ( PeripheralPtr p : myPeripherals ) {
-        string name = "" + p->getType() + to_string(p->getId());
+        string name = p->getName();
 
         if ( myPeripheralsByName.find(name)!=myPeripheralsByName.end() ) {
             logger.warning(format("OOPS: peripheral '%s' has already been indexed!",name));
@@ -117,7 +117,7 @@ void ShellBackend::rebuildIndex()
     }
 }
 
-Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , StreamAdapter &stream )
+Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , DataBucket &db )
 {
     lock_guard<recursive_mutex> locker(myMutex);
 
@@ -130,7 +130,7 @@ Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdN
     if ( applet==nullptr ) {
         return Result(1,"Command " + cmdName + " undefined for " + peripheral->getType() + "peripherals\n ");
     }
-    return applet->execute(args,peripheral,stream);
+    return applet->execute(args,peripheral,db);
 }
 
 Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args , StreamAdapter &stream )
@@ -181,14 +181,14 @@ string ShellBackend::help( string const &devType , string const &cmdName )
         logger.information( "No devType given. Generating full help" );
         string msg;
         for ( auto node : myAppletsByType ) {
-            msg += generateFamilyHelp( ""+node.first , node.second );
+            msg += generateFamilyHelp( node.first.name() , node.second );
         }
         msg += generateSystemHelp( mySysApplets );
         return msg;
     }
     else {       
         for ( auto node : myAppletsByType ) {
-            if ( ""+node.first == devType ) {
+            if ( node.first.name() == devType ) {
                 if ( cmdName=="" ) {
                     return generateFamilyHelp(devType,node.second);
                 }

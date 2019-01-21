@@ -51,7 +51,7 @@ public:
     
     void rebuildIndex();
 
-    Result runDeviceApplet( std::string const &devName , std::string const &cmdName , CmdArguments &args , StreamAdapter &stream );
+    Result runDeviceApplet( std::string const &devName , std::string const &cmdName , CmdArguments &args , DataBucket &dataBucket );
     Result runSystemApplet( std::string const &cmdName , CmdArguments &args , StreamAdapter &stream );
 
     std::string help( std::string const &devType="" , std::string const &cmdName="" );

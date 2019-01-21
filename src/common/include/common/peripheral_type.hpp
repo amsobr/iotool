@@ -4,21 +4,55 @@
 #include <string>
 #include <ostream>
 
-enum class PeripheralType
+class PeripheralType
 {
-    ADC ,
-    DAC ,
-    GPIO ,
-    INDICATOR ,
-    RELAY ,
-    DIN ,
-    PWR_MON ,
-    DOUT ,
+private:
+    int const myType;
+    std::string const myName;
+
+public:
+    PeripheralType() : myType(-1) , myName("UNDEFINED") {}
+    PeripheralType(int id , std::string name) : myType(id) , myName(name) {}
+    PeripheralType( PeripheralType const &other) : myType(other.myType) , myName(other.myName) {}
+    ~PeripheralType() {}
+
+    PeripheralType operator=(PeripheralType const &rhs) = delete;
+
+    bool operator==( PeripheralType const &rhs ) const { return myType==rhs.myType; }
+    bool operator!=( PeripheralType const &rhs ) const { return !(*this==rhs); }
+
+    operator std::string() const { return myName; }
+    operator int() const { return myType; }
+
+    int code() const { return myType; }
+    std::string name() const { return myName; }
+
+    static PeripheralType ADC;
+    static PeripheralType DAC;
+    static PeripheralType GPIO;
+    static PeripheralType INDICATOR;
+    static PeripheralType RELAY;
+    static PeripheralType DIN;
+    static PeripheralType PWR_MON;
+    static PeripheralType DOUT;
 }; /* class enum PeripheralType */
 
 
-extern std::ostream & operator << (std::ostream &out, const PeripheralType &t);
-extern std::string operator + ( std::string s , PeripheralType const &t );
-extern std::string operator +=( std::string s , PeripheralType const &t );
+static inline std::ostream &operator << (std::ostream &out, const PeripheralType &t)
+{
+    out << t.name();
+    return out;
+}
+
+static inline std::string operator + ( std::string s , PeripheralType const &t )
+{
+    return s + t.name();
+}
+
+static inline std::string operator +=( std::string s , PeripheralType const &t )
+{
+    s   = s + t.name();
+    return s;
+}
 
 #endif /* !defined( PERIPHERAL_TYPE_HPP) */
