@@ -60,7 +60,7 @@ public:
        for ( size_t i=0 ; i<nSources ; i++ ) {
            std::list<std::string> mags   = adc->getCurSourceMagnitudes(i);
            //output  += Poco::format("%s.isource%u.mags=%s\n",adcName,i,Poco::cat(std::string(","),mags.begin(),mags.end()));
-            db.addDataPoint( Poco::format("isource%u.mags\n",i) ,
+            db.addDataPoint( Poco::format("isource%u.mags",i) ,
                              Poco::cat(std::string(","),mags.begin(),mags.end()) ,
                              adc.get()
             );

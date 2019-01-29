@@ -14,6 +14,7 @@ set( IOTOOL_SRCS
     iotool.cpp
     data_sender.cpp
     tcp_server.cpp
+    tcp_data_server.cpp
     )
     
     

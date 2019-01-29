@@ -9,16 +9,18 @@
 #include <Poco/Timestamp.h>
 #include <Poco/NumberFormatter.h>
 #include <Poco/Format.h>
+#include <Poco/DateTimeFormatter.h>
+#include <Poco/DateTimeFormat.h>
 
 #include "peripheral.hpp"
 
 
-static inline std::string generateLabel(std::string const &label , Peripheral const *p)
+static inline std::string generateLabel(std::string const &myLabel , Peripheral const *p)
 {
     if ( p==nullptr )
-        return label;
+        return myLabel;
     else
-        return p->getName()+"."+label;
+        return p->getName()+"."+myLabel;
 }
 
 static inline std::string generateLabel( unsigned int idx , Peripheral const *p)
@@ -30,31 +32,34 @@ static inline std::string generateLabel( unsigned int idx , Peripheral const *p)
 }
 
 template<typename T>
-static inline std::string formatValue( T const &value )
+static inline std::string formatValue( T const &myValue )
 {
-    return Poco::NumberFormatter::format(value);
+    return Poco::NumberFormatter::format(myValue);
 }
 
 template<>
-inline std::string formatValue<double>(double const &value)
+inline std::string formatValue<double>(double const &myValue)
 {
-    return Poco::NumberFormatter::format(value,10);
+    return Poco::NumberFormatter::format(myValue,10);
 }
 
 template<>
-inline std::string formatValue<std::string>(std::string const &value)
+inline std::string formatValue<std::string>(std::string const &myValue)
 {
-    return value;
+    return myValue;
 }
 
 struct DataPoint
 {
-    std::string const label;
-    std::string const value;
+    std::string myLabel;
+    std::string myValue;
 
-    DataPoint(std::string l, std::string v) : label(l) , value(v) {}
-    DataPoint( DataPoint const &o ) : label(o.label) , value(o.value) {}
+    DataPoint(std::string l, std::string v) : myLabel(l) , myValue(v) {}
+    DataPoint( DataPoint const &o ) : myLabel(o.myLabel) , myValue(o.myValue) {}
     ~DataPoint() {}
+
+    std::string label() const { return myLabel; }
+    std::string value() const { return myValue; }
 };
 
 struct DataBucket
@@ -72,6 +77,21 @@ struct DataBucket
         reset(t);
     }
 
+    DataBucket( DataBucket const &o ) :
+    timestamp(o.timestamp) ,
+    tag(o.tag) ,
+    dataPoints(o.dataPoints)
+    {}
+
+    DataBucket operator=( DataBucket const &rhs ) 
+    {
+        timestamp   = rhs.timestamp;
+        tag         = rhs.tag;
+        dataPoints  = rhs.dataPoints;
+        return *this;
+    }
+
+    
     DataBucket() : DataBucket("") {}
 
     virtual ~DataBucket() {}
@@ -84,18 +104,18 @@ struct DataBucket
     }
 
     template<typename T>
-    void addDataPoint(std::string const &label , T const &value , Peripheral const *p)
+    void addDataPoint(std::string const &myLabel , T const &myValue , Peripheral const *p)
     {
         dataPoints.push_back( DataPoint(
-                                    generateLabel(label,p) ,
-                                    formatValue(value) )
+                                    generateLabel(myLabel,p) ,
+                                    formatValue(myValue) )
                             );
     }
 
     template<typename T>
-    void addDataPoint( std::string const &label , std::vector<T> const &values , Peripheral const *p )
+    void addDataPoint( std::string const &myLabel , std::vector<T> const &values , Peripheral const *p )
     {
-        std::string labelVal( generateLabel(label,p) );
+        std::string labelVal( generateLabel(myLabel,p) );
         
         if (values.empty()) {
             dataPoints.push_back(DataPoint(labelVal,""));
@@ -115,10 +135,15 @@ struct DataBucket
     }
     
     template<typename T>
-    void addDataPoint( unsigned int id , T const &value , Peripheral const *p )
+    void addDataPoint( unsigned int id , T const &myValue , Peripheral const *p )
     {
-        std::string label( generateLabel(id,p) );
-        dataPoints.push_back( DataPoint(label,formatValue(value)) );
+        std::string myLabel( generateLabel(id,p) );
+        dataPoints.push_back( DataPoint(myLabel,formatValue(myValue)) );
+    }
+
+    std::string isoTimestamp() const
+    {
+        return Poco::DateTimeFormatter::format(timestamp,Poco::DateTimeFormat::ISO8601_FORMAT);
     }
     
 }; /* struct DataBucket */

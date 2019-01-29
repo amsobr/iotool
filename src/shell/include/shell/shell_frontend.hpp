@@ -7,18 +7,20 @@
 
 
 #include <common/stream_adapter.hpp>
-
+#include <common/data_bucket_consumer.hpp>
 
 #include "shell_backend.hpp"
+#include "accumulator_bucket.hpp"
 
 class ShellFrontend
 {
 private:
     StreamAdapter *myStream;
     ShellBackendPtr myEngine;
+    AccumulatorBucket *myAccumulator;
 
 public:
-    ShellFrontend( StreamAdapter *ioAdapter , ShellBackendPtr engine );
+    ShellFrontend( StreamAdapter *ioAdapter , ShellBackendPtr engine , DataBucketConsumer *bucketConsumer );
 
     ~ShellFrontend();
 

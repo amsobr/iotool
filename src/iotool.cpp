@@ -27,7 +27,8 @@
 
 #include "iotool_config.hpp"
 #include "data_sender.hpp"
-#include "tcp_server.hpp"
+#include "tcp_server.hpp" /* telnet server. could use a better name >.< */
+#include "tcp_data_server.hpp"
 #include "shell/connected_telnet_client_factory.hpp"
 
 #include <Poco/FileChannel.h>
@@ -51,13 +52,13 @@ void help()
 {
     static char const *msg =
     "Usage:\n"
-    "  iotool OPTS\n"
+    "  iotool --help | --version | --foreground | --daemon\n"
     "\n"
     "Available Options:\n"
     "  --help          Display this help message and exit.\n"
     "  --version       Display iotool's version and exit.\n"
-    "  --shell         Start local shell with STDIN/STDOUT\n"
-    "  --server        Start the HW I/O server\n"
+    "  --foreground    Start local shell with STDIN/STDOUT\n"
+    "  --daemon        Start the HW I/O server\n"
     ;
 
     version();
@@ -92,10 +93,10 @@ int main(int argc, char **argv)
             help();
             return 0;
         }
-        else if ( arg.value=="--local-shell") {
+        else if ( arg.value=="--foreground") {
             startShell  = true;
         }
-        else if ( arg.value=="--server") {
+        else if ( arg.value=="--daemon") {
             startServer = true;
         }
         else {
@@ -104,9 +105,14 @@ int main(int argc, char **argv)
         }
     }
 
+    if ( startServer && startShell ) {
+        fprintf( stderr , "Please invoke with only one of --daemon or --foreground options...\n" );
+        return 1;
+    }
+
     /* Following code must be moved to some sort of board init module
      *
-     * A SharedBus mechanism may provide concurrent access to the 
+     * TODO: A SharedBus mechanism may provide concurrent access to the 
      * multiple buses usually found on a board: SPI, I2C, RS232, etc.
      * SharedBus may provide  a factory which is used to get
      * ScopedBus objects. ScopedBus objects are neither copyable not
@@ -175,9 +181,12 @@ int main(int argc, char **argv)
     shellBackend->rebuildIndex();
 
 
-    Poco::Net::TCPServer *tcpServer;
+    
     if ( startServer ) {
-        Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend));
+        TcpDataServer *dataServer = new TcpDataServer(Iotool::TCP_DATA_SERVER_PORT);
+        dataServer->start();
+        Poco::Net::TCPServer *tcpServer;
+        Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend,dataServer));
         Poco::Net::ServerSocket srvSkt;
         logger.information( Poco::format("telnet server: binding to 0.0.0.0:%d...",Iotool::TCP_LISTEN_PORT) );
         srvSkt.bind( Poco::Net::SocketAddress("0.0.0.0",Iotool::TCP_LISTEN_PORT),true,true);
@@ -186,6 +195,13 @@ int main(int argc, char **argv)
         logger.information( "telnet server: launching server..." );
         tcpServer  = new Poco::Net::TCPServer(connectionFactory,srvSkt);
         tcpServer->start();
+
+        /* once the server is started, we can hang forever.
+        Just don't burn the CPU in the process
+        */
+        while(true) {
+            sleep(5);
+        }
 
         /* OLD TCP DUMB DATA PUMPER */
         //DataSender *sender;
@@ -204,7 +220,7 @@ int main(int argc, char **argv)
     if ( startShell ) {
         logger.debug( "Starting shell...");
         StdioStreamAdapter *iostreams   = new StdioStreamAdapter();
-        ShellFrontend *shellFrontend    = new ShellFrontend( iostreams,shellBackend );
+        ShellFrontend *shellFrontend    = new ShellFrontend( iostreams,shellBackend,0);
         shellFrontend->run();
         delete shellFrontend;
         delete iostreams;

@@ -11,6 +11,7 @@
 
 #include <common/cmd_arguments.hpp>
 #include <common/data_bucket.hpp>
+#include <common/data_bucket_consumer.hpp>
 
 #include "shell_frontend.hpp"
 #include "shell_backend.hpp"
@@ -21,19 +22,21 @@ using namespace Poco;
 static void printBucket( StreamAdapter *s , DataBucket const &db )
 {
     for ( auto entry : db.dataPoints ) {
-        s->writeLine( Poco::format("%s=%s",entry.label,entry.value) );
+        s->writeLine( Poco::format("%s=%s",entry.label(),entry.value()) );
     }
 }
 
-ShellFrontend::ShellFrontend( StreamAdapter *ioStream, ShellBackendPtr engine ) :
+ShellFrontend::ShellFrontend( StreamAdapter *ioStream, ShellBackendPtr engine , DataBucketConsumer *bucketConsumer ) :
 myStream(ioStream) ,
-myEngine(engine)
+myEngine(engine) ,
+myAccumulator( new AccumulatorBucket(bucketConsumer) )
 {
 
 }
 
 ShellFrontend::~ShellFrontend()
 {
+    delete myAccumulator;
 }
 
 
@@ -71,21 +74,26 @@ void ShellFrontend::run()
         string cmdLine;
         cmdLine = myStream->readLine();
 
-        istringstream is(cmdLine);
-        vector<string> tokens;
-        string t;
-        logger.debug( format("Got input: '%s'. Tokenizing...",cmdLine) );
-        while ( getline(is, t,' ') ) {
-            tokens.push_back(t);
+        CmdArguments args;
+        try {
+            args.loadFrom(cmdLine);
         }
-        logger.debug( "tokenization complete..." );
-
-        if ( tokens.size()==0 ) {
+        catch ( std::exception ex ) {
+            logger.error( "Error parsing command line:" + cmdLine );
             continue;
         }
 
-        string first  = tokens[0];
-        logger.debug( format("First/Command is '%s' numTokens=%u",first,tokens.size()) );
+        if ( args.size()==0 ) {
+            continue;
+        }
+
+        Argument arg0 = args.shift();
+        if ( !arg0.isToken() ) {
+            myStream->writeLine("Invalid syntax.");
+            continue;
+        }
+        string first  = arg0.token();
+        logger.debug( format("First/Command is '%s' numTokens=%u",first,args.size()) );
 
         if ( first=="help" || first=="h" || first=="?" ) {
             logger.debug( "Checking help modes...");
@@ -95,15 +103,20 @@ void ShellFrontend::run()
                     help devType --> list commands for devType
                     help devType cmd --> detailed help for command of devType
                 */
-                if ( tokens.size()>=3 ) {
-                    logger.debug( format("Showing help for class=%s cmd=%s",tokens[1],tokens[2]));
-                    myStream->writeLine(  myEngine->help(tokens[1],tokens[2]) );
+                if ( args.size()==2 ) {
+                    string helpClass(args.shift().token());
+                    string  helpCmd(args.shift().token());
+
+                    logger.debug( format("Showing help for class=%s cmd=%s",helpClass,helpCmd));
+                    myStream->writeLine(  myEngine->help(helpClass,helpCmd) );
                 }
-                else if ( tokens.size()==2 ) {
-                    logger.debug( format("Showing help for class=%s",tokens[1]));
-                    myStream->writeLine( myEngine->help(tokens[1]) );
+                else if ( args.size()==1 ) {
+                    string helpClass(args.shift().token());
+                    logger.debug( format("Showing help for class=%s",helpClass));
+                    myStream->writeLine( myEngine->help(helpClass) );
                 }
                 else {
+                    /* show full help, even if cmdLine is plain wrong... */
                     logger.debug( "Showing full help" );
                     myStream->writeLine( usage() );
                     myStream->writeLine( myEngine->help() );
@@ -115,10 +128,12 @@ void ShellFrontend::run()
             if ( cmdName=="usage" ) {
                 myStream->writeLine( usage() );
             }
+            else if ( cmdName=="bucket" ) {
+                myAccumulator->command(args);
+            }
             else {
                 myStream->writeLine( cmdName + ": Command not found" );
             }
-
         }
         else if ( first=="exit" ) {
             myStream->writeLine("Leaving shell...");
@@ -127,17 +142,11 @@ void ShellFrontend::run()
         }
         else {
             string deviceId(first);
-            if ( tokens.size()<2 ) {
+            if ( args.size()<1 ) {
                 myStream->writeLine( "Invalid input.\n" + usage() );
             }
             else {
-                string cmdName(tokens[1]);
-                CmdArguments args;
-                for ( size_t i=2 ; i<tokens.size() ; i++ ) {
-                    cbsl::KeyVal::Pair pair;
-                    cbsl::KeyVal::parseArg(tokens[i].c_str(),&pair);
-                    args.addArg(pair);
-                }
+                string cmdName(args.shift().token());
 
                 lastDataBucket.reset();
                 Result res = myEngine->runDeviceApplet(deviceId,cmdName,args,lastDataBucket);
@@ -146,9 +155,13 @@ void ShellFrontend::run()
                 }
                 else {
                     logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
-                }
+                }            
                 myStream->writeLine( res.message() );
-                printBucket(myStream,lastDataBucket);
+                if ( !lastDataBucket.dataPoints.empty() ) {
+                    printBucket(myStream,lastDataBucket);
+                    myAccumulator->append(lastDataBucket);
+                    lastDataBucket.dataPoints.clear();
+                }
             }
         }
     }

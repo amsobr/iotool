@@ -5,6 +5,7 @@
 #include <list>
 #include <algorithm>
 #include <string>
+#include <sstream>
 
 #include <cbsl/keyval.hpp>
 
@@ -74,8 +75,29 @@ myArgs(args)
     
 }
 
+CmdArguments( std::list<std::string> tokens )
+{
+    for ( std::string &tok : tokens ) {
+        cbsl::KeyVal::Pair pair;
+        cbsl::KeyVal::parseArg(tok.c_str(),&pair);
+        addArg(pair);
+    }
+}
+
 ~CmdArguments() {
     myArgs.clear();
+}
+
+void loadFrom( std::string line )
+{
+    myArgs.clear();
+    std::istringstream is(line);
+    std::string t;
+    while ( std::getline(is, t,' ') ) {
+        cbsl::KeyVal::Pair pair;
+        cbsl::KeyVal::parseArg(t.c_str(),&pair);
+        addArg(pair);
+    }
 }
 
 

@@ -2,6 +2,7 @@
 add_library( shell STATIC 
     shell_backend.cpp
     shell_frontend.cpp
+    accumulator_bucket.cpp
     )
 
 target_include_directories( shell INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )

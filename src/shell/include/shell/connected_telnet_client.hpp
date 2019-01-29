@@ -3,6 +3,8 @@
 
 #include <Poco/Net/TCPServerConnection.h>
 
+#include <common/data_bucket_consumer.hpp>
+
 #include "telnet_stream_adapter.hpp"
 #include "shell_frontend.hpp"
 #include "shell_backend.hpp"
@@ -12,12 +14,14 @@ class ConnectedTelnetClient : public Poco::Net::TCPServerConnection
 private:
     TelnetStreamAdapter myStream;
     ShellBackendPtr myShellBackend;
+    DataBucketConsumer *myDataConsumer;
 
 public:
-    ConnectedTelnetClient( Poco::Net::StreamSocket skt , ShellBackendPtr shellBackend ) :
+    ConnectedTelnetClient( Poco::Net::StreamSocket skt , ShellBackendPtr shellBackend , DataBucketConsumer *consumer ) :
     Poco::Net::TCPServerConnection(skt) ,
     myStream(skt) ,
-    myShellBackend(shellBackend)
+    myShellBackend(shellBackend) ,
+    myDataConsumer(consumer)
     {
     }
 
@@ -25,7 +29,7 @@ public:
 
     virtual void run()
     {
-        ShellFrontend *shellFrontend    = new ShellFrontend( &myStream,myShellBackend );
+        ShellFrontend *shellFrontend    = new ShellFrontend( &myStream,myShellBackend,myDataConsumer );
         shellFrontend->run();
     }
 
