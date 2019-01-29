@@ -12,6 +12,7 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/SocketStream.h>
+#include <Poco/Net/SocketStream.h>
 #include <Poco/Logger.h>
 
 
@@ -25,7 +26,7 @@ private:
     unsigned int mysendInterval;
     std::thread myAcceptorThread;
     std::thread myDispatcherThread;
-    std::list<Poco::Net::StreamSocket> myStreams;
+    std::list<Poco::Net::SocketStream> myStreams;
     std::mutex myMutex;
     std::condition_variable myCondition;
     bool myTerminate;

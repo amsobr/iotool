@@ -55,6 +55,9 @@ void TcpDataServer::processBucket( DataBucket const &db )
     logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%u",db.tag,db.isoTimestamp(),db.dataPoints.size()) );
     std::lock_guard<std::mutex> lock(myMutex);
     /* NB: it is safe to notify first because the lock is being held... */
+    /* TODO: make sure that the notify mechanism is
+     * not racy...
+     */
     if ( myQueuedBuckets.empty() ) {
         myCondition.notify_all();
     }
@@ -71,7 +74,7 @@ void TcpDataServer::acceptorLoop()
             StreamSocket stream(mySocket.acceptConnection(clientAddress));
             logger.information( format("TCP Data Server: New client - %s",clientAddress.toString() ) );
             myMutex.lock();
-            myStreams.push_back(stream);
+            myStreams.emplace_back(stream);
             myMutex.unlock();
         }
         catch ( exception e ) {
@@ -118,8 +121,17 @@ void TcpDataServer::dispatcherLoop()
                 jsonMsg += "\n}\n";
                 myQueuedBuckets.erase(myQueuedBuckets.begin());
                 
-                for ( auto &stream : myStreams ) {
-                    stream.sendBytes( jsonMsg.c_str() , jsonMsg.length() );
+                auto it = myStreams.begin();
+                while( it!=myStreams.end() ) {
+                    Poco::Net::SocketStream &stream(*it);
+                    if ( !stream.good() ) {
+                        logger.information( "Client disconnected. Cleaning up..." );
+                        it = myStreams.erase(it);
+                    }
+                    else {
+                        stream << jsonMsg;
+                        it++;
+                    }
                 }
             }
         }
