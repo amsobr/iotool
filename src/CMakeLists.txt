@@ -3,7 +3,7 @@
 
 add_subdirectory( common )
 add_subdirectory( drivers )
-add_subdirectory( brd )
+add_subdirectory( brd/${BOARD_NAME} )
 add_subdirectory( applets )
 add_subdirectory( shell )
 
@@ -43,4 +43,4 @@ set_target_properties(iotool PROPERTIES CXX_EXTENSIONS OFF)
 
 #target_link_libraries( iotool brd applets shell common cbsl  -lpthread -lrt
 #set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
-target_link_libraries( iotool brd applets shell common cbsl Poco::Foundation Poco::Net Poco::Util Poco::XML -lpthread -lrt )
+target_link_libraries( iotool ${BOARD_NAME} applets shell common cbsl Poco::Foundation Poco::Net Poco::Util Poco::XML -lpthread -lrt )

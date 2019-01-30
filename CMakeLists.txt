@@ -7,6 +7,10 @@ project( iotool )
 list( APPEND  CMAKE_PREFIX_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 
+set( BOARD_NAME agp01 CACHE String "Target board. Possible values are \"agp01\" (default) , emulator" )
+
+message( STATUS "Configuring iotool for board: ${BOARD_NAME}" )
+
 
 set( VER_MAJOR 0 )
 set( VER_MINOR 2 )
@@ -16,11 +20,10 @@ set( VER_EXTRA m1 )
 set( USE_MCHECK FALSE )
 set( USE_MTRACE FALSE )
 
-#enabl_testing()
+#enable_testing()
 
 #set(CMAKE_BUILD_TYPE Release)
 
-#configure_file( "tools/mk_pkg.sh.cmake" ${CMAKE_BINARY_DIR}/tools/mk_pkg.sh @ONLY )
 
 add_compile_options( -Wall -Wextra -Wno-psabi -Wno-unused-parameter )
 
@@ -35,7 +38,9 @@ endif()
 
 
 
-find_package( Poco REQUIRED Foundation Util Net XML )
+
+
+find_package( Poco REQUIRED Foundation Util Net XML Crypto )
 
 
 add_subdirectory( lib/libcbsl )

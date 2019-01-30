@@ -1,6 +1,6 @@
 #include <common/board.hpp>
 
-#include "agp01/agripino.hpp"
+#include "agripino.hpp"
 
 
 BoardPtr createBoard()
