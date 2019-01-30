@@ -38,8 +38,8 @@ I/O:
     ☐ ADC: discoverable and configurable sampling rate
     ✔ Relay outputs @done (15/01/2019, 23:43:03)
     ☐ ADC: Configurable full-scale (discovery and configuration)
-    ☐ ADC Emulator
-    ☐ DAC Emulator
+    ✔ ADC Emulator @done (30/01/2019, 15:18:36)
+    ✔ DAC Emulator @done (30/01/2019, 15:18:38)
     ☐ DIGITAL_OUTPUT Emulator
     ☐ INDICATOR Emulator
     ☐ POWER_MONITOR Emulator

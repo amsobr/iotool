@@ -188,7 +188,7 @@ int main(int argc, char **argv)
         Poco::Net::TCPServer *tcpServer;
         Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend,dataServer));
         Poco::Net::ServerSocket srvSkt;
-        logger.information( Poco::format("telnet server: binding to 0.0.0.0:%d...",Iotool::TCP_LISTEN_PORT) );
+        logger.information( Poco::format("telnet server: binding to 0.0.0.0:%u...",Iotool::TCP_LISTEN_PORT) );
         srvSkt.bind( Poco::Net::SocketAddress("0.0.0.0",Iotool::TCP_LISTEN_PORT),true,true);
         logger.information( "telnet server: entering LISTENING state..." );
         srvSkt.listen();

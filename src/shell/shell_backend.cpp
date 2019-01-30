@@ -93,18 +93,18 @@ void ShellBackend::rebuildIndex()
     for ( DeviceAppletPtr p : myDevApplets ) {
         auto it = myAppletsByType.find(p->getType());
         if ( it==myAppletsByType.end() ) {
-            logger.information( format("Found applet group: '%s'",p->getType()) );
+            logger.information( format("Found applet group: '%s'",(string)p->getType()) );
             list<DeviceAppletPtr> l;
             l.push_back(p);
             myAppletsByType[p->getType()]   = l;
-            logger.information( format("'%s' added to group '%s'",p->getName(),p->getType()) );
+            logger.information( format("'%s' added to group '%s'",p->getName(),(string)p->getType()) );
         }
         else {
             list<DeviceAppletPtr> &applets(it->second);
             bool dupe = false;
             for ( AppletPtr app : applets ) {
                 if ( app->getName()==p->getName() ) {
-                    logger.warning( format("Applet '%s' is already registered for group '%s'",p->getName(),p->getType()) );
+                    logger.warning( format("Applet '%s' is already registered for group '%s'",p->getName(),p->getType().toString()) );
                     dupe    = true;
                     break;
                 }
@@ -181,14 +181,14 @@ string ShellBackend::help( string const &devType , string const &cmdName )
         logger.information( "No devType given. Generating full help" );
         string msg;
         for ( auto node : myAppletsByType ) {
-            msg += generateFamilyHelp( node.first.name() , node.second );
+            msg += generateFamilyHelp( node.first.toString() , node.second );
         }
         msg += generateSystemHelp( mySysApplets );
         return msg;
     }
     else {       
         for ( auto node : myAppletsByType ) {
-            if ( node.first.name() == devType ) {
+            if ( node.first.toString() == devType ) {
                 if ( cmdName=="" ) {
                     return generateFamilyHelp(devType,node.second);
                 }

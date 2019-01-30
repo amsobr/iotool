@@ -25,7 +25,8 @@ public:
     operator int() const { return myType; }
 
     int code() const { return myType; }
-    std::string name() const { return myName; }
+    //std::string name() const { return myName; }
+    std::string toString() const { return myName; }
 
     static PeripheralType ADC;
     static PeripheralType DAC;
@@ -40,18 +41,18 @@ public:
 
 static inline std::ostream &operator << (std::ostream &out, const PeripheralType &t)
 {
-    out << t.name();
+    out << t.toString();
     return out;
 }
 
 static inline std::string operator + ( std::string s , PeripheralType const &t )
 {
-    return s + t.name();
+    return s + t.toString();
 }
 
 static inline std::string operator +=( std::string s , PeripheralType const &t )
 {
-    s   = s + t.name();
+    s   = s + t.toString();
     return s;
 }
 

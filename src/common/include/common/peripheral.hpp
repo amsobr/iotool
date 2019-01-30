@@ -24,7 +24,7 @@ public:
     Peripheral( PeripheralType &t , unsigned int id ) :
     myType(t) ,
     myId(id) , 
-    myName( Poco::format("%s%u",t.name(),id) )
+    myName( Poco::format("%s%u",t.toString(),id) )
     {}
 
     virtual ~Peripheral() {}

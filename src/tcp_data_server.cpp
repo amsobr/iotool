@@ -6,7 +6,6 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/IPAddress.h>
 #include <Poco/Net/StreamSocket.h>
-#include <Poco/Net/SocketStream.h>
 #include <Poco/Net/SocketAddress.h>
 #include <Poco/Util/Timer.h>
 #include <Poco/Logger.h>
@@ -52,13 +51,14 @@ TcpDataServer::~TcpDataServer()
 
 void TcpDataServer::processBucket( DataBucket const &db )
 {
-    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%u",db.tag,db.isoTimestamp(),db.dataPoints.size()) );
+    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db.tag,db.isoTimestamp(),db.dataPoints.size()) );
     std::lock_guard<std::mutex> lock(myMutex);
     /* NB: it is safe to notify first because the lock is being held... */
     /* TODO: make sure that the notify mechanism is
      * not racy...
      */
     if ( myQueuedBuckets.empty() ) {
+        logger.debug( "Waking up dispatcher loop..." );
         myCondition.notify_all();
     }
     myQueuedBuckets.push_back(DataBucket(db));
@@ -73,8 +73,14 @@ void TcpDataServer::acceptorLoop()
             SocketAddress clientAddress;
             StreamSocket stream(mySocket.acceptConnection(clientAddress));
             logger.information( format("TCP Data Server: New client - %s",clientAddress.toString() ) );
+            /* Disable the receiving channel, as we just need
+             * to send data.
+             * Hopefuly allows us to conserve memory from the RX
+             * backlog...
+             */
+            stream.shutdownReceive();
             myMutex.lock();
-            myStreams.emplace_back(stream);
+            myStreams.push_back(stream);
             myMutex.unlock();
         }
         catch ( exception e ) {
@@ -89,57 +95,60 @@ void TcpDataServer::dispatcherLoop()
  
     logger.debug("TCP Data Server: Dispatcher thread started.");
     while( true ) {
-        try {
-            /* we'll need to keep the lock held (while active) for
-             * essentially two reasons:
-             *  1. concurrent access to the queue of buckets
-             *  2. concurrent access to the list of established streams
-             * New streams or buckets will be inserted while the
-             * dispatcher is idle.
-             */
-            std::unique_lock<std::mutex> lock(myMutex);
-            if ( myTerminate ) break;
+        /* we'll need to keep the lock held (while active) for
+            * essentially two reasons:
+            *  1. concurrent access to the queue of buckets
+            *  2. concurrent access to the list of established streams
+            * New streams or buckets will be inserted while the
+            * dispatcher is idle.
+            */
+        std::unique_lock<std::mutex> lock(myMutex);
+        if ( myTerminate ) break;
 
-            if ( myQueuedBuckets.empty() ) {
-                logger.trace( "TCP Data Server: waiting for data..." );
-                myCondition.wait(lock);
-                logger.trace( "TCP Data Server: Dispatcher woke up..." );
+        if ( myQueuedBuckets.empty() ) {
+            logger.trace( "TCP Data Server: waiting for data..." );
+            myCondition.wait(lock);
+            logger.trace( "TCP Data Server: Dispatcher woke up..." );
+        }
+        else {
+            DataBucket &bucket  = *(myQueuedBuckets.begin());
+            
+            logger.information( Poco::format("TCP Data Server: handling queued bucket tag=\"%s\" timestamp=%s"
+                    ,bucket.tag
+                    ,bucket.isoTimestamp())
+            );
+            std::string jsonMsg = "{\n";
+            jsonMsg += Poco::format( "    \"label\":\"%s\" ,\n",bucket.tag);
+            jsonMsg += Poco::format( "    \"timestamp\":\"%s\"",bucket.isoTimestamp() );
+            for ( auto dataPoint : bucket.dataPoints ) {
+                jsonMsg += Poco::format( ",\n    \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
             }
-            else {
-                DataBucket &bucket  = *(myQueuedBuckets.begin());
-                
-                logger.information( Poco::format("TCP Data Server: handling queued bucket tag=%s timestamp=%s"
-                        ,bucket.tag
-                        ,bucket.isoTimestamp())
-                );
-                std::string jsonMsg = "{\n";
-                jsonMsg += Poco::format( "    \"label\":\"%s\" ,\n",bucket.tag);
-                jsonMsg += Poco::format( "    \"timestamp\":\"%s\"",bucket.isoTimestamp() );
-                for ( auto dataPoint : bucket.dataPoints ) {
-                    jsonMsg += Poco::format( ",\n    \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
-                }
-                jsonMsg += "\n}\n";
-                myQueuedBuckets.erase(myQueuedBuckets.begin());
-                
-                auto it = myStreams.begin();
-                while( it!=myStreams.end() ) {
-                    Poco::Net::SocketStream &stream(*it);
-                    if ( !stream.good() ) {
-                        logger.information( "Client disconnected. Cleaning up..." );
+            jsonMsg        += "\n}\n";
+            int jsonMsgLen  = jsonMsg.length();                
+            myQueuedBuckets.erase(myQueuedBuckets.begin());
+            
+            auto it = myStreams.begin();
+            while( it!=myStreams.end() ) {
+                Poco::Net::StreamSocket &stream(*it);
+                try {
+                    int res = stream.sendBytes( jsonMsg.c_str() , jsonMsgLen );
+                    if ( res != jsonMsgLen ) {
+                        logger.information( "Client appears to be disconnected. Cleaning up..." );
                         it = myStreams.erase(it);
                     }
-                    else {
-                        stream << jsonMsg;
+                    else {                
                         it++;
                     }
                 }
+                catch ( Poco::Exception const &ex ) {
+                    logger.warning( Poco::format("TCP Data Server: caught: %s" , ex.displayText() ) );
+                    it = myStreams.erase(it);
+                }
+                catch (std::exception const &ex ) {
+                    logger.error( Poco::format("TCP Data Server: caught std exception - %s",ex.what() ) );
+                    it = myStreams.erase(it);
+                }
             }
-        }
-        catch ( Poco::Exception const &ex ) {
-            logger.error( Poco::format("TCP Data Server: caught exception - %s",ex.displayText()) );
-        }
-        catch (std::exception const &ex ) {
-            logger.error( Poco::format("TCP Data Server: caught exception - %s",ex.what()) );
         }
     }
     logger.information( "TCP Data Server: dispatcher terminated..." );
