@@ -9,3 +9,4 @@ PeripheralType PeripheralType::RELAY(5,"relay");
 PeripheralType PeripheralType::DIN(6,"din");
 PeripheralType PeripheralType::PWR_MON(7,"pwrmon");
 PeripheralType PeripheralType::DOUT(8,"dout");
+PeripheralType PeripheralType::BASIC(8,"basic");
