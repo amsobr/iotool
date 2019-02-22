@@ -36,6 +36,7 @@ public:
     static PeripheralType DIN;
     static PeripheralType PWR_MON;
     static PeripheralType DOUT;
+    static PeripheralType BASIC;
 }; /* class enum PeripheralType */
 
 
