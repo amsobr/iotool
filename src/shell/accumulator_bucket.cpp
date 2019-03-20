@@ -11,12 +11,12 @@
 
 using namespace std;
 
-Result AccumulatorBucket::reset( string label)
+Result AccumulatorBucket::reset( string name)
 {
-    logger.debug( Poco::format( "Resetting bucket. label=\"%s\"",label) );
+    logger.debug( Poco::format( "Resetting bucket. label=\"%s\"",name) );
     myAccumulator.dataPoints.clear();
     myAccumulator.timestamp.update();
-    myAccumulator.tag=label;
+    myAccumulator.name=name;
     return Result::OK;
 }
 
@@ -24,7 +24,7 @@ Result AccumulatorBucket::flush()
 {
     if ( myBucketConsumer!=nullptr ) {
         logger.debug( Poco::format("Flushing bucket (label=%s #dataPoints=%u) through %p" ,
-                                    myAccumulator.tag ,
+                                    myAccumulator.name ,
                                     myAccumulator.dataPoints.size() ,
                                      myBucketConsumer)
                         );
@@ -37,9 +37,9 @@ Result AccumulatorBucket::flush()
 Result AccumulatorBucket::init( CmdArguments &args )
 {
     if ( args.size()!=1 ) return Result::E_BAD_ARGS;
-    if ( !args.hasArg("label") ) return Result::E_BAD_ARGS;
+    if ( !args.hasArg("name") ) return Result::E_BAD_ARGS;
 
-    string label = args.getValue("label");
+    string label = args.getValue("name");
     reset(label);
     return Result::OK;
 }

@@ -68,25 +68,25 @@ struct DataBucket
     Poco::Timestamp timestamp;
 
     /** The bucket's name */
-    std::string tag;
+    std::string name;
 
     std::list<DataPoint> dataPoints;
 
-    DataBucket( std::string t )
+    DataBucket( std::string &t )
     {
         reset(t);
     }
 
     DataBucket( DataBucket const &o ) :
     timestamp(o.timestamp) ,
-    tag(o.tag) ,
+    name(o.name) ,
     dataPoints(o.dataPoints)
     {}
 
     DataBucket operator=( DataBucket const &rhs ) 
     {
         timestamp   = rhs.timestamp;
-        tag         = rhs.tag;
+        name         = rhs.name;
         dataPoints  = rhs.dataPoints;
         return *this;
     }
@@ -98,7 +98,7 @@ struct DataBucket
 
     void reset( std::string t="" )
     {
-        tag = t;
+        name = t;
         timestamp.update();
         dataPoints.clear();
     }
@@ -147,6 +147,8 @@ struct DataBucket
     }
     
 }; /* struct DataBucket */
+
+typedef std::shared_ptr<DataBucket> DataBucketPtr;
 
 
 

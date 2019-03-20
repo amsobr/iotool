@@ -10,6 +10,7 @@
 #include <Poco/Util/Timer.h>
 #include <Poco/Logger.h>
 #include <Poco/Format.h>
+#include <Poco/NumberFormatter.h>
 
 #include <common/board.hpp>
 #include <common/adc.hpp>
@@ -51,7 +52,7 @@ TcpDataServer::~TcpDataServer()
 
 void TcpDataServer::processBucket( DataBucket const &db )
 {
-    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db.tag,db.isoTimestamp(),db.dataPoints.size()) );
+    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db.name,db.isoTimestamp(),db.dataPoints.size()) );
     std::lock_guard<std::mutex> lock(myMutex);
     /* NB: it is safe to notify first because the lock is being held... */
     /* TODO: make sure that the notify mechanism is
@@ -114,16 +115,24 @@ void TcpDataServer::dispatcherLoop()
             DataBucket &bucket  = *(myQueuedBuckets.begin());
             
             logger.information( Poco::format("TCP Data Server: handling queued bucket tag=\"%s\" timestamp=%s"
-                    ,bucket.tag
+                    ,bucket.name
                     ,bucket.isoTimestamp())
             );
             std::string jsonMsg = "{\n";
-            jsonMsg += Poco::format( "    \"label\":\"%s\" ,\n",bucket.tag);
-            jsonMsg += Poco::format( "    \"timestamp\":\"%s\"",bucket.isoTimestamp() );
+            jsonMsg += Poco::format( "    \"name\":\"%s\" ,\n",bucket.name);
+            jsonMsg += Poco::format( "    \"timestamp\":\"%s\" ,\n",Poco::NumberFormatter::format(bucket.timestamp.epochMicroseconds()/1000) );
+            jsonMsg += "    \"values\": {";
+            bool first = true;
             for ( auto dataPoint : bucket.dataPoints ) {
-                jsonMsg += Poco::format( ",\n    \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
+                if ( first ) {
+                    first = false;
+                    jsonMsg += Poco::format( "\n        \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
+                }
+                else {
+                    jsonMsg += Poco::format( ",\n        \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
+                }
             }
-            jsonMsg        += "\n}\n";
+            jsonMsg        += "\n    }\n}\n\n";
             int jsonMsgLen  = jsonMsg.length();                
             myQueuedBuckets.erase(myQueuedBuckets.begin());
             

@@ -66,7 +66,13 @@ void help()
 }
 
 
-
+/**
+ * @brief 
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char **argv)
 {
     bool startShell=false;
