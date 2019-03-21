@@ -50,9 +50,9 @@ TcpDataServer::~TcpDataServer()
     }
 }
 
-void TcpDataServer::processBucket( DataBucket const &db )
+void TcpDataServer::incomingBucket(DataBucketPtr db)
 {
-    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db.name,db.isoTimestamp(),db.dataPoints.size()) );
+    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db->name,db->isoTimestamp(),db->dataPoints.size()) );
     std::lock_guard<std::mutex> lock(myMutex);
     /* NB: it is safe to notify first because the lock is being held... */
     /* TODO: make sure that the notify mechanism is
@@ -62,7 +62,7 @@ void TcpDataServer::processBucket( DataBucket const &db )
         logger.debug( "Waking up dispatcher loop..." );
         myCondition.notify_all();
     }
-    myQueuedBuckets.push_back(DataBucket(db));
+    myQueuedBuckets.push_back(db);
 }
 
 void TcpDataServer::acceptorLoop()
@@ -112,18 +112,19 @@ void TcpDataServer::dispatcherLoop()
             logger.trace( "TCP Data Server: Dispatcher woke up..." );
         }
         else {
-            DataBucket &bucket  = *(myQueuedBuckets.begin());
-            
+            DataBucketPtr bucket    = *(myQueuedBuckets.begin());
+            myQueuedBuckets.erase(myQueuedBuckets.begin());
+
             logger.information( Poco::format("TCP Data Server: handling queued bucket tag=\"%s\" timestamp=%s"
-                    ,bucket.name
-                    ,bucket.isoTimestamp())
+                    ,bucket->name
+                    ,bucket->isoTimestamp())
             );
             std::string jsonMsg = "{\n";
-            jsonMsg += Poco::format( "    \"name\":\"%s\" ,\n",bucket.name);
-            jsonMsg += Poco::format( "    \"timestamp\":\"%s\" ,\n",Poco::NumberFormatter::format(bucket.timestamp.epochMicroseconds()/1000) );
+            jsonMsg += Poco::format( "    \"name\":\"%s\" ,\n",bucket->name);
+            jsonMsg += Poco::format( "    \"timestamp\":\"%s\" ,\n",Poco::NumberFormatter::format(bucket->timestamp.epochMicroseconds()/1000) );
             jsonMsg += "    \"values\": {";
             bool first = true;
-            for ( auto dataPoint : bucket.dataPoints ) {
+            for ( auto dataPoint : bucket->dataPoints ) {
                 if ( first ) {
                     first = false;
                     jsonMsg += Poco::format( "\n        \"%s\" : \"%s\"",dataPoint.label(),dataPoint.value() );
@@ -134,8 +135,7 @@ void TcpDataServer::dispatcherLoop()
             }
             jsonMsg        += "\n    }\n}\n\n";
             int jsonMsgLen  = jsonMsg.length();                
-            myQueuedBuckets.erase(myQueuedBuckets.begin());
-            
+
             auto it = myStreams.begin();
             while( it!=myStreams.end() ) {
                 Poco::Net::StreamSocket &stream(*it);

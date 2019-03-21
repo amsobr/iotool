@@ -7,14 +7,19 @@
 
 
 #include <string>
+#include <memory>
+
+#include <rpn-processor/rpn_lib.hpp>
 #include <rpn-processor/script.hpp>
 #include <common/data_bucket.hpp>
+
 
 class Job
 {
 private:
     std::string myName;
     Rpn::ScriptPtr myScript;
+    Rpn::RpnLib myRpnLib;
 
     struct ValueMapping {
         std::string name;
@@ -26,10 +31,11 @@ private:
     std::vector<ValueMapping> myOutputMappings;
 
 public:
-    Job( std::string const &path );
+    Job(std::string const &path , Rpn::RpnLib &rpnLib );
+
     virtual ~Job() = default;
 
-    DataBucketPtr processBucket( DataBucket input);
+    DataBucketPtr processBucket( DataBucketPtr input);
 
 };
 

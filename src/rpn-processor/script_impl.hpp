@@ -6,6 +6,10 @@
 #define IOTOOL_SCRIPT_IMPL_HPP
 
 #include <rpn-processor/script.hpp>
+#include <rpn-processor/exception.hpp>
+#include <rpn-processor/rpn_lib.hpp>
+
+#include <sstream>
 
 namespace Rpn
 {
@@ -21,7 +25,7 @@ struct Step
         std::istringstream is(line);
         std::getline(is, instrName , ' ');
         if (instrName.empty() ) {
-            throw InvalidSyntaxException();
+            throw ErrInvalidSyntax();
         }
 
         std::string t;

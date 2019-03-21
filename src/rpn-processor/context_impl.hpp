@@ -17,7 +17,7 @@ private:
     std::vector<Variable> myConstants;
     std::vector<Operand> myStack;
 
-    bool requireOperands(int count);
+    bool requireOperands(int count) const;
 
 public:
     ContextImpl();
@@ -26,7 +26,7 @@ public:
 
     Operand pop() override;
 
-    void push(Operand &value) override;
+    void push(Operand const &value) override;
 
     size_t stackSize() const override;
 
@@ -40,9 +40,11 @@ public:
 
     Operand recallVariable(std::string const &name) override;
 
-    void assignConstant(std::__cxx11::string const &name, Operand const &value) override;
+    void assignConstant(std::string const &name, Operand const &value) override;
 
-    Operand recallConstant(std::__cxx11::string const &name) override;
+    Operand recallConstant(std::string const &name) override;
+
+    Operand valueAt(int pos) const override;
 
 };
 

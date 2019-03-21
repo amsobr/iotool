@@ -29,7 +29,7 @@ private:
     std::condition_variable myCondition;
     bool myTerminate;
     Poco::Net::ServerSocket mySocket;
-    std::vector<DataBucket> myQueuedBuckets;
+    std::vector<DataBucketPtr> myQueuedBuckets;
     Poco::Logger &logger;
 
     void dispatcherLoop();
@@ -43,7 +43,7 @@ public:
     void stop();
     bool isRunning();
 
-    virtual void processBucket( DataBucket const &db );
+    virtual void incomingBucket(DataBucketPtr db);
 
 }; /* class TcpDataServer */
 

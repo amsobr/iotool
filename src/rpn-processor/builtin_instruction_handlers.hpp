@@ -16,6 +16,13 @@ namespace Rpn
 {
 typedef void (BuiltinFunction)(ContextPtr,std::vector<std::string> const &);
 
+extern void builtin_clear( ContextPtr ctx , std::vector<std::string> const & );
+extern void builtin_drop( ContextPtr ctx , std::vector<std::string> const & );
+extern void builtin_dropN( ContextPtr ctx , std::vector<std::string> const &args );
+extern void builtin_assignVariable( ContextPtr ctx , std::vector<std::string> const &args );
+extern void builtin_recallVariable( ContextPtr ctx , std::vector<std::string> const &args );
+extern void builtin_assignConstant( ContextPtr ctx , std::vector<std::string> const &args );
+extern void builtin_recallConstant( ContextPtr ctx , std::vector<std::string> const &args );
 extern void builtin_add( ContextPtr ctx , std::vector<std::string> const & );
 extern void builtin_sub( ContextPtr ctx , std::vector<std::string> const & );
 extern void builtin_mul( ContextPtr ctx , std::vector<std::string> const & );

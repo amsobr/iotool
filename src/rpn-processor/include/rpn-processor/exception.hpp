@@ -37,10 +37,11 @@ virtual ~name() {} };
 
 
 
-DECL_RPN_EXCEPTION(NoSuchVariableException)
-DECL_RPN_EXCEPTION(NotEnoughElementsException)
-DECL_RPN_EXCEPTION(InvalidSyntaxException)
-DECL_RPN_EXCEPTION(MalformedFileException)
+DECL_RPN_EXCEPTION(ErrNoSuchVariable)
+DECL_RPN_EXCEPTION(ErrNotEnoughElements)
+DECL_RPN_EXCEPTION(ErrInvalidSyntax)
+DECL_RPN_EXCEPTION(ErrMalformedFile)
+DECL_RPN_EXCEPTION(ErrInvalidArguments)
 
 }; /* namespace Rpn */
 

@@ -14,9 +14,7 @@ using namespace std;
 Result AccumulatorBucket::reset( string name)
 {
     logger.debug( Poco::format( "Resetting bucket. label=\"%s\"",name) );
-    myAccumulator.dataPoints.clear();
-    myAccumulator.timestamp.update();
-    myAccumulator.name=name;
+    myAccumulator.reset( new DataBucket(name) );
     return Result::OK;
 }
 
@@ -24,11 +22,11 @@ Result AccumulatorBucket::flush()
 {
     if ( myBucketConsumer!=nullptr ) {
         logger.debug( Poco::format("Flushing bucket (label=%s #dataPoints=%u) through %p" ,
-                                    myAccumulator.name ,
-                                    myAccumulator.dataPoints.size() ,
+                                    myAccumulator->name ,
+                                    myAccumulator->dataPoints.size() ,
                                      myBucketConsumer)
                         );
-        myBucketConsumer->processBucket(myAccumulator);
+        myBucketConsumer->incomingBucket(myAccumulator);
     }
     reset();
     return Result::OK;
@@ -73,8 +71,9 @@ Result AccumulatorBucket::command( CmdArguments &args )
 
 void AccumulatorBucket::append( DataBucket const &db )
 {
-    myAccumulator.dataPoints.insert(
-        myAccumulator.dataPoints.end() ,
+    myAccumulator->dataPoints.insert(
+        myAccumulator->dataPoints.end() ,
         db.dataPoints.begin() ,
-        db.dataPoints.end() );
+        db.dataPoints.end()
+        );
 }

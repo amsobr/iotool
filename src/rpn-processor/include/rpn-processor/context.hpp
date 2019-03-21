@@ -20,7 +20,7 @@ public:
 
     virtual Operand pop() = 0;
 
-    virtual void push(Operand &value ) = 0;
+    virtual void push(Operand const &value ) = 0;
 
     virtual size_t stackSize() const = 0;
 
@@ -34,9 +34,11 @@ public:
 
     virtual Operand recallVariable(std::string const &name ) = 0;
 
-    virtual void assignConstant(std::__cxx11::string const &name , Operand const &value ) = 0;
+    virtual void assignConstant(std::string const &name , Operand const &value ) = 0;
 
-    virtual Operand recallConstant(std::__cxx11::string const &name ) = 0;
+    virtual Operand recallConstant(std::string const &name ) = 0;
+
+    virtual Operand valueAt( int pos ) const = 0;
 };
 
 typedef std::shared_ptr<Context> ContextPtr;

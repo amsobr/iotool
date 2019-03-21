@@ -6,6 +6,7 @@
 
 #include "script.hpp"
 #include "context.hpp"
+#include "instruction.hpp"
 
 
 namespace Rpn
@@ -58,6 +59,8 @@ public:
      */
 
     ScriptPtr compile( std::vector<std::string> const &script );
+
+    ContextPtr createContext();
 
 
 };

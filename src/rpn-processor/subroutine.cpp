@@ -22,7 +22,7 @@ bool Subroutine::resolveDependencies(RpnLib &lib)
 
 void Subroutine::execute(ContextPtr ctx, std::vector<std::string> const &args)
 {
-    myScript.execute();
+    myScript.execute(ctx);
 }
 
 

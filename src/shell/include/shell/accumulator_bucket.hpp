@@ -13,7 +13,7 @@
 class AccumulatorBucket
 {
 private:
-    DataBucket myAccumulator;
+    DataBucketPtr myAccumulator;
     DataBucketConsumer *myBucketConsumer;
     Poco::Logger &logger;
 
@@ -33,6 +33,7 @@ private:
     AccumulatorBucket() = delete;
 public:
     AccumulatorBucket(DataBucketConsumer *consumer ) :
+    myAccumulator( new DataBucket() ) ,
     myBucketConsumer(consumer) ,
     logger( Poco::Logger::get("accumulator") )
     {

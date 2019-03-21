@@ -1,28 +1,30 @@
 # Function Definition
 
-~~~
-[FUNCTION]
-function_name
-[SCRIPT]
-instr1
-instr2
-instr3
-instr...
+~~~JSON
+{
+  "functionName" : "ARG" ,
+  "script" : [
+    "instr1" ,
+    "instr2" ,
+    "instr3"  
+  ]
+}
 ~~~
 
 
 # Job Definition
-~~~
-[JOB]
-job_name
-[SCRIPT]
-instr1
-instr2
-instr3
-instr...
-[OUTPUTS]
-bucket_varname1@pos1
-bucket_varname2@pos2
-...
-
+~~~JSON
+{
+  "jobName" : "ARG" ,
+  "script" : [
+    "instr1" ,
+    "instr2" ,
+    "instr3"  
+  ] ,
+  "outputs" : {
+    "output_name1" : 0 ,
+    "output_name2" : 1 ,
+    "output_namex" : 2
+  }
+}
 ~~~

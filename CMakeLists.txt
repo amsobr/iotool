@@ -40,7 +40,7 @@ endif()
 
 
 
-find_package( Poco REQUIRED Foundation Util Net XML Crypto )
+find_package( Poco REQUIRED Foundation Util Net XML Crypto JSON )
 
 
 add_subdirectory( lib/libcbsl )

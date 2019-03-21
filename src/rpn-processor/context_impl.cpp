@@ -10,9 +10,9 @@ namespace Rpn
 
 
 ContextImpl::ContextImpl() :
-    myVariables(myVariables),
-    myConstants(myConstants),
-    myStack(myStack) {
+    myVariables(),
+    myConstants(),
+    myStack() {
 
 }
 
@@ -25,7 +25,7 @@ Operand ContextImpl::pop() {
     return v;
 }
 
-void ContextImpl::push(Operand &value)
+void ContextImpl::push(Operand const &value)
 {
     myStack.push_back(value);
 }
@@ -77,7 +77,7 @@ Operand ContextImpl::recallVariable(std::string const &name)
             return v.value();
         }
     }
-    throw NoSuchVariableException("Variable " + name + " not found.");
+    throw ErrNoSuchVariable("Variable " + name + " not found.");
 }
 
 void ContextImpl::assignConstant(std::__cxx11::string const &name, const Operand &value)
@@ -100,16 +100,22 @@ Operand ContextImpl::recallConstant(std::__cxx11::string const &name)
             return v.value();
         }
     }
-    throw NoSuchVariableException("Constant " + name + " not found.");
+    throw ErrNoSuchVariable("Constant " + name + " not found.");
 }
 
 
-bool ContextImpl::requireOperands(int count)
+bool ContextImpl::requireOperands(int count) const
 {
     if ( myStack.size()<count ) {
-        throw NotEnoughElementsException();
+        throw ErrNotEnoughElements();
     }
     return true;
+}
+
+Operand ContextImpl::valueAt(int pos) const
+{
+    requireOperands(pos+1);
+    return myStack[myStack.size()-pos-1];
 }
 
 }; /* namespace Rpn */

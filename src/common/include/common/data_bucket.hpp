@@ -59,6 +59,7 @@ struct DataPoint
     ~DataPoint() {}
 
     std::string label() const { return myLabel; }
+    bool isCalled( std::string const &label) const { return (myLabel==label); }
     std::string value() const { return myValue; }
 };
 
@@ -72,9 +73,9 @@ struct DataBucket
 
     std::list<DataPoint> dataPoints;
 
-    DataBucket( std::string &t )
+    DataBucket( std::string const &name )
     {
-        reset(t);
+        reset(name);
     }
 
     DataBucket( DataBucket const &o ) :
@@ -104,7 +105,7 @@ struct DataBucket
     }
 
     template<typename T>
-    void addDataPoint(std::string const &myLabel , T const &myValue , Peripheral const *p)
+    void addDataPoint(std::string const &myLabel , T const &myValue , Peripheral const *p=nullptr)
     {
         dataPoints.push_back( DataPoint(
                                     generateLabel(myLabel,p) ,
@@ -113,7 +114,7 @@ struct DataBucket
     }
 
     template<typename T>
-    void addDataPoint( std::string const &myLabel , std::vector<T> const &values , Peripheral const *p )
+    void addDataPoint( std::string const &myLabel , std::vector<T> const &values , Peripheral const *p=nullptr )
     {
         std::string labelVal( generateLabel(myLabel,p) );
         
@@ -135,7 +136,7 @@ struct DataBucket
     }
     
     template<typename T>
-    void addDataPoint( unsigned int id , T const &myValue , Peripheral const *p )
+    void addDataPoint( unsigned int id , T const &myValue , Peripheral const *p=nullptr )
     {
         std::string myLabel( generateLabel(id,p) );
         dataPoints.push_back( DataPoint(myLabel,formatValue(myValue)) );
@@ -144,6 +145,16 @@ struct DataBucket
     std::string isoTimestamp() const
     {
         return Poco::DateTimeFormatter::format(timestamp,Poco::DateTimeFormat::ISO8601_FORMAT);
+    }
+
+    std::string getDataPoint( std::string const &name )
+    {
+        for ( auto dataPoint : dataPoints ) {
+            if ( dataPoint.isCalled(name) ) {
+                return dataPoint.value();
+            }
+        }
+        throw std::runtime_error( "Requested non-existing data point: " + name );
     }
     
 }; /* struct DataBucket */

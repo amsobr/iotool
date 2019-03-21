@@ -7,7 +7,8 @@ add_subdirectory( brd/${BOARD_NAME} )
 add_subdirectory( applets )
 add_subdirectory( shell )
 add_subdirectory( rpn-processor )
-add_subdirectory( automata )
+add_subdirectory( jobs )
+add_subdirectory( benchmarks )
 
 
 

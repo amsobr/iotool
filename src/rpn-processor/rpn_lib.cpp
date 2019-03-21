@@ -6,6 +6,10 @@
 #include <fcntl.h>
 
 #include <Poco/File.h>
+#include <Poco/Dynamic/Var.h>
+#include <Poco/JSON/Parser.h>
+#include <Poco/JSON/Array.h>
+#include <Poco/JSON/Object.h>
 
 #include <rpn-processor/rpn_lib.hpp>
 #include <rpn-processor/script.hpp>
@@ -19,9 +23,13 @@
 #include "instruction_catalog.hpp"
 #include "subroutine.hpp"
 
+using std::vector;
+using std::string;
+using namespace Poco::JSON;
+using Poco::Dynamic::Var;
+
 namespace Rpn
 {
-
 
 RpnLib::RpnLib()
 {
@@ -37,12 +45,18 @@ RpnLib::~RpnLib()
 
 void RpnLib::init()
 {
-    myCatalog->addResolver( new BasicInstruction("add",builtin_add) );
-    myCatalog->addResolver( new BasicInstruction("sub",builtin_add) );
-    myCatalog->addResolver( new BasicInstruction("mul",builtin_add) );
-    myCatalog->addResolver( new BasicInstruction("div",builtin_add) );
-    myCatalog->addResolver( new BasicInstruction("neg",builtin_add) );
-
+    myCatalog->add( new BasicInstruction("clear",builtin_clear) );
+    myCatalog->add( new BasicInstruction("drop",builtin_drop) );
+    myCatalog->add( new BasicInstruction("drop.n",builtin_dropN) );
+    myCatalog->add( new BasicInstruction("var.set",builtin_assignVariable) );
+    myCatalog->add( new BasicInstruction("var.get",builtin_recallVariable) );
+    myCatalog->add( new BasicInstruction("const.set",builtin_assignConstant) );
+    myCatalog->add( new BasicInstruction("const.get",builtin_recallConstant) );
+    myCatalog->add( new BasicInstruction("add",builtin_add) );
+    myCatalog->add( new BasicInstruction("sub",builtin_add) );
+    myCatalog->add( new BasicInstruction("mul",builtin_add) );
+    myCatalog->add( new BasicInstruction("div",builtin_add) );
+    myCatalog->add( new BasicInstruction("neg",builtin_add) );
 }
 
 
@@ -66,8 +80,7 @@ bool RpnLib::loadAddons( std::string const &pathName )
 
 bool RpnLib::resolveDependencies()
 {
-
-
+    throw std::runtime_error("Not Implemented - RpnLin::resolveDependencies");
 }
 
 Instruction *RpnLib::lookup( std::string name )
@@ -78,57 +91,39 @@ Instruction *RpnLib::lookup( std::string name )
 
 ScriptPtr RpnLib::compile( std::vector<std::string> const &script )
 {
-
+    ScriptImpl *s   = new ScriptImpl(script);
+    if ( s->resolveDependencies(*this)) {
+        return ScriptPtr(s);
+    }
+    delete s;
+    return nullptr;
 }
 
 void RpnLib::loadAddon(std::string const &path)
 {
-    std::ifstream fileStream;
+    std::ifstream fileStream(path);
 
-    fileStream.open( path.c_str() );
-    enum {
-        INIT ,
-        READ_NAME ,
-        EXPECT_SCRIPT ,
-        READ_SCRIPT ,
-    } state = INIT;
+    Parser parser;
+    Var parsed = parser.parse(fileStream);
 
-    std::vector<std::string> script;
-    std::string functionName;
 
-    std::string line;
-    while ( std::getline(fileStream,line,'\n') ) {
-        switch( state ) {
-            case INIT:
-                if ( line=="[FUNCTION]" ) {
-                    state   = READ_NAME;
-                }
-                else {
-                    throw MalformedFileException( "File '" + path + "' is malformed" );
-                }
-                break;
+    Object::Ptr root    = parsed.extract<Object::Ptr>();
+    string functionName = root->getValue<std::string>("functionName");
+    Array::Ptr jScript  = root->getArray("script");
 
-            case READ_NAME:
-                functionName    = line;
-                state           = EXPECT_SCRIPT;
-                break;
-
-            case EXPECT_SCRIPT:
-                if ( line=="[SCRIPT]" ) {
-                    state       = READ_SCRIPT;
-                }
-                else {
-                    throw MalformedFileException( "File '" + path + "' is malformed" );
-                }
-                break;
-
-            case READ_SCRIPT:
-                script.push_back(line);
-                break;
-        }
-        Subroutine *subroutine  = new Subroutine(functionName,script);
-        myCatalog->addResolver(subroutine);
+    vector<string> script;
+    for ( auto it=jScript->begin() ; it!=jScript->end() ; it++ ) {
+        script.push_back((*it).convert<string>());
     }
+
+    Subroutine *subroutine  = new Subroutine(functionName,script);
+
+    myCatalog->add(subroutine);
+}
+
+ContextPtr RpnLib::createContext()
+{
+    return ContextPtr( new ContextImpl() );
 }
 
 
