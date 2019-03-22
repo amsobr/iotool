@@ -25,6 +25,7 @@ struct Step
         std::istringstream is(line);
         std::getline(is, instrName , ' ');
         if (instrName.empty() ) {
+            printf("Invalid syntax: %s" , line.c_str());
             throw ErrInvalidSyntax();
         }
 
@@ -38,7 +39,8 @@ struct Step
 
     Step( Step const &o ) :
             instrName(o.instrName) ,
-            handler(o.handler)
+            handler(o.handler) ,
+            args(o.args)
     {}
 
     virtual ~Step() = default;
@@ -47,6 +49,7 @@ struct Step
     {
         instrName = other.instrName;
         handler   = other.handler;
+        args      = other.args;
         return *this;
     }
 };
@@ -59,7 +62,7 @@ private:
 public:
     ScriptImpl( std::vector<std::string> const &script )
     {
-        for ( std::string line : script ) {
+        for ( std::string const &line : script ) {
             mySteps.push_back( Step(line) );
         }
     }
@@ -81,12 +84,16 @@ public:
         for ( Step &step : mySteps ) {
             Instruction *handler = lib.lookup(step.instrName);
                 /* no resolver exists... easy to figure out... */
-            if ( handler==nullptr ) return false;
+            if ( handler==nullptr ) {
+                printf("RpnLib: Failed lookup for '%s'\n",step.instrName.c_str());
+                return false;
+            }
 
             if ( handler->resolveDependencies(lib) ) {
                 step.handler = handler;
             }
             else {
+                printf("Script: resolving for instr='%s', failed!!",step.instrName.c_str());
                 /* we DID have a handler but one of its dependencies is likely missing... */
                 return false;
             }

@@ -64,6 +64,7 @@ bool RpnLib::loadAddons( std::string const &pathName )
 {
     Poco::File dir(pathName);
     if ( !dir.isDirectory() ) {
+        printf("OOPS: '%s' doesn't name a directory...\n",pathName.c_str() );
         return false;
     }
 
@@ -80,10 +81,12 @@ bool RpnLib::loadAddons( std::string const &pathName )
 
 bool RpnLib::resolveDependencies()
 {
+    printf("OOPS: THIS WILL NOT WORK...\n");
+
     throw std::runtime_error("Not Implemented - RpnLin::resolveDependencies");
 }
 
-Instruction *RpnLib::lookup( std::string name )
+Instruction *RpnLib::lookup(const string &name)
 {
     return myCatalog->lookup(name);
 }
@@ -94,6 +97,10 @@ ScriptPtr RpnLib::compile( std::vector<std::string> const &script )
     ScriptImpl *s   = new ScriptImpl(script);
     if ( s->resolveDependencies(*this)) {
         return ScriptPtr(s);
+    }
+    else {
+        printf( "Failed resolving dependencies of script");
+        abort();
     }
     delete s;
     return nullptr;
@@ -116,7 +123,9 @@ void RpnLib::loadAddon(std::string const &path)
         script.push_back((*it).convert<string>());
     }
 
+    printf("About to create subroutine '%s' with script...",functionName.c_str() );
     Subroutine *subroutine  = new Subroutine(functionName,script);
+    subroutine->resolveDependencies(*this);
 
     myCatalog->add(subroutine);
 }

@@ -49,7 +49,7 @@ public:
      * @param name Name of the instruction to lookup
      * @return Pointer to the instruction with given name. nullptr if none is found.
      */
-    Instruction *lookup( std::string name );
+    Instruction *lookup(const std::string &name);
 
 
     /** @brief compile an RPN script into executable form

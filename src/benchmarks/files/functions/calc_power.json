@@ -1,0 +1,6 @@
+{
+  "functionName" : "calc_power" ,
+  "script" : [
+    "mul"
+  ]
+}

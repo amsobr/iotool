@@ -8,7 +8,7 @@
 
 #include <Poco/Stopwatch.h>
 
-#include "../jobs/csv_writer.hpp"
+#include "../jobs/include/csv_writer.hpp"
 
 int main(int argc , char const *argv[] )
 {
