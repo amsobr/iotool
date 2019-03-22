@@ -13,7 +13,7 @@
 #include <rpn-processor/rpn_lib.hpp>
 
 
-#include "job.hpp"
+#include "include/job.hpp"
 
 using namespace Poco::JSON;
 using Poco::Dynamic::Var;
