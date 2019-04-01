@@ -5,6 +5,7 @@
 #include <Poco/Format.h>
 
 #include <shell_backend.hpp>
+#include <shell_provider.hpp>
 
 using namespace std;
 using namespace Poco;
@@ -204,4 +205,111 @@ string ShellBackend::help( string const &devType , string const &cmdName )
         }
         return "Unknown command group: " + devType;
     }
+}
+
+ShellProviderPtr ShellBackend::getProvider(std::string const &prefix)
+{
+    lock_guard<recursive_mutex> locker(myMutex);
+
+    for ( auto provider : myProviders ) {
+        if ( provider->provides(prefix) ) {
+            return provider;
+        }
+    }
+    return nullptr;
+}
+
+bool ShellBackend::addProvider(ShellProviderPtr provider)
+{
+    lock_guard<recursive_mutex> locker(myMutex);
+    for ( auto prefix : provider->getPrefixes() ) {
+        if ( getProvider(prefix)!=nullptr ) {
+            return false;
+        }
+    }
+    myProviders.push_back(provider);
+    return true;
+}
+
+Result ShellBackend::runCommand(CmdArguments &args)
+{
+
+    Argument arg0 = args.shift();
+    if ( !arg0.isToken() ) {
+        myStream->writeLine("Invalid syntax.");
+        continue;
+    }
+    string first  = arg0.token();
+    logger.debug( format("First/Command is '%s' numTokens=%u",first,args.size()) );
+
+    if ( first=="help" || first=="h" || first=="?" ) {
+        logger.debug( "Checking help modes...");
+        if ( first=="help" || first=="h" || first=="?" ) {
+            /* Possibilities are:
+                help         --> list commands
+                help devType --> list commands for devType
+                help devType cmd --> detailed help for command of devType
+            */
+            if ( args.size()==2 ) {
+                string helpClass(args.shift().token());
+                string  helpCmd(args.shift().token());
+
+                logger.debug( format("Showing help for class=%s cmd=%s",helpClass,helpCmd));
+                myStream->writeLine(  myEngine->help(helpClass,helpCmd) );
+            }
+            else if ( args.size()==1 ) {
+                string helpClass(args.shift().token());
+                logger.debug( format("Showing help for class=%s",helpClass));
+                myStream->writeLine( myEngine->help(helpClass) );
+            }
+            else {
+                /* show full help, even if cmdLine is plain wrong... */
+                logger.debug( "Showing full help" );
+                myStream->writeLine( usage() );
+                myStream->writeLine( myEngine->help() );
+            }
+        }
+    }
+    else if ( first[0]=='!' ) {
+        string cmdName  = first.substr(1);
+        if ( cmdName=="usage" ) {
+            myStream->writeLine( usage() );
+        }
+        else if ( cmdName=="bucket" ) {
+            myAccumulator->command(args);
+        }
+        else {
+            myStream->writeLine( cmdName + ": Command not found" );
+        }
+    }
+    else if ( first=="exit" ) {
+        myStream->writeLine("Leaving shell...");
+        return;
+        logger.information( "received 'exit'. Leaving shell event loop.");
+    }
+    else {
+        string deviceId(first);
+        if ( args.size()<1 ) {
+            myStream->writeLine( "Invalid input.\n" + usage() );
+        }
+        else {
+            string cmdName(args.shift().token());
+
+            lastDataBucket.reset();
+            Result res = myEngine->runDeviceApplet(deviceId,cmdName,args,lastDataBucket);
+            if ( res.code()==0 ) {
+                logger.debug( format("Command %s result: OK (%d)",cmdName,res.code()) );
+            }
+            else {
+                logger.warning( format("Command %s gave error code=%d", cmdName,res.code()) );
+            }
+            myStream->writeLine( res.message() );
+            if ( !lastDataBucket.dataPoints.empty() ) {
+                printBucket(myStream,lastDataBucket);
+                myAccumulator->append(lastDataBucket);
+                lastDataBucket.dataPoints.clear();
+            }
+        }
+    }
+}
 }

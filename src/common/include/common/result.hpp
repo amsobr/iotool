@@ -35,6 +35,11 @@ public:
 
     std::string message() const { return myMessage; }
 
+    operator std::string() const
+    {
+        return myMessage + (myCode==0 ? "OK\n\n" : "ERROR\n\n");
+    }
+
     static Result const &OK;
     static Result const &E_BAD_ARGS;
     static Result const &E_NOT_SUPPORTED;

@@ -29,7 +29,7 @@ public:
 
     virtual void run()
     {
-        ShellFrontend *shellFrontend    = new ShellFrontend( &myStream,myShellBackend,myDataConsumer );
+        ShellFrontend *shellFrontend    = new ShellFrontend(&myStream, myShellBackend);
         shellFrontend->run();
     }
 

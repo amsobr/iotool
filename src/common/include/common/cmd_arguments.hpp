@@ -145,7 +145,41 @@ Argument shift()
         return a;
     }
 }
-    
+
+bool shiftToken( std::string &dest )
+{
+    if ( myArgs.empty() ) {
+        return false;
+    }
+    else {
+        Argument a(myArgs.front());
+        myArgs.pop_front();
+        if ( a.isToken() ) {
+            dest    = a.token();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool shiftKeyVal( std::string &key , std::string &val )
+{
+    if ( myArgs.empty() ) {
+        return false;
+    }
+    else {
+        Argument a(myArgs.front());
+        myArgs.pop_front();
+        if ( !a.isToken() ) {
+            key = a.name();
+            val = a.value();
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 }; /* class CmdArguments */
 

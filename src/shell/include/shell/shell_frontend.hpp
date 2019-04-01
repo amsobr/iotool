@@ -17,10 +17,9 @@ class ShellFrontend
 private:
     StreamAdapter *myStream;
     ShellBackendPtr myEngine;
-    AccumulatorBucket *myAccumulator;
 
 public:
-    ShellFrontend( StreamAdapter *ioAdapter , ShellBackendPtr engine , DataBucketConsumer *bucketConsumer );
+    ShellFrontend(StreamAdapter *ioStream, ShellBackendPtr engine);
 
     ~ShellFrontend();
 

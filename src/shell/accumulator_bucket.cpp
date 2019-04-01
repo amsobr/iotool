@@ -11,13 +11,6 @@
 
 using namespace std;
 
-Result AccumulatorBucket::reset( string name)
-{
-    logger.debug( Poco::format( "Resetting bucket. label=\"%s\"",name) );
-    myAccumulator.reset( new DataBucket(name) );
-    return Result::OK;
-}
-
 Result AccumulatorBucket::flush()
 {
     if ( myBucketConsumer!=nullptr ) {
@@ -28,44 +21,16 @@ Result AccumulatorBucket::flush()
                         );
         myBucketConsumer->incomingBucket(myAccumulator);
     }
-    reset();
+    init();
     return Result::OK;
 }
 
-Result AccumulatorBucket::init( CmdArguments &args )
+Result AccumulatorBucket::init( string const &name )
 {
-    if ( args.size()!=1 ) return Result::E_BAD_ARGS;
-    if ( !args.hasArg("name") ) return Result::E_BAD_ARGS;
-
-    string label = args.getValue("name");
-    reset(label);
+    logger.debug( Poco::format( "Init bucket. name='%s'",name) );
+    // FIXME: instead of creating new buckets all over again. Implement Bucket::init(time,name)...
+    myAccumulator.reset( new DataBucket(name) );
     return Result::OK;
-}
-
-
-Result AccumulatorBucket::command( CmdArguments &args )
-{
-    logger.trace( Poco::format("Accumulator num_args=%u",args.size()) );
-    if ( args.size()<1 ) return Result::E_BAD_ARGS;
-
-    Argument arg = args.shift();
-    if ( !arg.isToken() ) return Result::E_BAD_ARGS;
-    string cmdName(arg.token());
-
-    if ( cmdName=="reset" ) {
-        if ( args.size()!=0 ) return Result::E_BAD_ARGS;
-        return reset();
-    }
-    if ( cmdName=="flush" ) {
-        if ( args.size()!=0 ) return Result::E_BAD_ARGS;
-        return flush();
-    }
-    if ( cmdName=="init" ) {
-        return init(args);
-    }
-    else {
-        return Result::E_BAD_ARGS;
-    }
 }
 
 
@@ -76,4 +41,97 @@ void AccumulatorBucket::append( DataBucket const &db )
         db.dataPoints.begin() ,
         db.dataPoints.end()
         );
+}
+
+vector<string> AccumulatorBucket::getPrefixes() const
+{
+    return vector<string>({"bucket"});
+}
+
+Result AccumulatorBucket::runCommand(std::string const &prefix, CmdArguments &args, DataBucket &)
+{
+    if ( prefix!="bucket") {
+        logger.error(Poco::format("The impossible happened: bucket command called but prefix='%s'", prefix));
+        return Result::E_NOT_SUPPORTED;
+    }
+
+    logger.trace( Poco::format("Accumulator num_args=%u",args.size()) );
+    if ( args.size()<1 ) {
+        return Result::E_BAD_ARGS;
+    }
+
+    Argument arg = args.shift();
+    if ( !arg.isToken() ) {
+        return Result::E_BAD_ARGS;
+    }
+    string cmdName(arg.token());
+
+    if ( cmdName=="flush" ) {
+        if ( args.size()!=0 ) {
+            return Result::E_BAD_ARGS;
+        }
+        return flush();
+    }
+    else if ( cmdName=="init" ) {
+        if ( args.size()<1 ) {
+            return Result::E_BAD_ARGS;
+        }
+        Argument nameArg = args.shift();
+        if ( !nameArg.isToken() ) {
+            return Result::E_BAD_ARGS;
+        }
+        string name = nameArg.token();
+        return init(name);
+    }
+    else {
+        return Result::E_BAD_ARGS;
+    }
+}
+
+string AccumulatorBucket::helpBrief()
+{
+    return
+    "bucket:\n"
+    "  Manage the session data bucket accumulator.\n"
+    ;
+}
+
+string AccumulatorBucket::helpFamily( string const &prefix)
+{
+    if ( prefix!="bucket" ) {
+        return "AccumulatorBucker: INVALID REQUEST";
+    }
+
+    return
+    "bucket - command interface data bucket management\n"
+    "Available commands:\n"
+    "  bucket init  - initialize bucket.\n"
+    "  bucket flush - dispatch contents of bucket to consumers.\n"
+    ;
+}
+
+string AccumulatorBucket::helpCommand( string const &prefix , string const &cmd)
+{
+    if ( prefix!="bucket" ) {
+        return "AccumulatorBucker: INVALID REQUEST";
+    }
+
+    if ( cmd=="init" ) {
+        return
+        "bucket init - initialize the accumulator\n"
+        "              The timestamp of the bucket is set to current time in the given mode.\n"
+        "Usage:\n"
+        "  bucket init [name=ARG]\n"
+        "Arguments:\n"
+        "  name      The name of the bucket. If none is provided, default is blank.\n"
+        ;
+    }
+    else if ( cmd=="flush" ) {
+        return
+            "bucket flush - dispatch the accumulator to registered consumers\n"
+            "               The bucket becomes empty after execution.\n"
+            "Usage:\n"
+            "  bucket flush\n"
+            ;
+    }
 }

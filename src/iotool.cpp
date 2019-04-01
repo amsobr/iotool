@@ -226,7 +226,7 @@ int main(int argc, char **argv)
     if ( startShell ) {
         logger.debug( "Starting shell...");
         StdioStreamAdapter *iostreams   = new StdioStreamAdapter();
-        ShellFrontend *shellFrontend    = new ShellFrontend( iostreams,shellBackend,0);
+        ShellFrontend *shellFrontend    = new ShellFrontend(iostreams, shellBackend);
         shellFrontend->run();
         delete shellFrontend;
         delete iostreams;

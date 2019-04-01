@@ -9,8 +9,9 @@
 #include <common/data_bucket_consumer.hpp>
 #include <common/cmd_arguments.hpp>
 #include <common/result.hpp>
+#include "shell_provider.hpp"
 
-class AccumulatorBucket
+class AccumulatorBucket : public ShellProvider
 {
 private:
     DataBucketPtr myAccumulator;
@@ -26,9 +27,8 @@ private:
      * @param label New label to use (optional). Default is empty.
      * @return Result::OK
      */
-    Result reset(std::string label="");
     Result flush();
-    Result init(CmdArguments &args);
+    Result init(std::string const &name = "" );
 
     AccumulatorBucket() = delete;
 public:
@@ -46,6 +46,16 @@ public:
     Result command( CmdArguments &args );
 
     void append( DataBucket const &db );
+
+    std::vector<std::string> getPrefixes() const override;
+
+    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &) override;
+
+    std::string helpBrief() override;
+
+    std::string helpFamily(std::string const &prefix) override;
+
+    std::string helpCommand(std::string const &prefix , std::string const &cmd ) override;
 }; /* AccumulatorBucket */
 
 

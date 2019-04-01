@@ -12,11 +12,14 @@
 #include <common/cmd_arguments.hpp>
 #include <common/result.hpp>
 #include <common/peripheral.hpp>
+#include "shell_provider.hpp"
 
 
 class ShellBackend {
 private:
     std::recursive_mutex myMutex;
+
+    std::vector<ShellProviderPtr> myProviders;
 
     std::vector<PeripheralPtr>    myPeripherals;
     std::vector<DeviceAppletPtr>  myDevApplets;
@@ -55,6 +58,13 @@ public:
     Result runSystemApplet( std::string const &cmdName , CmdArguments &args , StreamAdapter &stream );
 
     std::string help( std::string const &devType="" , std::string const &cmdName="" );
+
+    bool addProvider(ShellProviderPtr provider);
+
+    ShellProviderPtr getProvider(const std::string &prefix);
+
+    Result runCommand( CmdArguments &args );
+
 
 }; /* class ShellBackend */
 
