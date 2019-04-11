@@ -7,6 +7,8 @@
 #include <map>
 #include <mutex>
 
+#include <Poco/Logger.h>
+
 #include <common/system_applet.hpp>
 #include <common/device_applet.hpp>
 #include <common/cmd_arguments.hpp>
@@ -32,6 +34,7 @@ private:
     PeripheralPtr getPeripheral( std::string name ) const;
     DeviceAppletPtr getDeviceApplet( PeripheralType t , std::string cmdName ) const;
     SystemAppletPtr getSystemApplet( std::string name ) const;
+    Logger &logger;
 
 public:
     ShellBackend();
@@ -66,6 +69,11 @@ public:
     Result runCommand( CmdArguments &args );
 
 
+    Result runHelp(std::string const &helpCmd, CmdArguments &args);
+
+    Result simpleHelp(CmdArguments arguments);
+
+    Result helpPrefix(const std::string const &prefix, CmdArguments &arguments);
 }; /* class ShellBackend */
 
 

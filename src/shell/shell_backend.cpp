@@ -6,13 +6,16 @@
 
 #include <shell_backend.hpp>
 #include <shell_provider.hpp>
+#include <common/string_utils.hpp>
 
 using namespace std;
 using namespace Poco;
 
 ShellBackend::ShellBackend() :
-myMutex()
+myMutex() ,
+logger( Logger::get("iotool"))
 {
+
 
 }
 
@@ -233,6 +236,37 @@ bool ShellBackend::addProvider(ShellProviderPtr provider)
 
 Result ShellBackend::runCommand(CmdArguments &args)
 {
+    Logger &logger  = Logger::get("iotool");
+    logger.debug( "ShellBackend: parsing command..." );
+
+    string prefix;
+    if ( !args.shiftToken(&prefix) ) {
+        logger.error( Poco::format("First argument '%s' is an invalid prefix", args.shift().toString() ) );
+        return Result::E_NOT_SUPPORTED;
+    }
+
+    logger.debug( "ShellBackend: command prefix is '%s'",prefix));
+
+    if ( prefix.find("help")==0 ) {
+        return runHelp(prefix, args);
+        // TODO: print output of HELP here!!!
+    }
+
+    /* <prefix> args
+     * dispatch the call to the appropriate provider.
+     */
+    ShellProviderPtr provider   = getProvider(prefix);
+    if ( provider==nullptr ) {
+        logger.error( Poco::format("ShellBackend: no provider found for prefix '%s'",prefix) );
+        return Result::E_NOT_SUPPORTED;
+    }
+    DataBucket outcome;
+    Result res = provider->runCommand(prefix,args,outcome);
+
+
+
+
+
 
     Argument arg0 = args.shift();
     if ( !arg0.isToken() ) {
@@ -242,34 +276,6 @@ Result ShellBackend::runCommand(CmdArguments &args)
     string first  = arg0.token();
     logger.debug( format("First/Command is '%s' numTokens=%u",first,args.size()) );
 
-    if ( first=="help" || first=="h" || first=="?" ) {
-        logger.debug( "Checking help modes...");
-        if ( first=="help" || first=="h" || first=="?" ) {
-            /* Possibilities are:
-                help         --> list commands
-                help devType --> list commands for devType
-                help devType cmd --> detailed help for command of devType
-            */
-            if ( args.size()==2 ) {
-                string helpClass(args.shift().token());
-                string  helpCmd(args.shift().token());
-
-                logger.debug( format("Showing help for class=%s cmd=%s",helpClass,helpCmd));
-                myStream->writeLine(  myEngine->help(helpClass,helpCmd) );
-            }
-            else if ( args.size()==1 ) {
-                string helpClass(args.shift().token());
-                logger.debug( format("Showing help for class=%s",helpClass));
-                myStream->writeLine( myEngine->help(helpClass) );
-            }
-            else {
-                /* show full help, even if cmdLine is plain wrong... */
-                logger.debug( "Showing full help" );
-                myStream->writeLine( usage() );
-                myStream->writeLine( myEngine->help() );
-            }
-        }
-    }
     else if ( first[0]=='!' ) {
         string cmdName  = first.substr(1);
         if ( cmdName=="usage" ) {
@@ -312,4 +318,47 @@ Result ShellBackend::runCommand(CmdArguments &args)
         }
     }
 }
+
+Result ShellBackend::runHelp(std::string const &helpCmd, CmdArguments &args)
+{
+    Logger &logger  = Logger::get("iotool");
+
+    /* Possibilities are:
+     * help                --> brief help, list prefixes, short list of commands and help options
+     * help <variant>      --> other kinds of help, shell-backend defined
+     * help-<prefix>       --> list commands and short description for each command and additional help options
+     * help-<prefix> @args --> delegate help into provider
+     */
+    logger.debug( "Checking help modes...");
+
+    if ( helpCmd=="help") {
+        // help
+        // help <args>
+        return simpleHelp(args);
+    }
+
+    // accept only in the form of:
+    // help-<prefix> <args>
+    vector<string> tokens;
+    size_t cnt = StringUtils::split(helpCmd, "-", tokens, false);
+    if (cnt != 2) {
+        return Result::E_NOT_SUPPORTED;
+    }
+    return helpPrefix(tokens[1], args);
+}
+
+Result ShellBackend::simpleHelp(CmdArguments arguments)
+{
+    /* help
+     * help <args>
+     */
+    return Result(0,"Not Implemented Yet...");
+}
+
+Result ShellBackend::helpPrefix(const std::string const &prefix, CmdArguments &arguments)
+{
+    /* help-<prefix>
+     * help-<prefix> args
+     */
+    return Result(0,"Not Implemented yet...");
 }

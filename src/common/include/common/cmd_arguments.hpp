@@ -50,12 +50,16 @@ public:
 
     operator std::string() const
     {
+        return toString();
+    }
+
+    std::string toString() const
+    {
         if ( isToken() ) {
             return token();
         }
         return pair.key + "=" + pair.value;
     }
-
 }; /* class Argument */
 
 class CmdArguments
@@ -134,6 +138,15 @@ size_t size() const
     return myArgs.size();
 }
 
+/**
+ * \brief Check if the list of arguments is empty
+ * \return True if the list if empty. False otherwise
+ */
+bool empty() const
+{
+    return myArgs.empty();
+}
+
 Argument shift()
 {
     if ( myArgs.empty() ) {
@@ -146,7 +159,7 @@ Argument shift()
     }
 }
 
-bool shiftToken( std::string &dest )
+bool shiftToken( std::string *dest )
 {
     if ( myArgs.empty() ) {
         return false;

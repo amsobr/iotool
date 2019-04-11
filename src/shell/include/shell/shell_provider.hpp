@@ -31,7 +31,7 @@ public:
     }
 
 
-    virtual Result runCommand( std::string const &prefix , CmdArguments &args , DataBucket &outcomes ) = 0;
+    virtual Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &outcome) = 0;
     virtual std::string helpBrief() = 0;
     virtual std::string helpFamily( std::string const &prefix );
     virtual std::string helpCommand( std::string const &prefix , std::string const &cmd ) = 0;
