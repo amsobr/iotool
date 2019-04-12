@@ -559,7 +559,7 @@ public:
         return myIdacMagnitudes;
     }
 
-    int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag )
+    int setCurrentSource(unsigned int srcId, bool enabled, unsigned int ch, std::string mag)
     {
         if ( srcId>=2 ) {
             cout << "ERROR srcId>=2\n";

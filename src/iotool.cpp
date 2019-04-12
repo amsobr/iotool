@@ -208,16 +208,6 @@ int main(int argc, char **argv)
         while(true) {
             sleep(5);
         }
-
-        /* OLD TCP DUMB DATA PUMPER */
-        //DataSender *sender;
-        //TcpServer *sender;
-        //logger.information( "Starting TCP server...");
-        //sender  = new TcpServer(board,2308,10000);
-        //sender->start();
-        //logger.information( "TCP logger started.");
-        //sender  = new DataSender( board , 3123 , 60 );
-        ///sender->start();
     }
 
 

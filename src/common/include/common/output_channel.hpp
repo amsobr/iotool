@@ -27,7 +27,7 @@ public:
         return myName;
     }
 
-    virtual void incomingBucket(DataBucketPtr db) = 0;
+    virtual void incomingBucket(DataBucket &db) = 0;
 };
 
 typedef std::shared_ptr<OutputChannel> OutputChannelPtr;

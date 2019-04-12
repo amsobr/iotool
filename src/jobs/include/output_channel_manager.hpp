@@ -74,7 +74,7 @@ public:
 
     }
 
-    void incomingBucket(DataBucketPtr db) override
+    void incomingBucket(DataBucket &db) override
     {
         if ( myQueueEnabled ) {
             myQueue.enqueue(db);

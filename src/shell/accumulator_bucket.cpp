@@ -10,45 +10,36 @@
 
 
 using namespace std;
+using Poco::format;
 
-Result AccumulatorBucket::flush()
+Result AccumulatorBucket::flushBucket(DataBucket &bucket)
 {
     if ( myBucketConsumer!=nullptr ) {
         logger.debug( Poco::format("Flushing bucket (label=%s #dataPoints=%u) through %p" ,
-                                    myAccumulator->name ,
-                                    myAccumulator->dataPoints.size() ,
+                                    bucket.name ,
+                                    bucket.dataPoints.size() ,
                                      myBucketConsumer)
                         );
-        myBucketConsumer->incomingBucket(myAccumulator);
+        myBucketConsumer->incomingBucket(bucket);
     }
-    init();
+    init(bucket);
     return Result::OK;
 }
 
-Result AccumulatorBucket::init( string const &name )
+Result AccumulatorBucket::init(DataBucket &bucket, const std::string &name)
 {
     logger.debug( Poco::format( "Init bucket. name='%s'",name) );
     // FIXME: instead of creating new buckets all over again. Implement Bucket::init(time,name)...
-    myAccumulator.reset( new DataBucket(name) );
+    bucket.name = name;
+    bucket.timestamp.update();
+    bucket.dataPoints.clear();
     return Result::OK;
 }
 
 
-void AccumulatorBucket::append( DataBucket const &db )
-{
-    myAccumulator->dataPoints.insert(
-        myAccumulator->dataPoints.end() ,
-        db.dataPoints.begin() ,
-        db.dataPoints.end()
-        );
-}
 
-vector<string> AccumulatorBucket::getPrefixes() const
-{
-    return vector<string>({"bucket"});
-}
 
-Result AccumulatorBucket::runCommand(std::string const &prefix, CmdArguments &args, DataBucket &)
+Result AccumulatorBucket::runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator)
 {
     if ( prefix!="bucket") {
         logger.error(Poco::format("The impossible happened: bucket command called but prefix='%s'", prefix));
@@ -60,28 +51,25 @@ Result AccumulatorBucket::runCommand(std::string const &prefix, CmdArguments &ar
         return Result::E_BAD_ARGS;
     }
 
-    Argument arg = args.shift();
-    if ( !arg.isToken() ) {
-        return Result::E_BAD_ARGS;
+    string cmdName;
+    if ( !args.shiftToken(&cmdName) ) {
+        logger.error( format("bucket: invalid command - '%s'",args.shift().toString()) );
+        return Result::E_INVALID_SYNTAX;
     }
-    string cmdName(arg.token());
 
     if ( cmdName=="flush" ) {
         if ( args.size()!=0 ) {
             return Result::E_BAD_ARGS;
         }
-        return flush();
+        return flushBucket(accumulator);
     }
     else if ( cmdName=="init" ) {
-        if ( args.size()<1 ) {
-            return Result::E_BAD_ARGS;
+        string name;
+        if ( !args.shiftToken(&name)) {
+            logger.error( format("bucket init: invalid name - '%s'",args.shift().toString()) );
+            return Result::E_INVALID_SYNTAX;
         }
-        Argument nameArg = args.shift();
-        if ( !nameArg.isToken() ) {
-            return Result::E_BAD_ARGS;
-        }
-        string name = nameArg.token();
-        return init(name);
+        return init(accumulator,name);
     }
     else {
         return Result::E_BAD_ARGS;
@@ -133,5 +121,8 @@ string AccumulatorBucket::helpCommand( string const &prefix , string const &cmd)
             "Usage:\n"
             "  bucket flush\n"
             ;
+    }
+    else {
+        return "bucket " + cmd + ": invalid command.\n";
     }
 }

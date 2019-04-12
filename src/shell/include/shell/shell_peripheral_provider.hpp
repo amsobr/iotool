@@ -1,5 +1,5 @@
-#ifndef SHELL_BACKEND_HPP
-#define SHELL_BACKEND_HPP
+#ifndef SHELL_PERIPHERAL_PROVIDER_HPP
+#define SHELL_PERIPHERAL_PROVIDER_HPP
 
 #include <list>
 #include <string>
@@ -9,7 +9,6 @@
 
 #include <Poco/Logger.h>
 
-#include <common/system_applet.hpp>
 #include <common/device_applet.hpp>
 #include <common/cmd_arguments.hpp>
 #include <common/result.hpp>
@@ -17,29 +16,25 @@
 #include "shell_provider.hpp"
 
 
-class ShellBackend {
+class ShellPeripheralProvider : public ShellProvider {
 private:
     std::recursive_mutex myMutex;
 
-    std::vector<ShellProviderPtr> myProviders;
-
     std::vector<PeripheralPtr>    myPeripherals;
     std::vector<DeviceAppletPtr>  myDevApplets;
-    std::vector<SystemAppletPtr>  mySysApplets;
 
-    /* chache */
+    /* cache */
     std::map<std::string,PeripheralPtr> myPeripheralsByName;
     std::map<PeripheralType,std::list<DeviceAppletPtr>> myAppletsByType;
 
     PeripheralPtr getPeripheral( std::string name ) const;
     DeviceAppletPtr getDeviceApplet( PeripheralType t , std::string cmdName ) const;
-    SystemAppletPtr getSystemApplet( std::string name ) const;
+
     Poco::Logger &logger;
-    DataBucket myAccumulator;
 
 public:
-    ShellBackend();
-    ~ShellBackend();
+    ShellPeripheralProvider();
+    ~ShellPeripheralProvider();
 
     void setPeripherals( std::vector<PeripheralPtr> peripherals )
     {
@@ -51,35 +46,25 @@ public:
         myDevApplets   = applets;
     }
 
-    void setSystemApplets( std::vector<SystemAppletPtr> const &applets)
-    {
-        mySysApplets    = applets;
-    }
-    
     void rebuildIndex();
 
     Result runDeviceApplet( std::string const &devName , std::string const &cmdName , CmdArguments &args , DataBucket &dataBucket );
-    Result runSystemApplet( std::string const &cmdName , CmdArguments &args , StreamAdapter &stream );
 
     std::string help( std::string const &devType="" , std::string const &cmdName="" );
 
-    bool addProvider(ShellProviderPtr provider);
 
-    ShellProviderPtr getProvider(const std::string &prefix);
+    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator) override;
 
-    Result runCommand( CmdArguments &args );
+    std::string helpBrief() override;
 
+    std::string helpFamily(std::string const &prefix) override;
 
-    Result runHelp(std::string const &helpCmd, CmdArguments &args);
-
-    Result simpleHelp(CmdArguments arguments);
-
-    Result helpPrefix(std::string const &prefix, CmdArguments &arguments);
-}; /* class ShellBackend */
+    std::string helpCommand(std::string const &prefix, std::string const &cmd) override;
+}; /* class ShellPeripheralProvider */
 
 
-typedef std::shared_ptr<ShellBackend> ShellBackendPtr;
+//typedef std::shared_ptr<ShellPeripheralProvider> ShellPeripheralProviderPtr;
 
 
 
-#endif /* !defined SHELL_BACKEND_HPP */
+#endif /* !defined SHELL_PERIPHERAL_PROVIDER_HPP */

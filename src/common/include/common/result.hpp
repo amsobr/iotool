@@ -44,6 +44,7 @@ public:
     static Result const &E_BAD_ARGS;
     static Result const &E_NOT_SUPPORTED;
     static Result const &E_INVALID_STATE;
+    static Result const &E_INVALID_SYNTAX;
 }; /* class Result */
 
 

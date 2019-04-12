@@ -166,9 +166,9 @@ bool shiftToken( std::string *dest )
     }
     else {
         Argument a(myArgs.front());
-        myArgs.pop_front();
         if ( a.isToken() ) {
-            dest    = a.token();
+            myArgs.pop_front();
+            *dest    = a.token();
             return true;
         }
     }

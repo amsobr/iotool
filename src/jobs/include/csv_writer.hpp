@@ -22,7 +22,7 @@ public:
     virtual ~CsvWriter();
 
 public:
-    void incomingBucket(DataBucketPtr db) override;
+    void incomingBucket(DataBucket &db) override;
 };
 
 

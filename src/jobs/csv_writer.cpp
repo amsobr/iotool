@@ -4,7 +4,7 @@
 
 #include "include/csv_writer.hpp"
 
-void CsvWriter::incomingBucket(DataBucketPtr db)
+void CsvWriter::incomingBucket(DataBucket &db)
 {
     std::stringstream ss;
     ss << db->isoTimestamp();

@@ -13,7 +13,7 @@ public:
      * 
      * @param db The DataBucket to be processed
      */
-    virtual void incomingBucket(DataBucketPtr db) = 0;
+    virtual void incomingBucket(DataBucket &db) = 0;
 
 
 }; /* DataBucketConsumer */

@@ -50,9 +50,9 @@ TcpDataServer::~TcpDataServer()
     }
 }
 
-void TcpDataServer::incomingBucket(DataBucketPtr db)
+void TcpDataServer::incomingBucket(DataBucket &db)
 {
-    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db->name,db->isoTimestamp(),db->dataPoints.size()) );
+    logger.debug( Poco::format("Incoming bucket: tag=\"%s\" timestamp=%s #dataPoints=%z",db.name,db.isoTimestamp(),db.dataPoints.size()) );
     std::lock_guard<std::mutex> lock(myMutex);
     /* NB: it is safe to notify first because the lock is being held... */
     /* TODO: make sure that the notify mechanism is
@@ -62,7 +62,7 @@ void TcpDataServer::incomingBucket(DataBucketPtr db)
         logger.debug( "Waking up dispatcher loop..." );
         myCondition.notify_all();
     }
-    myQueuedBuckets.push_back(db);
+    myQueuedBuckets.push_back(DataBucketPtr(new DataBucket(db)));
 }
 
 void TcpDataServer::acceptorLoop()

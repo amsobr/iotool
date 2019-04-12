@@ -37,7 +37,7 @@ size_t split(std::string const &str, std::string const &separator, std::vector<s
     size_t const sepLen(separator.size());
 
     size_t numTokens(0);
-    while( curTokenPos<str.size() ) {
+    while( curTokenPos<strLen ) {
         size_t stt = str.find( separator , curTokenPos );
         if ( stt!=std::string::npos ) {
             /* if stt==curTokenPos, there are consecutive separators...

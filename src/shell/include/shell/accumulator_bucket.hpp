@@ -14,7 +14,6 @@
 class AccumulatorBucket : public ShellProvider
 {
 private:
-    DataBucketPtr myAccumulator;
     DataBucketConsumer *myBucketConsumer;
     Poco::Logger &logger;
 
@@ -27,13 +26,13 @@ private:
      * @param label New label to use (optional). Default is empty.
      * @return Result::OK
      */
-    Result flush();
-    Result init(std::string const &name = "" );
+    Result flushBucket(DataBucket &bucket);
+    Result init(DataBucket &bucket, const std::string &name = "");
 
     AccumulatorBucket() = delete;
 public:
     AccumulatorBucket(DataBucketConsumer *consumer ) :
-    myAccumulator( new DataBucket() ) ,
+    ShellProvider( {"bucket"} ) ,
     myBucketConsumer(consumer) ,
     logger( Poco::Logger::get("accumulator") )
     {
@@ -47,9 +46,7 @@ public:
 
     void append( DataBucket const &db );
 
-    std::vector<std::string> getPrefixes() const override;
-
-    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &) override;
+    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator) override;
 
     std::string helpBrief() override;
 

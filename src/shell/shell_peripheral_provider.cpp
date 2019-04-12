@@ -8,28 +8,27 @@
 #include <shell_provider.hpp>
 #include <common/string_utils.hpp>
 
+#include "shell_peripheral_provider.hpp"
+
 using namespace std;
 using namespace Poco;
 
-ShellBackend::ShellBackend() :
+ShellPeripheralProvider::ShellPeripheralProvider() :
+ShellProvider({"with"}) ,
 myMutex() ,
-logger( Logger::get("iotool")) ,
-myAccumulator()
+logger( Logger::get("iotool"))
 {
 
 
 }
 
-ShellBackend::~ShellBackend()
+ShellPeripheralProvider::~ShellPeripheralProvider()
 {
 
 }
 
 
-//std::map<std::string,PeripheralPtr> myPeripheralsByName;
-//std::map<PeripheralType,std::list<AppletPtr>> myAppletsByType;
-
-PeripheralPtr ShellBackend::getPeripheral( string name ) const
+PeripheralPtr ShellPeripheralProvider::getPeripheral( string name ) const
 {
     auto it = myPeripheralsByName.find(name);
     if ( it==myPeripheralsByName.end() ) {
@@ -39,8 +38,7 @@ PeripheralPtr ShellBackend::getPeripheral( string name ) const
 }
 
 
-
-DeviceAppletPtr ShellBackend::getDeviceApplet( PeripheralType t , std::string cmdName ) const
+DeviceAppletPtr ShellPeripheralProvider::getDeviceApplet( PeripheralType t , std::string cmdName ) const
 {
     auto it = myAppletsByType.find(t);
     if ( it==myAppletsByType.end() ) {
@@ -56,22 +54,8 @@ DeviceAppletPtr ShellBackend::getDeviceApplet( PeripheralType t , std::string cm
     return nullptr;
 }
 
-/**
- * @brief 
- * 
- * @param name 
- * @return SystemAppletPtr 
- */
-SystemAppletPtr ShellBackend::getSystemApplet( std::string name ) const
-{
-    for ( SystemAppletPtr p : mySysApplets ) {
-        if ( p->getName()==name ) return p;
-    }
-    return nullptr;
-}
 
-
-void ShellBackend::rebuildIndex()
+void ShellPeripheralProvider::rebuildIndex()
 {
     lock_guard<recursive_mutex> locker(myMutex);
 
@@ -122,7 +106,7 @@ void ShellBackend::rebuildIndex()
     }
 }
 
-Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , DataBucket &db )
+Result ShellPeripheralProvider::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , DataBucket &db )
 {
     lock_guard<recursive_mutex> locker(myMutex);
 
@@ -136,17 +120,6 @@ Result ShellBackend::runDeviceApplet( string const &devName , string const &cmdN
         return Result(1,"Command " + cmdName + " undefined for " + peripheral->getType() + "peripherals\n ");
     }
     return applet->execute(args,peripheral,db);
-}
-
-Result ShellBackend::runSystemApplet( string const &cmdName , CmdArguments &args , StreamAdapter &stream )
-{
-        lock_guard<recursive_mutex> locker(myMutex);
-
-    SystemAppletPtr applet  = getSystemApplet(cmdName);
-    if ( applet==nullptr ) {
-        return Result(1,"command not found:" + cmdName );
-    }
-    return applet->execute(args,stream);
 }
 
 
@@ -163,20 +136,8 @@ static string generateFamilyHelp( string const &family , list<DeviceAppletPtr> c
     return msg;
 }
 
-static string generateSystemHelp( vector<SystemAppletPtr> const &applets )
-{
-    string msg = "SYSTEM commands:\n";
-    for ( SystemAppletPtr a : applets ) {
-        char str[128];
-        snprintf( str , sizeof(str) , "  %-12s%s\n" , a->getName().c_str() , a->brief().c_str() );
-        msg += str;
-    }
-    msg += "\n";
 
-    return msg;
-}
-
-string ShellBackend::help( string const &devType , string const &cmdName )
+string ShellPeripheralProvider::help( string const &devType , string const &cmdName )
 {
     lock_guard<recursive_mutex> locker(myMutex);
 
@@ -188,7 +149,6 @@ string ShellBackend::help( string const &devType , string const &cmdName )
         for ( auto node : myAppletsByType ) {
             msg += generateFamilyHelp( node.first.toString() , node.second );
         }
-        msg += generateSystemHelp( mySysApplets );
         return msg;
     }
     else {       
@@ -211,100 +171,42 @@ string ShellBackend::help( string const &devType , string const &cmdName )
     }
 }
 
-ShellProviderPtr ShellBackend::getProvider(std::string const &prefix)
-{
-    lock_guard<recursive_mutex> locker(myMutex);
 
-    for ( auto provider : myProviders ) {
-        if ( provider->provides(prefix) ) {
-            return provider;
+Result ShellPeripheralProvider::runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator)
+{
+    if ( prefix=="with" ) {
+        string periphName;
+        if ( ! args.shiftToken(&periphName) ) {
+            logger.error( Poco::format("with: invalid peripheral name - '%s'" , args.shift().toString()));
+            return Result::E_INVALID_SYNTAX;
         }
-    }
-    return nullptr;
-}
-
-bool ShellBackend::addProvider(ShellProviderPtr provider)
-{
-    lock_guard<recursive_mutex> locker(myMutex);
-    for ( auto prefix : provider->getPrefixes() ) {
-        if ( getProvider(prefix)!=nullptr ) {
-            return false;
+        
+        string cmdName;
+        if ( !args.shiftToken(&cmdName) ) {
+            logger.error( Poco::format("with <peripheral>: invalid command name - '%s'" , args.shift().toString()));
+            return Result::E_INVALID_SYNTAX;
         }
+        
+        return runDeviceApplet(periphName,cmdName,args,accumulator);
     }
-    myProviders.push_back(provider);
-    return true;
-}
-
-Result ShellBackend::runCommand(CmdArguments &args)
-{
-    Logger &logger  = Logger::get("iotool");
-    logger.debug( "ShellBackend: parsing command..." );
-
-    string prefix;
-    if ( !args.shiftToken(&prefix) ) {
-        logger.error( Poco::format("First argument '%s' is an invalid prefix", args.shift().toString() ) );
+    else {
+        logger.error( Poco::format("ShellPeripheralProvider: The impossible happened - called with invalid prefix: '%s'",prefix));
         return Result::E_NOT_SUPPORTED;
     }
-
-    logger.debug( format("ShellBackend: command prefix is '%s'",prefix));
-
-    if ( prefix.find("help")==0 ) {
-        return runHelp(prefix, args);
-        // TODO: print output of HELP here!!!
-    }
-
-    /* <prefix> args
-     * dispatch the call to the appropriate provider.
-     */
-    ShellProviderPtr provider   = getProvider(prefix);
-    if ( provider==nullptr ) {
-        logger.error( Poco::format("ShellBackend: no provider found for prefix '%s'",prefix) );
-        return Result::E_NOT_SUPPORTED;
-    }
-
-    return provider->runCommand(prefix,args,myAccumulator);
 }
 
-Result ShellBackend::runHelp(std::string const &helpCmd, CmdArguments &args)
+string ShellPeripheralProvider::helpBrief()
 {
-    Logger &logger  = Logger::get("iotool");
-
-    /* Possibilities are:
-     * help                --> brief help, list prefixes, short list of commands and help options
-     * help <variant>      --> other kinds of help, shell-backend defined
-     * help-<prefix>       --> list commands and short description for each command and additional help options
-     * help-<prefix> @args --> delegate help into provider
-     */
-    logger.debug( "Checking help modes...");
-
-    if ( helpCmd=="help") {
-        // help
-        // help <args>
-        return simpleHelp(args);
-    }
-
-    // accept only in the form of:
-    // help-<prefix> <args>
-    vector<string> tokens;
-    size_t cnt = StringUtils::split(helpCmd, "-", tokens, false);
-    if (cnt != 2) {
-        return Result::E_NOT_SUPPORTED;
-    }
-    return helpPrefix(tokens[1], args);
+    return "with <peripheral> <cmd> args";
 }
 
-Result ShellBackend::simpleHelp(CmdArguments arguments)
+string ShellPeripheralProvider::helpFamily(std::string const &prefix)
 {
-    /* help
-     * help <args>
-     */
-    return Result(0,"Not Implemented Yet...");
+    
+
 }
 
-Result ShellBackend::helpPrefix(std::string const &prefix, CmdArguments &arguments)
+string ShellPeripheralProvider::helpCommand(std::string const &prefix, std::string const &cmd)
 {
-    /* help-<prefix>
-     * help-<prefix> args
-     */
-    return Result(0,"Not Implemented yet...");
+    
 }

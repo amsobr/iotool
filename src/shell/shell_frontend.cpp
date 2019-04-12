@@ -17,13 +17,6 @@
 using namespace std;
 using namespace Poco;
 
-static void printBucket( StreamAdapter *s , DataBucket const &db )
-{
-    for ( auto entry : db.dataPoints ) {
-        s->writeLine( Poco::format("%s=%s",entry.label(),entry.value()) );
-    }
-}
-
 ShellFrontend::ShellFrontend(StreamAdapter *ioStream, ShellBackendPtr engine) :
 myStream(ioStream) ,
 myEngine(engine)
@@ -36,32 +29,17 @@ ShellFrontend::~ShellFrontend()
 }
 
 
-string usage()
-{
-    return 
-    "Shell Usage: \n"
-    "DEV CMD ARGS...     Execute command CMD on device DEV with arguments\n"
-    "!SYSCMD ARGS...     Execute system command SYSCMD.\n"
-    "                    All system commands start with '!'\n"
-    "                    except 'help' , '?' and 'h'\n"
-    ""
-    "\n"
-    "Some useful commands:\n"
-    "help, h or ?        Show this help message, and a list of\n"
-    "                    all available devices and commands.\n"
-    "help GROUP          List all commands available for GROUP\n"
-    "help GROUP CMD      Show detailed help for command CMD of\n"
-    "                    group GROUP\n"
-    "!usage              Show this help message\n"
-    ;
-}
+static string const greeter = "Welcome to HW manager shell.\n"
+                              "Useful commands:\n"
+                              "exit - leave the shell\n"
+                              "help - shell help\n\n"
+                              ;
 
 void ShellFrontend::run()
 {
     Logger &logger  = Logger::get("iotool");
 
-    myStream->writeLine("Welcome to HW manager shell.");
-    myStream->writeLine( usage() );
+    myStream->writeLine(greeter);
 
     DataBucket lastDataBucket;
     
@@ -69,6 +47,10 @@ void ShellFrontend::run()
         myStream->putc('>');
         string cmdLine;
         cmdLine = myStream->readLine();
+        if ( cmdLine=="exit" ) {
+            logger.information("Shell exiting now.");
+            break;
+        }
 
         CmdArguments args;
         try {
@@ -76,6 +58,7 @@ void ShellFrontend::run()
         }
         catch (std::exception ex) {
             logger.error("Error parsing command line:" + cmdLine);
+            myStream->writeLine("Invalid syntax");
             continue;
         }
 

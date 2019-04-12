@@ -43,7 +43,7 @@ public:
     void stop();
     bool isRunning();
 
-    virtual void incomingBucket(DataBucketPtr db);
+    virtual void incomingBucket(DataBucket &db);
 
 }; /* class TcpDataServer */
 
