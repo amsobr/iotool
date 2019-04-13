@@ -40,7 +40,7 @@ public:
         }
     }
 
-    void enqueue( T &elem )
+    void enqueue( T elem )
     {
         std::lock_guard<std::mutex> lock(myMutex);
         myQueue.push_back(elem);

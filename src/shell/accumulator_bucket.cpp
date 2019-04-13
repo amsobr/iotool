@@ -20,7 +20,7 @@ Result AccumulatorBucket::flushBucket(DataBucket &bucket)
                                     bucket.dataPoints.size() ,
                                      myBucketConsumer)
                         );
-        myBucketConsumer->incomingBucket(bucket);
+        myBucketConsumer->incomingBucket( DataBucketPtr(new DataBucket(bucket)) );
     }
     init(bucket);
     return Result::OK;

@@ -37,6 +37,13 @@ public:
 
     DataBucketPtr processBucket( DataBucketPtr input);
 
+    std::string name() const { return myName; }
+
+    bool isCalled( std::string const &s ) const
+    {
+        return myName==s;
+    }
+
 };
 
 typedef std::shared_ptr<Job> JobPtr;

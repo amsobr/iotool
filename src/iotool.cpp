@@ -26,10 +26,11 @@
 #include <shell/stdio_stream_adapter.hpp>
 
 #include "iotool_config.hpp"
-#include "data_sender.hpp"
 #include "tcp_server.hpp" /* telnet server. could use a better name >.< */
 #include "tcp_data_server.hpp"
 #include "shell/connected_telnet_client_factory.hpp"
+#include "jobs/include/csv_writer.hpp"
+#include "output_channel_manager.hpp"
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
@@ -39,6 +40,7 @@
 #include <Poco/Net/TCPServerConnectionFactory.h>
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/SocketAddress.h>
+#include <common/output_channel.hpp>
 
 using namespace std;
 using namespace Poco;
@@ -185,6 +187,15 @@ int main(int argc, char **argv)
     shellBackend->setSystemApplets( systemApplets );
     shellBackend->setDeviceApplets( deviceApplets );
     shellBackend->rebuildIndex();
+
+
+    logger.critical("IOTOOL: ####################################");
+    logger.critical("IOTOOL: PLEASE SET UP FIELDS OF CSV WRITER!!");
+    logger.critical("IOTOOL: ####################################");
+    std::list<OutputChannelPtr> outputChannels;
+    OutputChannelPtr csvWriter( new CsvWriter("CSV-writer1" , list<string>() , "csv-output1.csv" ) );
+    outputChannels.push_back(csvWriter);
+    OutputChannelManager outputManager(outputChannels);
 
 
     

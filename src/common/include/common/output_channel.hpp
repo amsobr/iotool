@@ -22,12 +22,17 @@ public:
 
     }
 
-    const std::string &getName() const
+    std::string getName() const
     {
         return myName;
     }
 
-    virtual void incomingBucket(DataBucket &db) = 0;
+    bool isCalled( std::string const &name ) const
+    {
+        return myName==name;
+    }
+
+    virtual void incomingBucket(DataBucketPtr db) = 0;
 };
 
 typedef std::shared_ptr<OutputChannel> OutputChannelPtr;

@@ -17,12 +17,18 @@ private:
     std::ofstream fileStream;
 
 public:
+    /**
+     * \brief Create a new CSV Writer
+     * \param name The name of the output channel
+     * \param myFields Fields to take from bucket and into the CSV file
+     * \param myPath Path to the CSV file
+     */
     CsvWriter(const std::string &name, const std::list<std::string> &myFields, const std::string &myPath);
 
     virtual ~CsvWriter();
 
 public:
-    void incomingBucket(DataBucket &db) override;
+    void incomingBucket(DataBucketPtr db) override;
 };
 
 
