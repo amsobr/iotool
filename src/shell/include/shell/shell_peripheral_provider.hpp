@@ -53,7 +53,7 @@ public:
     std::string help( std::string const &devType="" , std::string const &cmdName="" );
 
 
-    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator) override;
+    Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &outcome) override;
 
     std::string helpBrief() override;
 
@@ -63,7 +63,7 @@ public:
 }; /* class ShellPeripheralProvider */
 
 
-//typedef std::shared_ptr<ShellPeripheralProvider> ShellPeripheralProviderPtr;
+typedef std::shared_ptr<ShellPeripheralProvider> ShellPeripheralProviderPtr;
 
 
 

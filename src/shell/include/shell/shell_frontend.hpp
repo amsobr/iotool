@@ -10,7 +10,6 @@
 #include <common/data_bucket_consumer.hpp>
 
 #include "shell_backend.hpp"
-#include "accumulator_bucket.hpp"
 
 class ShellFrontend
 {

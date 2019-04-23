@@ -7,11 +7,15 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <Poco/Util/Timer.h>
+#include <Poco/JSON/Object.h>
+
+#include <common/acquisition_scheduler.hpp>
 
 
-class PeriodicScheduler
+class PeriodicScheduler : public AcquisitionScheduler
 {
 private:
     Poco::Util::Timer myTimer;
@@ -27,9 +31,9 @@ public:
     PeriodicScheduler();
     virtual ~PeriodicScheduler();
 
+    typedef std::shared_ptr<PeriodicScheduler> Ptr;
 
-
-
+    static Ptr loadFromJSON(Poco::JSON::Object::Ptr config);
 
 };
 

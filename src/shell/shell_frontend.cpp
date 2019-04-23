@@ -52,20 +52,7 @@ void ShellFrontend::run()
             break;
         }
 
-        CmdArguments args;
-        try {
-            args.loadFrom(cmdLine);
-        }
-        catch (std::exception ex) {
-            logger.error("Error parsing command line:" + cmdLine);
-            myStream->writeLine("Invalid syntax");
-            continue;
-        }
-
-        if (args.size() == 0) {
-            continue;
-        }
-        myStream->writeLine(myEngine->runCommand(args));
+        myStream->writeLine(myEngine->runCommand(cmdLine));
     }
 
 }

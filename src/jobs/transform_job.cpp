@@ -8,19 +8,43 @@
 
 #include <Poco/JSON/Parser.h>
 #include <Poco/Dynamic/Var.h>
+#include <Poco/Logger.h>
+#include <Poco/Format.h>
+#include <Poco/JSON/JSON.h>
 
 #include <rpn-processor/script.hpp>
 #include <rpn-processor/rpn_lib.hpp>
 
 
-#include "include/job.hpp"
+#include "transform_job.hpp"
+#include "../periodic_scheduler.hpp"
 
 using namespace Poco::JSON;
 using Poco::Dynamic::Var;
-using std::string;
-using std::vector;
-
-Job::Job(std::string const &path , Rpn::RpnLib &rpnLib ) :
+using Poco::Logger;
+using Poco::format;
+using namespace std;
+/**
+ * \brief
+ * \details Structure of the JSON file:
+ * {
+ *   "jobName" : "ARG" ,
+ *     "script" : [
+ *         "instr1" ,
+ *         "instr2" ,
+ *         "instr3"
+ *     ] ,
+ *     "outputs" : {
+ *         "output_name1" : 0 ,
+ *         "output_name2" : 1 ,
+ *         "output_namex" : 2
+ *     }
+ * }
+ *
+ * \param path
+ * \param rpnLib
+ */
+TransformJob::TransformJob(std::string const &path , Rpn::RpnLib &rpnLib ) :
 myRpnLib(rpnLib)
 {
     std::ifstream fileStream(path);
@@ -30,7 +54,7 @@ myRpnLib(rpnLib)
 
 
     Object::Ptr root    = parsed.extract<Object::Ptr>();
-    myName              = root->getValue<std::string>("jobName");
+    myName              = root->getValue<std::string>("myJobName");
     Array::Ptr jScript  = root->getArray("script");
 
     vector<string> script;
@@ -51,7 +75,7 @@ myRpnLib(rpnLib)
 }
 
 
-DataBucketPtr Job::processBucket( DataBucketPtr input)
+DataBucketPtr TransformJob::processBucket( DataBucketPtr input)
 {
     Rpn::ContextPtr ctx = myRpnLib.createContext();
 
@@ -69,6 +93,8 @@ DataBucketPtr Job::processBucket( DataBucketPtr input)
     }
     return DataBucketPtr(bucket);
 }
+
+
 
 
 

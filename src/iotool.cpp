@@ -24,12 +24,13 @@
 #include <shell/shell_backend.hpp>
 #include <shell/shell_frontend.hpp>
 #include <shell/stdio_stream_adapter.hpp>
+#include <shell/shell_backend_factory.hpp>
 
 #include "iotool_config.hpp"
 #include "tcp_server.hpp" /* telnet server. could use a better name >.< */
 #include "tcp_data_server.hpp"
 #include "shell/connected_telnet_client_factory.hpp"
-#include "jobs/include/csv_writer.hpp"
+#include "csv_writer.hpp"
 #include "output_channel_manager.hpp"
 
 #include <Poco/FileChannel.h>
@@ -41,6 +42,7 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/SocketAddress.h>
 #include <common/output_channel.hpp>
+#include <shell/shell_peripheral_provider.hpp>
 
 using namespace std;
 using namespace Poco;
@@ -158,6 +160,7 @@ int main(int argc, char **argv)
      * live for the lifetime of the process...
      */
     FileChannel *logFile  = new FileChannel(Iotool::LOG_FILE);
+    logFile->open();
     logFile->setProperty("rotation","5 M");
     logFile->setProperty("compress","true");
     logFile->setProperty("archive","number");
@@ -175,27 +178,20 @@ int main(int argc, char **argv)
 
     logger.information( Poco::format("\n\n\n-------------------------------------\niotool-%s starting...\n-------------------------------------" , string(Iotool::VERSION)) );
 
-    logger.debug( "Creating board...");
+    logger.information( "Creating board...");
     BoardPtr board  = createBoard();
-    logger.debug( "Creating device applets...");
+    logger.information( "Creating device applets...");
     vector<DeviceAppletPtr> deviceApplets( createDeviceApplets() );
     logger.debug( "Creating system applets...");
     vector<SystemAppletPtr> systemApplets( createSystemApplets() );
 
-    ShellBackendPtr shellBackend    = make_shared<ShellBackend>();
-    shellBackend->setPeripherals( board->getPeripherals() );
-    shellBackend->setSystemApplets( systemApplets );
-    shellBackend->setDeviceApplets( deviceApplets );
-    shellBackend->rebuildIndex();
+    /* set up the shell engine */
+    ShellPeripheralProviderPtr peripheralProviderPtr( new ShellPeripheralProvider() );
+    peripheralProviderPtr->setDeviceApplets(deviceApplets);
+    peripheralProviderPtr->setPeripherals(board->getPeripherals());
+    peripheralProviderPtr->rebuildIndex();
 
-
-    logger.critical("IOTOOL: ####################################");
-    logger.critical("IOTOOL: PLEASE SET UP FIELDS OF CSV WRITER!!");
-    logger.critical("IOTOOL: ####################################");
-    std::list<OutputChannelPtr> outputChannels;
-    OutputChannelPtr csvWriter( new CsvWriter("CSV-writer1" , list<string>() , "csv-output1.csv" ) );
-    outputChannels.push_back(csvWriter);
-    OutputChannelManager outputManager(outputChannels);
+    ShellBackendFactory::addProvider(peripheralProviderPtr);
 
 
     
@@ -203,6 +199,7 @@ int main(int argc, char **argv)
         TcpDataServer *dataServer = new TcpDataServer(Iotool::TCP_DATA_SERVER_PORT);
         dataServer->start();
         Poco::Net::TCPServer *tcpServer;
+        ShellBackendPtr shellBackend    = ShellBackendFactory::createInstance();
         Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend,dataServer));
         Poco::Net::ServerSocket srvSkt;
         logger.information( Poco::format("telnet server: binding to 0.0.0.0:%u...",Iotool::TCP_LISTEN_PORT) );
@@ -227,6 +224,7 @@ int main(int argc, char **argv)
     if ( startShell ) {
         logger.debug( "Starting shell...");
         StdioStreamAdapter *iostreams   = new StdioStreamAdapter();
+        ShellBackendPtr shellBackend    = ShellBackendFactory::createInstance();
         ShellFrontend *shellFrontend    = new ShellFrontend(iostreams, shellBackend);
         shellFrontend->run();
         delete shellFrontend;

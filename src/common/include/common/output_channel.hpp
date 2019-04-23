@@ -10,26 +10,13 @@
 
 class OutputChannel : public DataBucketConsumer
 {
-private:
-    std::string myName;
 
 public:
-    OutputChannel(std::string const &name) : myName(name)
+    OutputChannel()
     {}
 
     virtual ~OutputChannel()
     {
-
-    }
-
-    std::string getName() const
-    {
-        return myName;
-    }
-
-    bool isCalled( std::string const &name ) const
-    {
-        return myName==name;
     }
 
     virtual void incomingBucket(DataBucketPtr db) = 0;

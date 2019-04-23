@@ -12,41 +12,37 @@ The acquisition workflow contains three stages:
   - session start
   - session teardown
   
- ## Setup phase
+## Setup phase
  This phase is intended to prepare the hardware for signal aquisition.
  Usually steps performed here deal with setting up the transducers,
  with parameters like SPS, full-scale, sensor excitations, etc.
  
- ## Execution phase
+## Execution phase
  Signal acquisition....
  
- ## Teardown phase
+## Teardown phase
  Shutdown hardware resources, if relevant, in order to conserve
  CPU, power, reduce interference with external devices or whatever.
   
 # Definition for a Scheduler
-~~~JSON
+~~~json
 {
-  "schedType" : "periodic" ,
-  "setup" : {
-    "script" : [
+  "schedulerType" : "periodic" ,
+  "schedulerConfig" : {
+    "setupScript" : [
       "with adc0 setopt sps=500" ,
       "with adc0 isource set source=0 ch=0 mag=50u" ,
       "with dac0 set ch=0 level=1000" ,
       "..."
-    ]
-  },
-  "execution" : {
+    ] ,
     "executionInterval" : 100 ,
-    "script" : [
+    "executionScript" : [
       "bucket init name=power" ,
       "with adc0 read ch=0" ,
       "with adc0 read ch=1" ,
       "bucket flush"
-    ]  
-  },
-  "teardown" : {
-    "script" : [
+    ]  ,
+    "teardownScript" : [
       "do" ,
       "whatever" ,
       "to" ,
@@ -56,3 +52,78 @@ The acquisition workflow contains three stages:
   }
 }
 ~~~
+
+# RPN Library
+## Function Definition
+
+~~~JSON
+{
+  "functionName" : "ARG" ,
+  "script" : [
+    "instr1" ,
+    "instr2" ,
+    "instr3"  
+  ]
+}
+~~~
+
+
+# TransformJob Definition
+~~~JSON
+{
+  "myJobName" : "ARG" ,
+  "script" : [
+    "instr1" ,
+    "instr2" ,
+    "instr3" 
+  ] ,
+  "outputs" : {
+    "output_name1" : 0 ,
+    "output_name2" : 1 ,
+    "output_namex" : 2
+  }
+}
+~~~
+
+# Output Channel configuration
+## Basic structure of an output myChannel
+
+~~~json
+{
+	"myJobName" : "ARG" ,
+	"myChannelName" : "CHANNEL_NAME" ,
+	"channelType" : "CHANNEL_TYPE" ,
+	"parameters" : {
+		"param1" : "value1" ,
+		"param2": "value2"
+	}
+}
+~~~
+
+The **parameters** portion is specific to the __channelType__.
+The construction of output channels shall be performed by delegating the actual construction of the myChannel instances based on __channelType__
+
+### CSV Writer
+Following is the definition of a CSV writer
+
+~~~json
+{
+	"myJobName" : "ARG" ,
+	"myChannelName" : "CHANNEL_NAME" ,
+	"channelType" : "csv_writer" ,
+	"parameters"  :  {
+		"fileName"  : "path/to/file.csv" ,
+		"fieldSeparator" : "tab|colon|semicolon|space|comma" ,
+		"append" : true|false ,
+		"fields" : [
+			"field_name_1" ,
+			"field_name_2" ,
+			"field_name_3" ,
+			"field_name_n"			
+		]
+	}
+}
+~~~
+
+
+

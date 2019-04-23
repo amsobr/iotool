@@ -8,27 +8,25 @@
 
 #include <common/output_channel.hpp>
 #include <fstream>
+#include <Poco/JSON/Object.h>
 
 class CsvWriter : public OutputChannel
 {
 private:
     std::list<std::string> myFields;
     std::string myPath;
+    char mySeparator;
+    bool myAppend;
     std::ofstream fileStream;
 
+    CsvWriter();
 public:
-    /**
-     * \brief Create a new CSV Writer
-     * \param name The name of the output channel
-     * \param myFields Fields to take from bucket and into the CSV file
-     * \param myPath Path to the CSV file
-     */
-    CsvWriter(const std::string &name, const std::list<std::string> &myFields, const std::string &myPath);
 
     virtual ~CsvWriter();
 
-public:
     void incomingBucket(DataBucketPtr db) override;
+
+    static OutputChannel * loadFromJSON(Poco::JSON::Object::Ptr jsonParameters);
 };
 
 

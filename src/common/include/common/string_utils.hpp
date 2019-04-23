@@ -30,7 +30,8 @@ namespace StringUtils
  *                      two consecutive separators are found.
  * \return The number of tokens push_back'ed into dest
  */
-size_t split(std::string const &str, std::string const &separator, std::vector<std::string> &dest , bool mergeSeparators=true )
+ // TODO: maybe we're exhagerating by inlining this kind stuff...
+static inline size_t split(std::string const &str, std::string const &separator, std::vector<std::string> &dest , bool mergeSeparators=true )
 {
     size_t curTokenPos(0);
     size_t const strLen(str.size());

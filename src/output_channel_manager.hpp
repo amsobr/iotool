@@ -11,11 +11,12 @@
 
 #include <common/output_channel.hpp>
 #include <common/blocking_queue.hpp>
+#include "output_channel_holder.hpp"
 
 class OutputChannelManager : public DataBucketConsumer
 {
 private:
-    std::list<OutputChannelPtr> myOutputChannels;
+    std::list<OutputChannelHolder> myOutputChannels;
     BlockingQueue<DataBucketPtr> myQueue;
     std::thread myThread;
     bool myStopped;
@@ -23,8 +24,8 @@ private:
     void workerFunction();
 
 public:
-    OutputChannelManager(std::list<OutputChannelPtr> const &channels ) :
-    myOutputChannels(channels)  ,
+    OutputChannelManager() :
+    myOutputChannels()  ,
     myQueue()   ,
     myThread(&OutputChannelManager::workerFunction,this)
     {
@@ -45,6 +46,7 @@ public:
         myThread.join();
     }
 
+    bool loadFromPath(std::string const &path);
 };
 
 

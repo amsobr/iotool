@@ -2,19 +2,21 @@
 // Created by to on 20/03/19.
 //
 
-#ifndef IOTOOL_JOB_HPP
-#define IOTOOL_JOB_HPP
+#ifndef IOTOOL_TRANSFORM_JOB_HPP
+#define IOTOOL_TRANSFORM_JOB_HPP
 
 
 #include <string>
 #include <memory>
+
+#include <Poco/JSON/Object.h>
 
 #include <rpn-processor/rpn_lib.hpp>
 #include <rpn-processor/script.hpp>
 #include <common/data_bucket.hpp>
 
 
-class Job
+class TransformJob
 {
 private:
     std::string myName;
@@ -31,9 +33,9 @@ private:
     std::vector<ValueMapping> myOutputMappings;
 
 public:
-    Job(std::string const &path , Rpn::RpnLib &rpnLib );
+    TransformJob(std::string const &path , Rpn::RpnLib &rpnLib );
 
-    virtual ~Job() = default;
+    virtual ~TransformJob() = default;
 
     DataBucketPtr processBucket( DataBucketPtr input);
 
@@ -46,7 +48,7 @@ public:
 
 };
 
-typedef std::shared_ptr<Job> JobPtr;
+typedef std::shared_ptr<TransformJob> TransformJobPtr;
 
 
-#endif //IOTOOL_JOB_HPP
+#endif //IOTOOL_TRANSFORM_JOB_HPP

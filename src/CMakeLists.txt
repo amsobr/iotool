@@ -17,7 +17,13 @@ set( IOTOOL_SRCS
     iotool.cpp
     tcp_server.cpp
     tcp_data_server.cpp
-    output_channel_manager.cpp output_channel_manager.hpp job_manager.cpp job_manager.hpp)
+    csv_writer.cpp
+    output_channel_manager.cpp
+    job_manager.cpp
+    io_core.cpp
+    periodic_scheduler.cpp
+    acquisition_scheduler_factory.cpp
+    )
     
     
 add_executable( iotool ${IOTOOL_SRCS} )
@@ -45,4 +51,17 @@ set_target_properties(iotool PROPERTIES CXX_EXTENSIONS OFF)
 
 #target_link_libraries( iotool brd applets shell common cbsl  -lpthread -lrt
 #set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
-target_link_libraries( iotool ${BOARD_NAME} rpn-processor applets shell jobs common cbsl Poco::Foundation Poco::Net Poco::Util Poco::XML -lpthread -lrt )
+target_link_libraries( iotool ${BOARD_NAME}
+    rpn-processor
+    applets
+    shell
+    jobs
+    common
+    cbsl
+    Poco::Foundation
+    Poco::Net
+    Poco::Util
+    Poco::XML
+    Poco::JSON
+    -lpthread -lrt
+)

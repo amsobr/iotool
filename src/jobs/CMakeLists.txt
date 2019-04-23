@@ -1,6 +1,5 @@
 add_library( jobs STATIC
-    job.cpp
-    csv_writer.cpp
+    transform_job.cpp
     )
 
 target_include_directories( jobs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )

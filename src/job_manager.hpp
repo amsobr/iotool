@@ -10,12 +10,13 @@
 
 #include <common/data_bucket_consumer.hpp>
 #include <common/blocking_queue.hpp>
-#include "jobs/include/job.hpp"
+#include "transform_job.hpp"
 
-class JobManager : public DataBucketConsumer
+class TransformJobManager : public DataBucketConsumer
 {
 private:
-    std::list<JobPtr> myJobs;
+    Rpn::RpnLib myRpnLib;
+    std::list<TransformJobPtr> myJobs;
     BlockingQueue<DataBucketPtr> myQueue;
     bool myTerminated;
     std::thread myThread;
@@ -28,9 +29,11 @@ private:
 
 
 public:
-    JobManager( std::list<JobPtr> &jobs );
+    TransformJobManager();
 
-    virtual ~JobManager();
+    virtual ~TransformJobManager();
+
+    bool loadFromPath( std::string const &path );
 
     void incomingBucket(DataBucketPtr db) override
     {

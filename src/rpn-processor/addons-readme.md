@@ -12,10 +12,10 @@
 ~~~
 
 
-# Job Definition
+# TransformJob Definition
 ~~~JSON
 {
-  "jobName" : "ARG" ,
+  "myJobName" : "ARG" ,
   "script" : [
     "instr1" ,
     "instr2" ,

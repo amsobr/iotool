@@ -1,6 +1,0 @@
-=== Accumulating data points for further transmission
-
-!bucket init name=ARG
-
-!bucket transmit
-

@@ -35,9 +35,20 @@ public:
 
     std::string message() const { return myMessage; }
 
-    operator std::string() const
+    std::string toString() const
     {
         return myMessage + (myCode==0 ? "OK\n\n" : "ERROR\n\n");
+    }
+
+    operator std::string() const
+    {
+        return toString();
+    }
+
+
+    bool isSuccess() const
+    {
+        return (myCode==0);
     }
 
     static Result const &OK;
@@ -45,6 +56,8 @@ public:
     static Result const &E_NOT_SUPPORTED;
     static Result const &E_INVALID_STATE;
     static Result const &E_INVALID_SYNTAX;
+
+
 }; /* class Result */
 
 
