@@ -12,6 +12,8 @@ class AcquisitionScheduler
 {
 public:
 
+    virtual void start() = 0;
+    virtual void stop() = 0;
 
     typedef std::shared_ptr<AcquisitionScheduler> Ptr;
 };

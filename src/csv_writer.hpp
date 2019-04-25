@@ -13,6 +13,7 @@
 class CsvWriter : public OutputChannel
 {
 private:
+    Poco::Logger &logger;
     std::list<std::string> myFields;
     std::string myPath;
     char mySeparator;

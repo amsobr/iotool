@@ -11,13 +11,11 @@ class OutputChannelHolder
 {
 private:
     OutputChannelPtr myChannel;
-    std::string myChannelName;
     std::string myJobName;
 
 public:
-    OutputChannelHolder( std::string const &channelName, std::string const &jobName , OutputChannelPtr channel ) :
+    OutputChannelHolder(std::string const &jobName, OutputChannelPtr channel) :
     myChannel(channel),
-    myChannelName(channelName),
     myJobName(jobName)
     {}
 
@@ -28,7 +26,6 @@ public:
 
     OutputChannelHolder( OutputChannelHolder const &other ) :
     myChannel(other.myChannel) ,
-    myChannelName(other.myChannelName) ,
     myJobName(other.myJobName)
     {
 
@@ -37,7 +34,6 @@ public:
     OutputChannelHolder operator=( OutputChannelHolder const &other )
     {
         myChannel       = other.myChannel;
-        myChannelName   = other.myChannelName;
         myJobName       = other.myJobName;
         return *this;
     }
@@ -46,11 +42,6 @@ public:
     const OutputChannelPtr channel() const
     {
         return myChannel;
-    }
-
-    const std::string channelName() const
-    {
-        return myChannelName;
     }
 
     const std::string jobName() const

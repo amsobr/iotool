@@ -15,7 +15,7 @@
 # TransformJob Definition
 ~~~JSON
 {
-  "myJobName" : "ARG" ,
+  "jobName" : "ARG" ,
   "script" : [
     "instr1" ,
     "instr2" ,

@@ -6,6 +6,8 @@
 #define IOTOOL_IO_CORE_HPP
 
 
+#include <Poco/Logger.h>
+
 #include <shell/shell_backend.hpp>
 #include <shell/shell_frontend.hpp>
 #include <common/acquisition_scheduler.hpp>
@@ -17,20 +19,23 @@
 class IoCore
 {
 private:
+    Poco::Logger &logger;
     std::vector<AcquisitionScheduler::Ptr> mySchedulers;
     TransformJobManager *myDataConverters;
     OutputChannelManager *myOutputStage;
     ShellBackendPtr myShellBackend;
     DataBucket myAccumulator;
+    std::string myConfigDirPath;
 
 public:
-    IoCore();
+    IoCore(std::string configDirPath);
 
     virtual ~IoCore();
 
 
     void shutdown();
 
+    void start();
 };
 
 

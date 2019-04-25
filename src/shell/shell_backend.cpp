@@ -29,9 +29,9 @@ ShellBackend::~ShellBackend()
 }
 
 
-Result ShellBackend::runCommand(string const &cmdLine)
+Result ShellBackend::runCommand(std::string const &cmdLine, DataBucket *outcome)
 {
-    return impl->runCommand(cmdLine);
+    return impl->runCommand(cmdLine,outcome);
 }
 
 Result ShellBackend::runHelp(std::string const &helpCmd, CmdArguments &args)

@@ -15,17 +15,22 @@ using namespace Poco::JSON;
 
 void CsvWriter::incomingBucket(DataBucketPtr db)
 {
+    logger.information("CsvWriter(%s): received bucket:\n%s",myPath,db->toString());
     std::stringstream ss;
-    ss << db->isoTimestamp();
+    ss << db->timestamp.epochMicroseconds()/1000;
     for ( std::string fieldName : myFields ) {
-        ss << '\t' << db->getDataPoint(fieldName);
+        ss << mySeparator << db->getDataPoint(fieldName);
     }
-    ss << '\n';
-    fileStream << ss.str();
+    fileStream << ss.str() << "\n";
+    //fileStream.flush();
+    //logger.information(format("CsvWriter: failbit=%b",fileStream.fail()));
 }
 
-CsvWriter::CsvWriter()
-{}
+CsvWriter::CsvWriter() :
+logger(Logger::get("iotool"))
+{
+
+}
 
 CsvWriter::~CsvWriter()
 {
@@ -43,7 +48,7 @@ OutputChannel *CsvWriter::loadFromJSON(Poco::JSON::Object::Ptr config)
 
         writer->myPath  = config->getValue<string>("fileName");
         string separator= config->getValue<string>("fieldSeparator");
-        if ( separator=="tabl" ) {
+        if ( separator=="tab" ) {
             writer->mySeparator = '\t';
         }
         else if ( separator=="colon" ) {
@@ -69,6 +74,10 @@ OutputChannel *CsvWriter::loadFromJSON(Poco::JSON::Object::Ptr config)
             writer->myFields.push_back((*it).convert<string>());
         }
 
+        std::ios_base::openmode mode = std::fstream::out;
+        mode |= writer->myAppend ? std::fstream::app : std::fstream::trunc;
+
+        writer->fileStream.open(writer->myPath,mode);
         logger.information("CsvWriter: Things are looking good. writer was loaded.");
         return writer;
     }

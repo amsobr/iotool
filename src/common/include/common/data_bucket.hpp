@@ -156,6 +156,18 @@ struct DataBucket
         }
         throw std::runtime_error( "Requested non-existing data point: " + name );
     }
+
+    std::string toString() const
+    {
+        std::stringstream ss;
+        ss << Poco::format("name      : %s\n",name);
+        ss << Poco::format("timestamp : %s\n",isoTimestamp());
+        ss << Poco::format("Entries (num=%z):",dataPoints.size());
+        for ( auto pt : dataPoints ) {
+            ss << Poco::format("\n    %10s : %s",pt.label(),pt.value());
+        }
+        return ss.str();
+    }
     
 }; /* struct DataBucket */
 

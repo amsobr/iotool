@@ -52,8 +52,16 @@ void ShellFrontend::run()
             break;
         }
 
-        myStream->writeLine(myEngine->runCommand(cmdLine));
-    }
+        DataBucket outcome;
+        Result res  = myEngine->runCommand(cmdLine,&outcome);
 
+        if ( res.isSuccess() ) {
+            for ( auto entry : outcome.dataPoints ) {
+                myStream->writeLine( format("%-15s : %s",entry.label(),entry.value()) );
+            }
+        }
+        myStream->writeLine(res);
+        myStream->writeLine("\n");
+    }
 }
 

@@ -1,0 +1,14 @@
+{
+    "schedulerType": "periodic" ,
+    "schedulerConfig" : {
+        "setupScript" : [] ,
+        "executionInterval" : 1000 ,
+        "executionScript" : [
+            "bucket init name=power" ,
+            "with adc0 read ch=2" ,
+            "with adc0 read chp=0 chn=1" ,
+            "bucket flush"
+        ]  ,
+        "teardownScript" : []
+    }
+}

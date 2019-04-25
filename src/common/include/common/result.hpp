@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <Poco/Format.h>
+
 class Result
 {
 private:
@@ -37,7 +39,12 @@ public:
 
     std::string toString() const
     {
-        return myMessage + (myCode==0 ? "OK\n\n" : "ERROR\n\n");
+        if ( isSuccess() ) {
+            return "OK";
+        }
+        else {
+            return Poco::format("%s\nERROR(%d)",myMessage,myCode);
+        }
     }
 
     operator std::string() const

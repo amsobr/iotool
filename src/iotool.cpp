@@ -32,6 +32,7 @@
 #include "shell/connected_telnet_client_factory.hpp"
 #include "csv_writer.hpp"
 #include "output_channel_manager.hpp"
+#include "io_core.hpp"
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
@@ -81,6 +82,8 @@ int main(int argc, char **argv)
 {
     bool startShell=false;
     bool startServer=false;
+    bool launchJobEngine=false;
+    string jobEngineConfiguration;
 
 
     if ( argc<2 ) {
@@ -91,32 +94,41 @@ int main(int argc, char **argv)
     for ( int i(1) ; i<argc ; i++ ) {
         cbsl::KeyVal::Pair  arg = cbsl::KeyVal::parseArg(argv[i]);
 
-        if ( !arg.isAnonymous() ) {
-            fprintf( stderr , "Invalid argument: %s\n", argv[i]);
-            return 1;
-        }
-        if ( arg.value=="--version") {
-            version();
-            return 0;
-        }
-        else if ( arg.value=="--help") {
-            help();
-            return 0;
-        }
-        else if ( arg.value=="--foreground") {
-            startShell  = true;
-        }
-        else if ( arg.value=="--daemon") {
-            startServer = true;
+        if ( arg.isAnonymous() ) {
+            if (arg.value == "--version") {
+                version();
+                return 0;
+            } else if (arg.value == "--help") {
+                help();
+                return 0;
+            } else if (arg.value == "--foreground") {
+                startShell = true;
+            } else if (arg.value == "--daemon") {
+                startServer = true;
+            } else {
+                fprintf(stderr, "Unsupported argument: %s\n", argv[i]);
+                return 1;
+            }
         }
         else {
-            fprintf( stderr , "Unsupported argument: %s\n" , argv[i] );
-            return 1;
+            if ( arg.key == "--job-config" ) {
+                launchJobEngine = true;
+                jobEngineConfiguration  = arg.value;
+            }
+            else {
+                fprintf(stderr, "Unsupported argument: %s\n",argv[i]);
+                return 1;
+            }
         }
     }
 
     if ( startServer && startShell ) {
         fprintf( stderr , "Please invoke with only one of --daemon or --foreground options...\n" );
+        return 1;
+    }
+
+    if ( launchJobEngine && !startServer ) {
+        fprintf(stderr," --job-config requires --daemon\n");
         return 1;
     }
 
@@ -193,6 +205,12 @@ int main(int argc, char **argv)
 
     ShellBackendFactory::addProvider(peripheralProviderPtr);
 
+
+    IoCore *ioCore(nullptr);
+    if ( launchJobEngine ) {
+        ioCore  = new IoCore(jobEngineConfiguration);
+        ioCore->start();
+    }
 
     
     if ( startServer ) {

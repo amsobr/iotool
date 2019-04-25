@@ -25,7 +25,7 @@ using std::vector;
 
 
 
-AcquisitionScheduler::Ptr loadScheduler(string const &path )
+AcquisitionScheduler::Ptr loadScheduler(const string &path, ShellBackendPtr shellBackend)
 {
     Logger &logger = Logger::get("iotool");
 
@@ -41,7 +41,7 @@ AcquisitionScheduler::Ptr loadScheduler(string const &path )
     Object::Ptr schedConfig = root->getObject("schedulerConfig");
 
     if ( schedType=="periodic") {
-        return PeriodicScheduler::loadFromJSON(schedConfig);
+        return PeriodicScheduler::loadFromJSON(schedConfig, shellBackend);
     }
     else {
         return nullptr;
@@ -68,7 +68,7 @@ AcquisitionSchedulerFactory::loadFromPath(std::string const &path, ShellBackendP
     dir.list(allFiles);
     for ( auto file : allFiles ) {
         if ( !file.isFile() ) continue;
-        AcquisitionScheduler::Ptr p = loadScheduler(file.path());
+        AcquisitionScheduler::Ptr p = loadScheduler(file.path(), shellBackend);
         if ( p!= nullptr ) {
             logger.information( format("loaded scheduler from '%s'",file.path()));
             schedulers.push_back(p);

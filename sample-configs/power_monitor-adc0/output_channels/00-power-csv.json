@@ -1,0 +1,17 @@
+{
+	"jobName" : "power" ,
+	"myChannelName" : "power-out-csv" ,
+	"channelType" : "csv_writer" ,
+	"parameters"  :  {
+		"fileName"  : "power.csv" ,
+		"fieldSeparator" : "tab" ,
+		"append" : true ,
+		"fields" : [
+			"timestamp" ,
+			"voltage" ,
+			"shunt_voltage" ,
+			"current" ,
+			"power"
+		]
+	}
+}

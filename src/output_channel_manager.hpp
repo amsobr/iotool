@@ -9,6 +9,8 @@
 #include <list>
 #include <thread>
 
+#include <Poco/Logger.h>
+
 #include <common/output_channel.hpp>
 #include <common/blocking_queue.hpp>
 #include "output_channel_holder.hpp"
@@ -16,35 +18,30 @@
 class OutputChannelManager : public DataBucketConsumer
 {
 private:
+    Poco::Logger &logger;
     std::list<OutputChannelHolder> myOutputChannels;
     BlockingQueue<DataBucketPtr> myQueue;
-    std::thread myThread;
     bool myStopped;
+    std::thread myThread;
 
     void workerFunction();
 
 public:
     OutputChannelManager() :
+    logger(Poco::Logger::get("iotool")) ,
     myOutputChannels()  ,
     myQueue()   ,
+    myStopped(false) ,
     myThread(&OutputChannelManager::workerFunction,this)
     {
 
     }
 
-    ~OutputChannelManager() override;
+    ~OutputChannelManager() override = default;
 
-    void incomingBucket(DataBucketPtr db) override
-    {
-        myQueue.enqueue(db);
-    }
+    void incomingBucket(DataBucketPtr db) override;
 
-    void close()
-    {
-        myStopped   = true;
-        myQueue.shutdown();
-        myThread.join();
-    }
+    void close();
 
     bool loadFromPath(std::string const &path);
 };

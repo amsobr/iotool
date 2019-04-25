@@ -83,11 +83,20 @@ public:
             return Result::OK;
         }
         else if ( cmdName=="init" ) {
-            string name;
-            if ( !args.shiftToken(&name)) {
-                logger.error( format("bucket init: invalid name - '%s'",args.shift().toString()) );
+            if ( args.size()!=1 ) {
+                logger.error(format("bucket init: invalid number of arguments. have %z, expected 1",args.size()));
+                return Result::E_BAD_ARGS;
+            }
+            Argument arg( args.shift() );
+            if ( arg.isToken() ) {
+                logger.error("bucket init: invalid argument type. needed name=ARG");
                 return Result::E_INVALID_SYNTAX;
             }
+            if ( arg.name()!="name" ) {
+                logger.error("bucket init: invalid argument name. needed name=ARG");
+                return Result::E_BAD_ARGS;
+            }
+            string name = arg.value();
             initBucket(name);
             return Result::OK;
         }
@@ -166,7 +175,7 @@ string ShellBackend::bucketHelp( string const &prefix , string const &cmd)
 }
 #endif
 
-    Result runCommand(string const &cmdLine)
+    Result runCommand(string const &cmdLine, DataBucket *outcome)
     {
         Logger &logger  = Logger::get("iotool");
         logger.debug( "ShellBackend: parsing command..." );
@@ -211,7 +220,19 @@ string ShellBackend::bucketHelp( string const &prefix , string const &cmd)
             }
 
             logger.information("ShellBackend: delegating command execution to provider...");
-            return provider->runCommand(prefix, args, myAccumulator);
+            DataBucket cmdOutcome;
+            Result res = provider->runCommand(prefix, args, cmdOutcome);
+            if ( res.isSuccess() ) {
+                myAccumulator.dataPoints.insert(
+                    myAccumulator.dataPoints.end(),
+                    cmdOutcome.dataPoints.begin(),
+                    cmdOutcome.dataPoints.end()
+                    );
+                if ( outcome!= nullptr ) {
+                    outcome->dataPoints = cmdOutcome.dataPoints;
+                }
+            }
+            return res;
         }
     }
 

@@ -4,4 +4,4 @@ add_library( jobs STATIC
 
 target_include_directories( jobs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
-target_link_libraries( jobs PRIVATE common Poco::JSON rpn-processor )
+target_link_libraries( jobs PRIVATE common Poco::JSON shell rpn-processor )

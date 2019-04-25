@@ -53,16 +53,23 @@ void RpnLib::init()
     myCatalog->add( new BasicInstruction("const.set",builtin_assignConstant) );
     myCatalog->add( new BasicInstruction("const.get",builtin_recallConstant) );
     myCatalog->add( new BasicInstruction("add",builtin_add) );
-    myCatalog->add( new BasicInstruction("sub",builtin_add) );
-    myCatalog->add( new BasicInstruction("mul",builtin_add) );
-    myCatalog->add( new BasicInstruction("div",builtin_add) );
-    myCatalog->add( new BasicInstruction("neg",builtin_add) );
+    myCatalog->add( new BasicInstruction("sub",builtin_sub) );
+    myCatalog->add( new BasicInstruction("mul",builtin_mul) );
+    myCatalog->add( new BasicInstruction("div",builtin_div) );
+    myCatalog->add( new BasicInstruction("neg",builtin_neg) );
+    myCatalog->add( new BasicInstruction("push",builtin_push) );
+    myCatalog->add( new BasicInstruction("dup.n",builtin_dupN));
+    myCatalog->add( new BasicInstruction("dup",builtin_dup));
 }
 
 
 bool RpnLib::loadAddons( std::string const &pathName )
 {
     Poco::File dir(pathName);
+    if ( !dir.exists() ) {
+        printf("RpnLib: addon dir does not exist\n");
+        return false;
+    }
     if ( !dir.isDirectory() ) {
         printf("OOPS: '%s' doesn't name a directory...\n",pathName.c_str() );
         return false;

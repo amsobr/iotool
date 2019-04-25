@@ -119,6 +119,7 @@ Result ShellPeripheralProvider::runDeviceApplet( string const &devName , string 
     if ( applet==nullptr ) {
         return Result(1,"Command " + cmdName + " undefined for " + peripheral->getType() + "peripherals\n ");
     }
+    logger.information("ShellPeripheralProvider: running command '%s' on peripheral '%s'",cmdName,devName);
     return applet->execute(args,peripheral,db);
 }
 
@@ -175,6 +176,7 @@ string ShellPeripheralProvider::help( string const &devType , string const &cmdN
 Result ShellPeripheralProvider::runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator)
 {
     if ( prefix=="with" ) {
+        logger.information("Running 'with' command...");
         string periphName;
         if ( ! args.shiftToken(&periphName) ) {
             logger.error( Poco::format("with: invalid peripheral name - '%s'" , args.shift().toString()));

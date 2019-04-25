@@ -71,7 +71,7 @@ The acquisition workflow contains three stages:
 # TransformJob Definition
 ~~~JSON
 {
-  "myJobName" : "ARG" ,
+  "jobName" : "ARG" ,
   "script" : [
     "instr1" ,
     "instr2" ,
@@ -90,7 +90,7 @@ The acquisition workflow contains three stages:
 
 ~~~json
 {
-	"myJobName" : "ARG" ,
+	"jobName" : "ARG" ,
 	"myChannelName" : "CHANNEL_NAME" ,
 	"channelType" : "CHANNEL_TYPE" ,
 	"parameters" : {
@@ -108,7 +108,7 @@ Following is the definition of a CSV writer
 
 ~~~json
 {
-	"myJobName" : "ARG" ,
+	"jobName" : "ARG" ,
 	"myChannelName" : "CHANNEL_NAME" ,
 	"channelType" : "csv_writer" ,
 	"parameters"  :  {

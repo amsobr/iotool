@@ -2,9 +2,13 @@
 // Created by to on 28/03/19.
 //
 
-#include <common/acquisition_scheduler.hpp>
+#include <Poco/Util/TimerTaskAdapter.h>
 #include <Poco/Logger.h>
 #include <Poco/JSON/Object.h>
+
+#include <common/acquisition_scheduler.hpp>
+#include <shell/shell_script_runner.hpp>
+
 #include "periodic_scheduler.hpp"
 
 using Poco::Logger;
@@ -12,22 +16,28 @@ using Poco::format;
 using namespace Poco::JSON;
 using namespace std;
 
-PeriodicScheduler::PeriodicScheduler()
+
+PeriodicScheduler::PeriodicScheduler(ShellBackendPtr shellBackend) :
+logger( Logger::get("iotool") ) ,
+myShellBackend(shellBackend)
 {
 
 }
 
 PeriodicScheduler::~PeriodicScheduler()
 {
-
+    if ( !myTimerTask.isNull() ) {
+        logger.information("PeriodicScheduler: timer still running. Stopping...");
+        stop();
+    }
 }
 
-PeriodicScheduler::Ptr PeriodicScheduler::loadFromJSON(Poco::JSON::Object::Ptr config)
+PeriodicScheduler::Ptr PeriodicScheduler::loadFromJSON(Poco::JSON::Object::Ptr config, ShellBackendPtr shellBackend)
 {
     Logger &logger = Logger::get("iotool");
 
     try {
-        Ptr scheduler(new PeriodicScheduler());
+        Ptr scheduler(new PeriodicScheduler(shellBackend));
 
         logger.information("Loading PeriodicScheduler...");
 
@@ -62,3 +72,37 @@ PeriodicScheduler::Ptr PeriodicScheduler::loadFromJSON(Poco::JSON::Object::Ptr c
     }
     return nullptr;
 }
+
+void PeriodicScheduler::start()
+{
+    if ( myTimerTask.isNull() ) {
+        logger.information(format("PeriodicScheduler: starging timer task. interval=%dms",myExecutionInterval));
+        myTimerTask = new Poco::Util::TimerTaskAdapter<PeriodicScheduler>(*this,&PeriodicScheduler::onTimer);
+        myTimer.scheduleAtFixedRate(myTimerTask,myExecutionInterval,myExecutionInterval);
+    }
+    else {
+        logger.warning("PeriodicScheduler: timer is already running. Ignoring start()");
+    }
+
+}
+
+void PeriodicScheduler::stop()
+{
+    if ( !myTimerTask.isNull() ) {
+        logger.information("PeriodicScheduler: stopping timer.");
+        myTimerTask->cancel();
+        myTimerTask.reset();
+    }
+    else {
+        logger.warning("PeriodicScheduler: timer already stopped. Ignoring stop()");
+    }
+
+}
+
+void PeriodicScheduler::onTimer(Poco::Util::TimerTask &)
+{
+    logger.debug("PeriodicScheduler: running EXECUTION script...");
+    ShellScriptRunner::runScript(myExecutionScript,myShellBackend);
+}
+
+

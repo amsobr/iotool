@@ -10,7 +10,7 @@
 namespace Iotool
 {
     constexpr char const VERSION[]   = VER_MAJOR "." VER_MINOR "." VER_PATCH "-" VER_EXTRA;
-    constexpr char const LOG_FILE[]  = "iotool.log";
+    constexpr char const LOG_FILE[]  = "/var/log/iotool/iotool.log";
     constexpr unsigned int TCP_LISTEN_PORT = 1337;
     constexpr unsigned int TCP_DATA_SERVER_PORT = 1338;
     constexpr char const SCHEDULERS_PATH[] = "schedulers";

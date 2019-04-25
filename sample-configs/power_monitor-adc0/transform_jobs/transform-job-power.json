@@ -1,0 +1,21 @@
+{
+    "jobName" : "power" ,
+    "script" : [
+        "var.get adc0.1-0" ,
+        "push 0.001" ,
+        "div" ,
+        "var.set CURRENT" ,
+        "var.get adc0.2" ,
+        "var.get CURRENT" ,
+        "mul" ,
+        "var.get CURRENT" ,
+        "var.get adc0.2" ,
+        "var.get adc0.1-0"
+    ] ,
+    "outputs" : {
+        "shunt_voltage" : 0 ,
+        "voltage" : 1 ,
+        "current" : 2 ,
+        "power" : 3
+    }
+}

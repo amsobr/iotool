@@ -7,6 +7,8 @@
 
 #include <thread>
 
+#include <Poco/Logger.h>
+
 
 #include <common/data_bucket_consumer.hpp>
 #include <common/blocking_queue.hpp>
@@ -15,7 +17,8 @@
 class TransformJobManager : public DataBucketConsumer
 {
 private:
-    Rpn::RpnLib myRpnLib;
+    Poco::Logger &logger;
+    Rpn::RpnLib *myRpnLib;
     std::list<TransformJobPtr> myJobs;
     BlockingQueue<DataBucketPtr> myQueue;
     bool myTerminated;

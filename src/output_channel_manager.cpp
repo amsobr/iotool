@@ -24,23 +24,24 @@ using namespace Poco::JSON;
 using namespace Poco::Dynamic;
 
 
-OutputChannelManager::~OutputChannelManager()
-{
-
-}
 
 void OutputChannelManager::workerFunction()
 {
+    logger.information("OutputChannelManager: worker thread started.");
     while( !myStopped ) {
+        logger.information("OutputChannelManager: waiting for incoming buckets...");
         DataBucketPtr bucketPtr = myQueue.getNext();
+        logger.information("OutputChannelManager: worker thread received bucket:\n%s",bucketPtr->toString());
 
         for ( auto &slot : myOutputChannels ) {
             if ( slot.jobIsCalled(bucketPtr->name) ) {
+                logger.information(format("OutputChannelManager: dispatching bucket (name=%s) through channel...",bucketPtr->name));
                 slot.channel()->incomingBucket(bucketPtr);
             }
         }
 
     }
+    logger.information("OutputChannelManager: worker finished.");
 }
 
 
@@ -72,12 +73,12 @@ bool OutputChannelManager::loadFromPath(std::string const &path)
 
             Object::Ptr root = parsed.extract<Object::Ptr>();
             string channelType = root->getValue<std::string>("channelType");
-            string channelName = root->getValue<std::string>("myChannelName");
-            string jobName = root->getValue<std::string>("myJobName");
+            string jobName = root->getValue<std::string>("jobName");
             Object::Ptr channelConfig = root->getObject("parameters");
 
             OutputChannelPtr ptr;
             if (channelType == "csv_writer") {
+                logger.information("OutputChannelManager: loading CsvWriter...");
                 ptr.reset(CsvWriter::loadFromJSON(channelConfig));
             } else {
                 logger.warning(
@@ -87,21 +88,34 @@ bool OutputChannelManager::loadFromPath(std::string const &path)
             }
 
             if (ptr == nullptr) {
-                logger.error(format("OutputChannelManager: unable to load CsvWriter from config myChannelName='%s' myJobName='%s' path='%s'",channelName, jobName, file.path()));
+                logger.error(format("OutputChannelManager: unable to load CsvWriter from config myJobName='%s' path='%s'", jobName, file.path()));
             }
             else {
-                myOutputChannels.push_back(OutputChannelHolder(channelName, jobName, ptr));
+                myOutputChannels.push_back(OutputChannelHolder(jobName, ptr));
                 logger.information(format(
-                        "OutputChannelManager: loaded new channel jobName='%s' channelName='%s' channelType='%s' from '%s'",
-                        jobName, channelName, channelType, file.path()));
+                        "OutputChannelManager: loaded new channel jobName='%s' channelType='%s' from '%s'", jobName, channelType, file.path()));
             }
         }
         catch ( std::exception ex ) {
-            logger.error(format("OutputChannelManater: Something went very wrong loading channel from '%s' - '%s'",file.path(),ex.what()));
+            logger.error(format("OutputChannelManater: Something went very wrong loading channel from '%s' - '%s'",file.path(),string(ex.what())));
         }
         catch( ... ) {
             logger.error(format("OutputChannelManager: unknwon error loading channel from '%s'",file.path()));
         }
     }
     return true;
+}
+
+void OutputChannelManager::incomingBucket(DataBucketPtr db)
+{
+    logger.information(format("OutputChannelManager: listener received bucket:\n%s",db->toString()));
+    myQueue.enqueue(db);
+}
+
+void OutputChannelManager::close()
+{
+    logger.information("OutputChannelManager: stopping worker...");
+    myStopped   = true;
+    myQueue.shutdown();
+    myThread.join();
 }

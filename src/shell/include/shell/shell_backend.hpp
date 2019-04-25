@@ -25,7 +25,7 @@ public:
     ShellBackend( ShellBackendImpl *shellImpl );
     virtual ~ShellBackend();
 
-    Result runCommand( std::string const &cmdLine);
+    Result runCommand(std::string const &cmdLine, DataBucket *outcome=0);
 
 
     Result runHelp(std::string const &helpCmd, CmdArguments &args);

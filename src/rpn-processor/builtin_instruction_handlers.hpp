@@ -28,6 +28,9 @@ extern void builtin_sub( ContextPtr ctx , std::vector<std::string> const & );
 extern void builtin_mul( ContextPtr ctx , std::vector<std::string> const & );
 extern void builtin_div( ContextPtr ctx , std::vector<std::string> const & );
 extern void builtin_neg( ContextPtr ctx , std::vector<std::string> const & );
+extern void builtin_push( ContextPtr ctx , std::vector<std::string> const & );
+extern void builtin_dupN( ContextPtr ctx , std::vector<std::string> const &args );
+extern void builtin_dup( ContextPtr ctx , std::vector<std::string> const & );
 
 
 }; /* namespace Rpn; */
