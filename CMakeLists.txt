@@ -7,15 +7,15 @@ project( iotool )
 list( APPEND  CMAKE_PREFIX_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 
-set( BOARD_NAME agp01 CACHE String "Target board. Possible values are \"agp01\" (default) , emulator" )
+set( BOARD_NAME agp01 CACHE STRING "Target board. Possible values are \"agp01\" (default) , emulator" )
 
 message( STATUS "Configuring iotool for board: ${BOARD_NAME}" )
 
 
 set( VER_MAJOR 0 )
-set( VER_MINOR 2 )
-set( VER_PATCH 0 )
-set( VER_EXTRA m1 )
+set( VER_MINOR 3 )
+set( VER_PATCH 1 )
+set( VER_EXTRA m0 )
 
 set( USE_MCHECK FALSE )
 set( USE_MTRACE FALSE )

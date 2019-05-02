@@ -159,6 +159,16 @@ Argument shift()
     }
 }
 
+/**
+ * \brief Shift one token into \a dest
+ * \details Attempts to shift one token into dest string. The operation will succeed only of the first argument is in
+ *          the form _token_. In particulat, arguments in the form _key=val_ will fail.
+ *          \paragraph In case the operation is successful, the first argument is removed from the list and its token is
+ *          saved into \a dest. In case of failure the arguments are kept untouched. The caller may use \a shift() to
+ *          access the first argument and inspect the cause of failure.
+ * \param dest String where the token will be saved into
+ * \return True on success, false on failure.
+ */
 bool shiftToken( std::string *dest )
 {
     if ( myArgs.empty() ) {

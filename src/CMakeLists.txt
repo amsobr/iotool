@@ -23,7 +23,7 @@ set( IOTOOL_SRCS
     io_core.cpp
     periodic_scheduler.cpp
     acquisition_scheduler_factory.cpp
-    )
+    logger_shell_provider.cpp)
     
     
 add_executable( iotool ${IOTOOL_SRCS} )

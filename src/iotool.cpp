@@ -33,6 +33,7 @@
 #include "csv_writer.hpp"
 #include "output_channel_manager.hpp"
 #include "io_core.hpp"
+#include "logger_shell_provider.hpp"
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
@@ -202,9 +203,10 @@ int main(int argc, char **argv)
     peripheralProviderPtr->setDeviceApplets(deviceApplets);
     peripheralProviderPtr->setPeripherals(board->getPeripherals());
     peripheralProviderPtr->rebuildIndex();
-
     ShellBackendFactory::addProvider(peripheralProviderPtr);
 
+    ShellProviderPtr loggerProvider( new LoggerShellProvider() );
+    ShellBackendFactory::addProvider(loggerProvider);
 
     IoCore *ioCore(nullptr);
     if ( launchJobEngine ) {
