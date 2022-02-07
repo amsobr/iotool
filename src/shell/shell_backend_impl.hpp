@@ -13,6 +13,7 @@
 #include <shell_backend.hpp>
 
 #include "shell_backend_core.hpp"
+#include "../iotool_config.hpp"
 
 using namespace std;
 using namespace Poco;
@@ -262,12 +263,31 @@ string ShellBackend::bucketHelp( string const &prefix , string const &cmd)
         return helpPrefix(tokens[1], args);
     }
 
-    Result simpleHelp(CmdArguments arguments)
+    Result simpleHelp(CmdArguments &arguments)
     {
-        /* help
-         * help <args>
-         */
-        return Result(0,"Not Implemented Yet...");
+        if ( arguments.empty() ) {
+            std::stringstream ss;
+            ss << "iotool version " << Iotool::VERSION << "\n"
+            << "Help commands\n"
+            << "    help             - display this message\n"
+            << "    help providers   - list all registered shell provider prefixes\n"
+            << "Per-provider help commands:\n";
+            for ( std::string const &prefix : myCore->listPrefixes() ) {
+                ss << "    help-" << prefix << "\n";
+            }
+            ss << "Available commands:\n";
+            for ( ShellProviderPtr provider : myCore->listProviders() ) {
+                for ( CommandHelpPtr cmdHelp : provider->getCommandHelp() ) {
+                    ss << Poco::format("    %-16s - %s\n",cmdHelp->getName(),cmdHelp->getBrief());
+
+                }
+            }
+            ss << "\n";
+            return Result(0,ss.str());
+        }
+        else {
+            return Result(0, "Not Implemented Yet...");
+        }
     }
 
     Result helpPrefix(std::string const &prefix, CmdArguments &arguments)

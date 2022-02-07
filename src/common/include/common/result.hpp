@@ -7,14 +7,10 @@
 
 class Result
 {
-private:
-    int         myCode;
-    std::string myMessage;
-
 public:
-    Result( int code=0 , std::string msg="" ) :
+    explicit Result( int code=0 , std::string msg="" ) :
     myCode(code) ,
-    myMessage(msg)
+    myMessage(std::move(msg))
     {
     }
 
@@ -40,7 +36,12 @@ public:
     std::string toString() const
     {
         if ( isSuccess() ) {
-            return "OK";
+            if ( !myMessage.empty() ) {
+                return Poco::format("%s\nOK",myMessage,myCode);
+            }
+            else {
+                return "OK";
+            }
         }
         else {
             return Poco::format("%s\nERROR(%d)",myMessage,myCode);
@@ -64,6 +65,9 @@ public:
     static Result const &E_INVALID_STATE;
     static Result const &E_INVALID_SYNTAX;
 
+private:
+    int         myCode;
+    std::string myMessage;
 
 }; /* class Result */
 

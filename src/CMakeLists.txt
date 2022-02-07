@@ -6,14 +6,14 @@ add_subdirectory( drivers )
 add_subdirectory( brd/${BOARD_NAME} )
 add_subdirectory( applets )
 add_subdirectory( shell )
-add_subdirectory( rpn-processor )
-add_subdirectory( jobs )
 add_subdirectory( benchmarks )
 
 
 
 
 set( IOTOOL_SRCS
+    jobs/transform_job.cpp
+    jobs/transform_job.hpp
     iotool.cpp
     tcp_server.cpp
     tcp_data_server.cpp
@@ -29,12 +29,7 @@ set( IOTOOL_SRCS
 add_executable( iotool ${IOTOOL_SRCS} )
 
 
-target_compile_definitions( iotool PRIVATE
-  -DVER_MAJOR="${VER_MAJOR}"
-  -DVER_MINOR="${VER_MINOR}"
-  -DVER_PATCH="${VER_PATCH}"
-  -DVER_EXTRA="${VER_EXTRA}"
-)
+
 
 target_compile_options( iotool PRIVATE
 -Wall
@@ -52,10 +47,9 @@ set_target_properties(iotool PROPERTIES CXX_EXTENSIONS OFF)
 #target_link_libraries( iotool brd applets shell common cbsl  -lpthread -lrt
 #set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
 target_link_libraries( iotool ${BOARD_NAME}
-    rpn-processor
+    rpn
     applets
     shell
-    jobs
     common
     cbsl
     Poco::Foundation

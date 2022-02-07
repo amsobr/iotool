@@ -15,29 +15,39 @@ set(CBSL_SRCS
     cbsl/logger.c
     cbsl/keyval.cpp
     cbsl/norder_fifo.c
-    cbsl/util
-    cbsl/addrmap
-    cbsl/base64
-    cbsl/crc
-    cbsl/memchk
+    cbsl/util.cpp
+    cbsl/util.h
+    cbsl/addrmap.h
+    cbsl/addrmap.c
+    cbsl/base64.c
+    cbsl/base64.h
+    cbsl/crc.c
+    cbsl/crc.h
+    cbsl/memchk.c
+    cbsl/memchk.h
 #    cbsl/threadpool
 #    cbsl/threadpoolworker
 #    cbsl/threadpooltask
-    cbsl/thread
+    cbsl/thread.cpp
+    cbsl/thread.hpp
     cbsl/runner_pool.cpp
-    cbsl/waitcondition
-    cbsl/fs_ops
+    cbsl/waitcondition.cpp
+    cbsl/waitcondition.hpp
+    cbsl/fs_ops.c
+    cbsl/fs_ops.h
     cbsl/net/name_resolver.cpp
     cbsl/net/base_sock_addr.cpp
     cbsl/net/sock_addr_4.cpp
     cbsl/net/arp_querier.cpp
     cbsl/net/udp_skt.cpp
     cbsl/net/tcp_connection.cpp
-    cbsl/timer
+    cbsl/timer.hpp
 #    cbsl/Timeout.cpp
-    cbsl/hoststats
+    cbsl/hoststats.cpp
+    cbsl/hoststats.h
     cbsl/one_shot.cpp
-    cbsl/cksum/ieee_crc32
+    cbsl/cksum/ieee_crc32.cpp
+    cbsl/cksum/ieee_crc32.h
     cbsl/shellHelpers.cpp
     cbsl/strings.cpp
 )

@@ -11,6 +11,10 @@
 #include <string>
 #include <iostream>
 
+#include <Poco/Logger.h>
+#include <Poco/Format.h>
+#include <Poco/Stopwatch.h>
+
 #include <cbsl/strings.hpp>
 
 #include <common/adc.hpp>
@@ -20,8 +24,11 @@
 #include <ads126x.hpp>
 #include <ads126x_config.hpp>
 #include <ads126x_defs.hpp>
+#include <sstream>
+
 
 using namespace std;
+using namespace Poco;
 
 static string ADS1262_DRIVER_VERSION("1");
 
@@ -120,9 +127,10 @@ static int getIdOfFilter( std::string const filter )
     return -1;
 }
 
+/* Ideal number of iterations until completion of ADC conversion*/
+static int const NUM_POLL_ITERATIONS(4);
 
-
-
+/* Convertion times, in microseconds */
 static int CONV_DURATION[16][6] = {
 /* SPS          SINC1     SINC2     SINC3     SINC4   SINC5      FIR */
 /*     2.5*/{  400400 ,  800400 , 1200000 , 1600000 ,    -1 , 402200 } ,
@@ -199,6 +207,9 @@ private:
     int myCurFilterId;
     int myCurConvTime;
     int myCurConvPoll;
+
+    Logger &logger;
+
     
     Ads126xInput getChInput( unsigned int chId )
     {
@@ -223,7 +234,8 @@ private:
     
 public:
     
-    Ads126xImpl( Ads126xConfig const &cfg )
+    Ads126xImpl( Ads126xConfig const &cfg ) :
+    logger(Logger::get("peripherals.ads126x"))
     {
         mySpiDev    = cfg.spiDevice;
         myVref      = 2.5;
@@ -248,10 +260,14 @@ private:
     void dumpRegisters()
     {
         uint8_t regDump[0x1b];
-        fprintf( stderr , "Register dump:\n");
         readRegisters(ADS126X_REG_ID,0x1b,regDump);
-        for ( int k=0 ; k<0x1b ; k++ ) {
-            fprintf( stderr , "0x%02x: 0x%02x\n",k,regDump[k]);
+        if ( logger.notice() ) {
+            stringstream ss;
+            ss << "ADS126x Register dump:\n";
+            for (int k = 0; k < 0x1b; k++) {
+                ss << format("0x%02x: 0x%02x\n", k, regDump[k]);
+            }
+            logger.notice(ss.str());
         }
     }
     
@@ -265,7 +281,10 @@ private:
     }
     
     int readData( int adcId , int32_t *result )
-    {        
+    {
+        Stopwatch stopwatch;
+
+        logger.debug( format("ADS126x: reading data from ADC%d...",adcId) );
         Ads126xCommand cmd;
         uint8_t doneMask;
         if ( adcId==1 ) {
@@ -277,7 +296,7 @@ private:
             doneMask    = 0x80;
         }
         else {
-            fprintf( stderr , "readData() called for invalid ADC id: %d\n" , adcId );
+            logger.error( format("ADS126x: readData() called for invalid ADC id: %d\n",adcId) );
             return -1;
         }
         
@@ -288,13 +307,19 @@ private:
         wr[0]   = cmd;
 
         bool adcDone    = false;
+        /* perform one first wait, to allow conversion to proceed */
+        usleep(myCurConvTime);
         int iteration  = 0;
         do {
             iteration++;
             memset(rd,0,7);
             int res = spi_raw_xfer(myFd,wr,rd,7);
+            if ( logger.debug() ) {
+                logger.debug( format("ADS126x: transfer completed. iteration=%d elapsed=%dus",iteration,stopwatch.elapsed()) );
+                stopwatch.restart();
+            }
             if ( res!=0 ) {                
-                cerr << "OOPS. Not expecting this...\n";
+                logger.error("ADS126x: OOPS. This was unexpected x(...\n");
                 exit(1);
                 return res;
             }
@@ -303,25 +328,33 @@ private:
             }
             else {
                 if ( rd[1]!=0x00 ) {
-                    cerr << "STATUS is " << hex << (int)rd[1] << "\n";
+                    logger.error(format("ADS126x: ADC STATUS is %x\n",rd[1]));
                     //exit(1);                
                 }
-                if ( iteration>=10000 ) {
-                    cerr << "Number of iterations exceeded. Giving up.\n";
+                if ( iteration>=100*Tables::Adc1::NUM_POLL_ITERATIONS ) {
+                    logger.error( format("ADS126x: Number of iterations (%d) to read() was exceeded. Giving up.\n",Tables::Adc1::NUM_POLL_ITERATIONS*100) );
                     break;
                 }
                 usleep(myCurConvPoll);
             }
         } while ( !adcDone );
-        if ( iteration>10 ) {
-            //cerr << "Conversion complete after " << iteration << " iterations\n";
+        if ( iteration>Tables::Adc1::NUM_POLL_ITERATIONS ) {
+            logger.warning( format("ADS126x: read from ADC%d took longer than expected. iterarions=%d expected=%d",adcId,iteration,Tables::Adc1::NUM_POLL_ITERATIONS) );
+        }
+        else {
+            logger.debug( format("ADS126x: read from ADC%d complete!",adcId) );
         }
 
         uint8_t cksum   = rd[2]+rd[3]+rd[4]+rd[5]+0x9b;
         if ( cksum!=rd[6] ) {
-            fprintf( stderr , "cksum mismatch. calculated=0x%02hhx , read=0x%02hhx\n" , cksum , rd[6] );
-            fprintf( stderr , "rd[0]=0x%02x (d/c)\nrd[1]=0x%02x (stt)\nrd[2]=0x%02x\nrd[3]=0x%02x\nrd[4]=0x%02x\nrd[5]=0x%02x\nrd[6]=0x%02x (cksum)\n"
-                    , rd[0],rd[1],rd[2],rd[3],rd[4],rd[5],rd[6]); 
+            if ( logger.error() ) {
+                logger.error(
+                    format("ADS126x: read ADC%d - cksum mismatch. calculated=0x%02x , read=0x%02x\n", adcId, cksum,
+                           rd[6]));
+                logger.error(format(
+                    "ADS126x: read ADC%d dump:\nrd[0]=0x%02x (d/c)\nrd[1]=0x%02x (stt)\nrd[2]=0x%02x\nrd[3]=0x%02x\nrd[4]=0x%02x\nrd[5]=0x%02x\nrd[6]=0x%02x (cksum)\n",
+                    adcId, rd[0], rd[1], rd[2], rd[3], rd[4], rd[5], rd[6]));
+            }
             return -1;
         }
 
@@ -426,10 +459,12 @@ private:
     void recalculateDelays()
     {
         myCurConvTime = Tables::Adc1::CONV_DURATION[myCurSpsId][myCurFilterId];
-        myCurConvPoll = myCurConvTime*5/100;
+        myCurConvPoll = myCurConvTime/Tables::Adc1::NUM_POLL_ITERATIONS;
         if ( myCurConvPoll<50 ) {
             myCurConvPoll   = 50;
         }
+        logger.information(
+            format("ADS126x: recalculated ADC1 times for sps=%s\nconversion time : %d us\npoll time  : %d us",myOptSps,myCurConvTime,myCurConvPoll) );
     }
 
     
@@ -646,7 +681,11 @@ public:
     Result setSps( std::string const &value )
     {
         int spsId = Tables::Adc1::getIdOfSps(value);
-        if ( spsId==-1 ) return Result::E_BAD_ARGS;
+        if ( spsId==-1 ) {
+            logger.error(format("ADS126x: invalid 'sps' value - '%s'", value));
+            return Result::E_BAD_ARGS;
+        }
+        logger.information( format("ADS126x: setting 'sps' to '%s'...",value) );
 
         int delay = Tables::Adc1::CONV_DURATION[spsId][myCurFilterId];
         if ( delay == -1 ) {
@@ -654,9 +693,11 @@ public:
              * try setting filter to "SINC1" as it delivers nominal SPS
              * up to 14400sps...
              */
+            logger.debug( format("ADS126x: sps=%s and filter=%s will not work. Trying with filter='sinc1'...",value,myOptFilter) );
             int filterId    = Tables::Adc1::getIdOfFilter("sinc1");
             delay           = Tables::Adc1::CONV_DURATION[spsId][filterId];
             if ( delay == -1 ) {
+                logger.debug( format("ADS126x: sps=%s and filter='sinc1' will not work. Falling back to filter='sinc5'...",value) );
                 /* only way of landing here is to have SPS > 14400
                  * in this case the chip will enforce SINC5 do to
                  * the bypass of the 2nd stage SINC.
@@ -671,6 +712,7 @@ public:
                 myOptFilter     = "sinc1";
                 myCurFilterId   = Tables::Adc1::getIdOfFilter("sinc1");
                 setAdc1Filter( Tables::Adc1::FILTER_REG_VAL[myCurFilterId] );
+                logger.information( format("ADS126x: selected sps=%s and filter=%s",value,myOptFilter));
             }
         }
         myOptSps    = value;
@@ -763,7 +805,7 @@ public:
 
         /* several configs mostly for testing..... */
         
-        writeSingleReg(ADS126X_REG_MODE0,0x1b);
+        writeSingleReg(ADS126X_REG_MODE0,0x00);
 
         /* MODE1 set to SINC1 */
         myCurFilterId   = Tables::Adc1::getIdOfFilter("sinc1");
@@ -807,6 +849,7 @@ Adc(id)
 {
     impl    = new Ads126xImpl( cfg );
     impl->init();
+    impl->setOption("sps","7200");
 }
 
 Ads126x::~Ads126x()

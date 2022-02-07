@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # Scheduler Configuration
 
 A Scheduler automates the workflow of handling the hardware so
@@ -6,24 +10,24 @@ The acquisition workflow contains three stages:
  1. Setup
  2. Execution
  3. Teardown
- 
+
  Each stage is triggered by a command issued on the CMD shell:
   - session setup
   - session start
   - session teardown
-  
+
 ## Setup phase
  This phase is intended to prepare the hardware for signal aquisition.
  Usually steps performed here deal with setting up the transducers,
  with parameters like SPS, full-scale, sensor excitations, etc.
- 
+
 ## Execution phase
  Signal acquisition....
- 
+
 ## Teardown phase
  Shutdown hardware resources, if relevant, in order to conserve
  CPU, power, reduce interference with external devices or whatever.
-  
+
 # Definition for a Scheduler
 ~~~json
 {
@@ -54,6 +58,10 @@ The acquisition workflow contains three stages:
 ~~~
 
 # RPN Library
+
+## Filesystem structure
+RpnLib loads addons from directory:
+
 ## Function Definition
 
 ~~~JSON
@@ -71,7 +79,7 @@ The acquisition workflow contains three stages:
 # TransformJob Definition
 ~~~JSON
 {
-  "jobName" : "ARG" ,
+  "myJobName" : "ARG" ,
   "script" : [
     "instr1" ,
     "instr2" ,
@@ -90,7 +98,7 @@ The acquisition workflow contains three stages:
 
 ~~~json
 {
-	"jobName" : "ARG" ,
+	"myJobName" : "ARG" ,
 	"myChannelName" : "CHANNEL_NAME" ,
 	"channelType" : "CHANNEL_TYPE" ,
 	"parameters" : {
@@ -108,7 +116,7 @@ Following is the definition of a CSV writer
 
 ~~~json
 {
-	"jobName" : "ARG" ,
+	"myJobName" : "ARG" ,
 	"myChannelName" : "CHANNEL_NAME" ,
 	"channelType" : "csv_writer" ,
 	"parameters"  :  {
@@ -125,5 +133,15 @@ Following is the definition of a CSV writer
 }
 ~~~
 
+# Structure of a Job Configuration
+
+A job configurations consists of a directory with subdirectories for each stage of the automation engine. The needed subdirectories are:
+
+| subdirectory      | role      |
+| ---- | ---- |
+| schedulers | Acquisition Schedulers. One JSON file per scheduler      |
+| transform_jobs | Data transformation jobs. One JSON file per job      |
+| output_channels | Output channel configurations. One JSON file per channel  |
+| rpnlib_addons | User defined addons for the RPN lib (functions and constants). If this directory exists it will be loaded by the RpnLib. Each addon is a JSON file. |
 
 

@@ -29,6 +29,9 @@ public:
 
     ShellProviderPtr getProvider(const std::string &prefix);
 
+    std::vector<std::string> listPrefixes();
+    std::vector<ShellProviderPtr> listProviders();
+
 }; /* class ShellBackendCore */
 
 

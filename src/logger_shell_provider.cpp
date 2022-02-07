@@ -34,7 +34,8 @@ LoggerShellProvider::LoggerShellProvider() :
 ShellProvider({"logger"}) ,
 myLogger( Logger::get("logger"))
 {
-
+    myCommandHelps.push_back( CommandHelpPtr( new CommandHelp("logger status","Get current state of all loggers")));
+    myCommandHelps.push_back( CommandHelpPtr( new CommandHelp("logger status","Configure verbosity of loggers")));
 }
 
 
@@ -133,4 +134,15 @@ Result LoggerShellProvider::runLoggerConfig(CmdArguments &args, DataBucket &buck
         }
     }
     return Result::OK;
+}
+
+vector<CommandHelpPtr> LoggerShellProvider::getCommandHelp(vector<CommandHelpPtr> *helpVec)
+{
+    if ( helpVec!= nullptr ) {
+        helpVec->insert(helpVec->end(),myCommandHelps.begin(),myCommandHelps.end());
+        return *helpVec;
+    }
+    else {
+        return myCommandHelps;
+    }
 }

@@ -12,7 +12,7 @@
 
 #include <common/data_bucket_consumer.hpp>
 #include <common/blocking_queue.hpp>
-#include "transform_job.hpp"
+#include "jobs/transform_job.hpp"
 
 class TransformJobManager : public DataBucketConsumer
 {

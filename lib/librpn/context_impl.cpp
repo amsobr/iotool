@@ -2,7 +2,7 @@
 // Created by to on 17/03/19.
 //
 
-#include <rpn-processor/exception.hpp>
+#include <rpn/exception.hpp>
 #include "context_impl.hpp"
 
 namespace Rpn
@@ -80,7 +80,7 @@ Operand ContextImpl::recallVariable(std::string const &name)
     throw ErrNoSuchVariable("Variable " + name + " not found.");
 }
 
-void ContextImpl::assignConstant(std::__cxx11::string const &name, const Operand &value)
+void ContextImpl::assignConstant(std::string const &name, const Operand &value)
 {
     for (Variable &v : myConstants) {
         if (v.isCalled(name)) {
@@ -93,7 +93,7 @@ void ContextImpl::assignConstant(std::__cxx11::string const &name, const Operand
 }
 
 
-Operand ContextImpl::recallConstant(std::__cxx11::string const &name)
+Operand ContextImpl::recallConstant(std::string const &name)
 {
     for (Variable const &v : myConstants) {
         if (v.isCalled(name)) {

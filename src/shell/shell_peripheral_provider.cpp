@@ -104,6 +104,16 @@ void ShellPeripheralProvider::rebuildIndex()
             }
         }
     }
+
+    /* generate help descriptors... */
+    for ( auto &appletsForType : myAppletsByType ) {
+        for ( auto &applet : appletsForType.second ) {
+            CommandHelpPtr ptr( new CommandHelp() );
+            ptr->setName("with " + applet->getType().toString() + " " + applet->getName() );
+            ptr->setBrief(applet->brief());
+            myCommandHelps.push_back(ptr);
+        }
+    }
 }
 
 Result ShellPeripheralProvider::runDeviceApplet( string const &devName , string const &cmdName , CmdArguments &args , DataBucket &db )
@@ -211,4 +221,15 @@ string ShellPeripheralProvider::helpFamily(std::string const &prefix)
 string ShellPeripheralProvider::helpCommand(std::string const &prefix, std::string const &cmd)
 {
     
+}
+
+vector<CommandHelpPtr> ShellPeripheralProvider::getCommandHelp(vector<CommandHelpPtr> *helpVec)
+{
+    if ( helpVec!=nullptr ) {
+        helpVec->insert(helpVec->begin(),myCommandHelps.begin(),myCommandHelps.end());
+        return *helpVec;
+    }
+    else {
+        return myCommandHelps;
+    }
 }

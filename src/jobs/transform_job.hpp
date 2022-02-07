@@ -11,8 +11,8 @@
 
 #include <Poco/JSON/Object.h>
 
-#include <rpn-processor/rpn_lib.hpp>
-#include <rpn-processor/script.hpp>
+#include <rpn/rpn_lib.hpp>
+#include <rpn/Subroutine.hpp>
 #include <common/data_bucket.hpp>
 
 

@@ -11,6 +11,7 @@
 #include <common/cmd_arguments.hpp>
 #include <common/data_bucket.hpp>
 #include <common/result.hpp>
+#include "command_help.hpp"
 
 class ShellProvider
 {
@@ -42,6 +43,13 @@ public:
 
 
     /**
+     * \brief Get the list of command HELP descriptors
+     * \param helpVec If provided, it will be populated with CommandHelp descriptors provided by the shell provider.
+     * \return If helpVec is not nullptr, returns the vector itseld. Otherwise returns a new vector.
+     */
+    virtual std::vector<CommandHelpPtr> getCommandHelp(std::vector<CommandHelpPtr> *helpVec = nullptr) = 0;
+
+    /**a
      * \brief Run a command, given its prefix and arguments
      * \param prefix Prefix of the invoked command
      * \param args Remaining arguments

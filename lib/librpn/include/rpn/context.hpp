@@ -14,15 +14,15 @@ namespace Rpn {
 class Context {
 
 public:
-    Context() { }
+    Context() = default;
 
-    virtual ~Context() { }
+    virtual ~Context() = default;
 
     virtual Operand pop() = 0;
 
     virtual void push(Operand const &value ) = 0;
 
-    virtual size_t stackSize() const = 0;
+    [[nodiscard]] virtual size_t stackSize() const = 0;
 
     virtual void clear() = 0;
 
@@ -38,10 +38,11 @@ public:
 
     virtual Operand recallConstant(std::string const &name ) = 0;
 
-    virtual Operand valueAt( int pos ) const = 0;
-};
+    [[nodiscard]] virtual Operand valueAt( int pos ) const = 0;
 
-typedef std::shared_ptr<Context> ContextPtr;
+    typedef std::unique_ptr<Context> UniqPtr;
+    typedef std::shared_ptr<Context> Ptr;
+};
 
 }
 

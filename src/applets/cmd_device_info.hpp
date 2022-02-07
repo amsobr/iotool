@@ -1,5 +1,5 @@
 #ifndef CMD_DEVICE_INFO_HPP
-#define CMD_DEVICE_INGO_HPP
+#define CMD_DEVICE_INFO_HPP
 
 #include <string>
 #include <memory>
@@ -7,9 +7,9 @@
 #include <common/system_applet.hpp>
 #include <common/result.hpp>
 #include <common/cmd_arguments.hpp>
-
-
 #include <common/peripheral.hpp>
+#include <common/peripheral_type.hpp>
+
 
 class CmdDeviceInfo : public SystemApplet
 {

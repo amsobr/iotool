@@ -3,13 +3,13 @@
 
 #include <string>
 
-#include "rpn-processor/instruction.hpp"
+#include "rpn/Instruction.hpp"
 #include "builtin_instruction_handlers.hpp"
 
 namespace Rpn
 {
 
-class InstructionCatalog;
+class InstructionHandlerCatalog;
 
 class BasicInstruction : public Instruction
 {
@@ -18,8 +18,8 @@ private:
 
 public:
     BasicInstruction( std::string const &name , BuiltinFunction *handler ) :
-    Instruction(name) ,
-    myHandler(handler)
+        Instruction(name) ,
+        myHandler(handler)
     {}
 
     virtual ~BasicInstruction() = default;

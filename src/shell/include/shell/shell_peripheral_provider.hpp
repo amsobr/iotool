@@ -27,6 +27,8 @@ private:
     std::map<std::string,PeripheralPtr> myPeripheralsByName;
     std::map<PeripheralType,std::list<DeviceAppletPtr>> myAppletsByType;
 
+    std::vector<CommandHelpPtr> myCommandHelps;
+
     PeripheralPtr getPeripheral( std::string name ) const;
     DeviceAppletPtr getDeviceApplet( PeripheralType t , std::string cmdName ) const;
 
@@ -60,6 +62,10 @@ public:
     std::string helpFamily(std::string const &prefix) override;
 
     std::string helpCommand(std::string const &prefix, std::string const &cmd) override;
+
+    std::vector<CommandHelpPtr> getCommandHelp(std::vector<CommandHelpPtr> *helpVec) override;
+
+
 }; /* class ShellPeripheralProvider */
 
 

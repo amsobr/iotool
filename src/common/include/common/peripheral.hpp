@@ -7,8 +7,9 @@
 #include <Poco/Format.h>
 
 #include "peripheral_type.hpp"
+#include "configurable_resource.hpp"
 
-class Peripheral
+class Peripheral: public ConfigurableResource
 {
 private:
     PeripheralType  myType;

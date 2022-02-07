@@ -8,11 +8,14 @@
 #include <Poco/Logger.h>
 
 #include <shell/shell_provider.hpp>
+#include <shell/command_help.hpp>
 
 class LoggerShellProvider : public ShellProvider
 {
 private:
     Poco::Logger &myLogger;
+
+    std::vector<CommandHelpPtr> myCommandHelps;
 
     Result runLoggerStatus(DataBucket &bucket);
 
@@ -21,11 +24,9 @@ private:
 public:
     LoggerShellProvider();
 
+    std::vector<CommandHelpPtr> getCommandHelp(std::vector<CommandHelpPtr> *helpVec) override;
+
     ~LoggerShellProvider() = default;
-
-//    std::vector<std::string> getPrefixes() const override;
-
-//    bool provides(std::string const &prefix) const override;
 
     Result runCommand(std::string const &prefix, CmdArguments &args, DataBucket &accumulator) override;
 

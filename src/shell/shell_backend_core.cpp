@@ -61,3 +61,23 @@ bool ShellBackendCore::addProvider(ShellProviderPtr provider)
     return true;
 }
 
+vector<string> ShellBackendCore::listPrefixes()
+{
+    lock_guard<recursive_mutex> locker(myMutex);
+    vector<string> prefixes;
+    for ( auto &provider : myProviders ) {
+        for ( string const &prefix : provider->getPrefixes() ) {
+            prefixes.push_back(prefix);
+        }
+    }
+    return prefixes;
+
+}
+
+vector<ShellProviderPtr> ShellBackendCore::listProviders()
+{
+    lock_guard<recursive_mutex> locker(myMutex);
+    vector<ShellProviderPtr> providers( myProviders);
+    return providers;
+}
+

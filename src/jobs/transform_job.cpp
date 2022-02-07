@@ -12,8 +12,8 @@
 #include <Poco/Format.h>
 #include <Poco/JSON/JSON.h>
 
-#include <rpn-processor/script.hpp>
-#include <rpn-processor/rpn_lib.hpp>
+#include <rpn/Subroutine.hpp>
+#include <rpn/rpn_lib.hpp>
 
 
 #include "transform_job.hpp"
