@@ -15,7 +15,7 @@
 #include <Poco/JSON/Object.h>
 
 #include <common/acquisition_scheduler.hpp>
-#include <shell/shell_backend.hpp>
+
 
 
 class PeriodicScheduler : public AcquisitionScheduler

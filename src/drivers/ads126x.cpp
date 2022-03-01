@@ -15,10 +15,9 @@
 #include <Poco/Format.h>
 #include <Poco/Stopwatch.h>
 
-#include <cbsl/strings.hpp>
 
 #include <common/adc.hpp>
-#include <common/peripheral_type.hpp>
+#include <common/PeripheralType.hpp>
 #include <common/result.hpp>
 
 #include <ads126x.hpp>
@@ -425,7 +424,7 @@ private:
      */
     Result setAdc1Filter( int filterRegVal )
     {
-        uint8_t regVal;
+        uint8_t regVal = 0;
         readRegisters( ADS126X_REG_MODE1 , 1 , &regVal );
         regVal &= 0x1f;
         regVal |= (filterRegVal<<5);
@@ -442,7 +441,7 @@ private:
      */
     Result setAdc1Sps( int spsRegVal )
     {
-        uint8_t regVal;
+        uint8_t regVal = 0;
         readRegisters(ADS126X_REG_MODE2,1,&regVal);
         regVal &= 0xf0;
         regVal |= spsRegVal;

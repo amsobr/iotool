@@ -8,27 +8,19 @@
 
 #include <Poco/Logger.h>
 
-#include <shell/shell_backend.hpp>
-#include <shell/shell_frontend.hpp>
 #include <common/acquisition_scheduler.hpp>
 
-#include "job_manager.hpp"
-#include "output_channel_manager.hpp"
-#include "periodic_scheduler.hpp"
+#include "shell/ShellFrontend.hpp"
+
 
 class IoCore
 {
 private:
     Poco::Logger &logger;
-    std::vector<AcquisitionScheduler::Ptr> mySchedulers;
-    TransformJobManager *myDataConverters;
-    OutputChannelManager *myOutputStage;
-    ShellBackendPtr myShellBackend;
-    DataBucket myAccumulator;
     std::string myConfigDirPath;
 
 public:
-    IoCore(std::string configDirPath);
+    explicit IoCore(std::string configDirPath);
 
     virtual ~IoCore();
 

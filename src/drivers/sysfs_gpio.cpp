@@ -177,5 +177,6 @@ unsigned int SysfsGpio::readBus( std::string name )
         }
         return value;
     }
+    return 0;
 }
 

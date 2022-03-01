@@ -165,7 +165,7 @@ public:
 
     double getCurrent( unsigned int ch )
     {
-        uint16_t regVal;
+        uint16_t regVal = 0;
         readRegister(ADDR_REG_SHUNT,&regVal);
         int intVal  = regVal;
         if ( intVal&0x00008000 ) {
@@ -176,7 +176,7 @@ public:
 
     double getVoltage( unsigned int ch )
     {
-        uint16_t regVal;
+        uint16_t regVal = 0;
         readRegister(ADDR_REG_BUS,&regVal);
         return (regVal>>3)*0.004;
     }

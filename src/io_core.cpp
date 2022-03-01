@@ -8,10 +8,8 @@
 #include <Poco/Format.h>
 #include <Poco/File.h>
 
-#include <shell/shell_backend_factory.hpp>
 #include "io_core.hpp"
 #include "iotool_config.hpp"
-#include "acquisition_scheduler_factory.hpp"
 
 using namespace std;
 using Poco::Logger;
@@ -49,28 +47,9 @@ myConfigDirPath(configDirPath)
     string outputStagePath = myConfigDirPath+"/"+Iotool::OUTPUT_CHANNELS_PATH;
     ensureDirExists(outputStagePath,"OutputStageConfig",logger);
 
-    logger.information( format("IoCore: Loading Acquisition schedulers from '%s'...",schedulersPath));
-    mySchedulers    = AcquisitionSchedulerFactory::loadFromPath(schedulersPath,myShellBackend);
-
-    logger.information( format("IoCore: Loading Transform Jobs from '%s'...",dataConvertersPath));
-    myDataConverters    = new TransformJobManager();
-    myDataConverters->loadFromPath(dataConvertersPath);
-
-    logger.information( format("IoCore: Loading output channels from '%s'",outputStagePath));
-    myOutputStage       = new OutputChannelManager();
-    myOutputStage->loadFromPath(outputStagePath);
-
-    /* do all the wiring... */
-    logger.information("IoCore: setting up callbacks...");
-    myDataConverters->addConsumer(myOutputStage);
-    myShellBackend->addConsumer(myDataConverters);
-    logger.information("IoCore: Core finished loading.");
 }
 
-IoCore::~IoCore()
-{
-
-}
+IoCore::~IoCore() = default;
 
 void IoCore::shutdown()
 {

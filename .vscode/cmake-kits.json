@@ -1,6 +1,0 @@
-[
-  {
-    "name": "SDK GCC (gcc7-arm-hf)" ,
-    "toolchainFile": "../gcc7.toolchain"
-  }
-] 

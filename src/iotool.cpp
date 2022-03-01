@@ -1,39 +1,16 @@
 
 #include <iostream>
 #include <string>
-
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdint>
 #include <unistd.h>
-#include <stdlib.h>
 #include <fcntl.h>
-#include <string.h>
-#include <stdint.h>
 
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-
-#include <cbsl/keyval.hpp>
-#include <cbsl/strings.hpp>
-
-#include <common/board.hpp>
-#include <common/board_factory.hpp>
-#include <common/applet_factory.hpp>
-
-#include <shell/shell_backend.hpp>
-#include <shell/shell_frontend.hpp>
-#include <shell/stdio_stream_adapter.hpp>
-#include <shell/shell_backend_factory.hpp>
-
-#include "iotool_config.hpp"
-#include "tcp_server.hpp" /* telnet server. could use a better name >.< */
-#include "tcp_data_server.hpp"
-#include "shell/connected_telnet_client_factory.hpp"
-#include "csv_writer.hpp"
-#include "output_channel_manager.hpp"
-#include "io_core.hpp"
-#include "logger_shell_provider.hpp"
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
@@ -43,11 +20,40 @@
 #include <Poco/Net/TCPServerConnectionFactory.h>
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/SocketAddress.h>
-#include <common/output_channel.hpp>
-#include <shell/shell_peripheral_provider.hpp>
+#include <Poco/String.h>
+
+#include <rps/StreamAdapter.hpp>
+#include <rps/StdioStreamAdapter.hpp>
+#include <rps/ContextFactory.hpp>
+#include <rps/BuiltinCommands.hpp>
+
+#include <common/Board.hpp>
+
+#include "shell/ShellFrontend.hpp"
+#include "shell/PeripheralCmdProvider.hpp"
+#include "shell/TelnetSessionFactory.hpp"
+#include "shell/commands/CmdCd.hpp"
+#include "shell/commands/CmdHelp.hpp"
+
+
+#include "iotool_config.hpp"
+#include "io_core.hpp"
+
+
 
 using namespace std;
 using namespace Poco;
+
+
+static inline std::string pathForPeripheral( PeripheralPtr const& p )
+{
+    return Poco::format("/%s/%d",Poco::toLower(str(p->getType())),p->getId());
+}
+
+static inline std::string pathForPeripheralType( PeripheralType t )
+{
+    return Poco::format("/%s",Poco::toLower(str(t)));
+}
 
 void version()
 {
@@ -83,8 +89,6 @@ int main(int argc, char **argv)
 {
     bool startShell=false;
     bool startServer=false;
-    bool launchJobEngine=false;
-    string jobEngineConfiguration;
 
 
     if ( argc<2 ) {
@@ -93,43 +97,30 @@ int main(int argc, char **argv)
     }
 
     for ( int i(1) ; i<argc ; i++ ) {
-        cbsl::KeyVal::Pair  arg = cbsl::KeyVal::parseArg(argv[i]);
+        std::string arg{ argv[i] };
 
-        if ( arg.isAnonymous() ) {
-            if (arg.value == "--version") {
-                version();
-                return 0;
-            } else if (arg.value == "--help") {
-                help();
-                return 0;
-            } else if (arg.value == "--foreground") {
-                startShell = true;
-            } else if (arg.value == "--daemon") {
-                startServer = true;
-            } else {
-                fprintf(stderr, "Unsupported argument: %s\n", argv[i]);
-                return 1;
-            }
+        if ( arg=="--version" ) {
+            version();
+            return 0;
+        }
+        else if ( arg=="--help" ) {
+            help();
+            return 0;
+        }
+        else if ( arg=="--foreground" ) {
+            startShell = true;
+        }
+        else if ( arg=="--daemon" ) {
+            startServer = true;
         }
         else {
-            if ( arg.key == "--job-config" ) {
-                launchJobEngine = true;
-                jobEngineConfiguration  = arg.value;
-            }
-            else {
-                fprintf(stderr, "Unsupported argument: %s\n",argv[i]);
-                return 1;
-            }
+            cerr << "Unsupported argument: " << arg << "\n";
+            return 1;
         }
     }
 
     if ( startServer && startShell ) {
         fprintf( stderr , "Please invoke with only one of --daemon or --foreground options...\n" );
-        return 1;
-    }
-
-    if ( launchJobEngine && !startServer ) {
-        fprintf(stderr," --job-config requires --daemon\n");
         return 1;
     }
 
@@ -192,35 +183,52 @@ int main(int argc, char **argv)
     logger.information( Poco::format("\n\n\n-------------------------------------\niotool-%s starting...\n-------------------------------------" , string(Iotool::VERSION)) );
 
     logger.information( "Creating board...");
-    BoardPtr board  = createBoard();
-    logger.information( "Creating device applets...");
-    vector<DeviceAppletPtr> deviceApplets( createDeviceApplets() );
-    logger.debug( "Creating system applets...");
-    vector<SystemAppletPtr> systemApplets( createSystemApplets() );
+    Board::create();
+    BoardPtr board  = Board::get();
 
-    /* set up the shell engine */
-    ShellPeripheralProviderPtr peripheralProviderPtr( new ShellPeripheralProvider() );
-    peripheralProviderPtr->setDeviceApplets(deviceApplets);
-    peripheralProviderPtr->setPeripherals(board->getPeripherals());
-    peripheralProviderPtr->rebuildIndex();
-    ShellBackendFactory::addProvider(peripheralProviderPtr);
+    PeripheralCmdProvider perCmdIndex;
 
-    ShellProviderPtr loggerProvider( new LoggerShellProvider() );
-    ShellBackendFactory::addProvider(loggerProvider);
-
-    IoCore *ioCore(nullptr);
-    if ( launchJobEngine ) {
-        ioCore  = new IoCore(jobEngineConfiguration);
-        ioCore->start();
+    auto cmdTree{make_shared<rps::CommandTree>() };
+    for ( auto const& p : board->getPeripherals() ) {
+        rps::CliPath path { pathForPeripheral(p) };
+        cmdTree->addPath(path );
+        p->setAlias( path.toString() );
     }
 
+    for ( auto [ type , cmds ] : perCmdIndex.groups ) {
+        auto decoder    = make_shared<rps::Decoder>();
+        for_each( cmds.begin() , cmds.end() , [&decoder](auto const& cmd) {
+            decoder->addCommand(cmd);
+        } );
+        rps::CliPath path { pathForPeripheralType(type) };
+        cmdTree->addDecoder(path, decoder);
+    }
+
+    auto builtinsDecoder    = make_shared<rps::Decoder>();
+    auto builtins           = rps::getBuiltinCommands();
+    std::for_each(builtins.begin(),builtins.end(),[&builtinsDecoder](auto const&c) {
+        builtinsDecoder->addCommand(c);
+    } );
+    cmdTree->addDecoder(rps::CliPath{"/"}, builtinsDecoder);
     
+    auto cmdCd  = make_shared<CmdCd>();
+    cmdTree->addCommand("/",cmdCd);
+    auto cmdHelp= make_shared<CmdHelp>(cmdTree,perCmdIndex);
+    cmdTree->addCommand("/",cmdHelp);
+    
+    /* Improve set up of command tree.
+     * Dedicated module, "CreateCommandTree", creates the CmdTreePtr,
+     * including builtins, and custom commands.
+     */
+    
+    auto ctxFactory{ make_shared<rps::ContextFactory>(cmdTree) };
+
+
     if ( startServer ) {
-        TcpDataServer *dataServer = new TcpDataServer(Iotool::TCP_DATA_SERVER_PORT);
-        dataServer->start();
         Poco::Net::TCPServer *tcpServer;
-        ShellBackendPtr shellBackend    = ShellBackendFactory::createInstance();
-        Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory(new ConnectedTelnetClientFactory(shellBackend,dataServer));
+        Poco::Net::TCPServerConnectionFactory::Ptr connectionFactory{
+            new TelnetSessionFactory(ctxFactory)
+        };
         Poco::Net::ServerSocket srvSkt;
         logger.information( Poco::format("telnet server: binding to 0.0.0.0:%u...",Iotool::TCP_LISTEN_PORT) );
         srvSkt.bind( Poco::Net::SocketAddress("0.0.0.0",Iotool::TCP_LISTEN_PORT),true,true);
@@ -243,12 +251,10 @@ int main(int argc, char **argv)
     
     if ( startShell ) {
         logger.debug( "Starting shell...");
-        StdioStreamAdapter *iostreams   = new StdioStreamAdapter();
-        ShellBackendPtr shellBackend    = ShellBackendFactory::createInstance();
-        ShellFrontend *shellFrontend    = new ShellFrontend(iostreams, shellBackend);
-        shellFrontend->run();
-        delete shellFrontend;
-        delete iostreams;
+        auto stream = make_shared<rps::StdioStreamAdapter>();
+        auto ctx    = ctxFactory->create(stream);
+        auto consoleFrontend  = make_unique<ShellFrontend>(ctx);
+        consoleFrontend->run();
         logger.information( "Returned from shell. Moving on...");
     }
 

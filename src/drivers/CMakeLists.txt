@@ -13,4 +13,14 @@ target_include_directories( drivers PRIVATE include/drivers ${CMAKE_CURRENT_SOUR
 target_include_directories( drivers INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 target_link_libraries( drivers PUBLIC 
-common cbsl Poco::Foundation )
+    common
+    Poco::Foundation
+    )
+
+target_compile_options( drivers PRIVATE
+    -Wall
+    -Wextra
+    -Warray-bounds
+    -Wno-psabi
+    -Werror
+    )

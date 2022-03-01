@@ -6,7 +6,6 @@
 #define IOTOOL_CSV_WRITER_HPP
 
 
-#include <common/output_channel.hpp>
 #include <fstream>
 #include <Poco/JSON/Object.h>
 

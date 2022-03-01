@@ -11,7 +11,6 @@
 
 #include <Poco/Logger.h>
 
-#include <common/output_channel.hpp>
 #include <common/blocking_queue.hpp>
 #include "output_channel_holder.hpp"
 

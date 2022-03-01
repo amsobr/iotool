@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include <common/peripheral_type.hpp>
+#include <common/PeripheralType.hpp>
 
 #include "max581x.hpp"
 

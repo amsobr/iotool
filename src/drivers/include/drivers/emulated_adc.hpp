@@ -17,8 +17,8 @@ private:
     Poco::Random myRandom;
 
 public:
-    EmulatedAdc( unsigned int id , unsigned int numChannels) :
-    Adc(id) ,
+    EmulatedAdc( int id , unsigned int numChannels) :
+    Adc( id ) ,
     myNumChannels(numChannels) ,
     myNumCurrentSources(1) ,
     myRandom()
@@ -26,10 +26,9 @@ public:
         myRandom.seed();
     }
 
-    virtual ~EmulatedAdc()
-    {
 
-    }   
+    ~EmulatedAdc() override = default;
+
 
     virtual std::string getVendor() const { return "SYNAPSENSE"; }
     
