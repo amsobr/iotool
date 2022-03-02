@@ -2,8 +2,7 @@
 // Created by to on 17/03/19.
 //
 
-#ifndef IOTOOL_STACK_HPP
-#define IOTOOL_STACK_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -45,6 +44,41 @@ public:
     Operand recallConstant(std::string const &name );
 
     [[nodiscard]] Operand valueAt( int pos ) const;
+    
+    
+    /**
+     * @brief get all variables of the stack
+     * @return an array with all variables
+     */
+    [[nodiscard]] std::vector<Variable> getVariables() const
+    {
+        return myVariables;
+    }
+    
+    
+    /**
+     * @brief get all constants of the stack
+     * @return an array with all constants
+     */
+    [[nodiscard]] std::vector<Variable> getConstants() const
+    {
+        return myConstants;
+    }
+    
+
+    /**
+     * @brief Get the current stack.
+     *
+     * Retrieves the current stack of the context. The element at position 0
+     * is the deepest element of the stack, ie, the first element to be pushed.
+     * The last element of the returned array is the newest element of the
+     * stack, ie, the most recently pushed element.
+     * @return the current stack.
+     */
+    [[nodiscard]] std::vector<Operand> getStack() const
+    {
+        return myStack;
+    }
 
 private:
     std::vector<Variable> myVariables;
@@ -65,5 +99,3 @@ typedef std::shared_ptr<Stack> StackPtr;
 
 }
 
-
-#endif //IOTOOL_STACK_HPP

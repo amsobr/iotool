@@ -22,6 +22,22 @@ public:
     {
         return myIsKvPair;
     }
+    
+    /**
+     * @brief Check if argument is a simple token
+     *
+     * Checks if an argument is not of the format `KEY=VALUE`, ie, if it can be
+     * parsed as a single token as a whole.
+     
+     * This is equivalent to a call of `!arg.isKvPair()`
+     *
+     * @return true if the argument is a simple token, ie, not in the form
+     *         `key=value`
+     */
+    [[nodiscard]] bool isToken() const
+    {
+        return !isKvPair();
+    }
 
 
     [[nodiscard]] std::string const& getAsString() const
@@ -65,8 +81,8 @@ public:
             throw InvalidArgumentsException{"argument is a KV (not a double): " + myToken };
         }
         size_t cnt=0;
-        auto v = std::stod(myKey,&cnt);
-        if ( cnt!=myKey.size() ) {
+        auto v = std::stod(myToken,&cnt);
+        if ( cnt!=myToken.size() ) {
             throw InvalidArgumentsException{"argument is not a valid double: " + myToken };
         }
         return v;
