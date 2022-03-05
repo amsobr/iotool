@@ -1,10 +1,10 @@
-#ifndef AGRIPINO_HPP
-#define AGRIPINO_HPP
+
+#pragma once
 
 
 #include <vector>
 
-#include "../Board.hpp"
+#include <common/Board.hpp>
 
 class Agp01Board : public Board
 {
@@ -15,5 +15,3 @@ public:
 }; /* class Agripino */
 
 
-
-#endif /* !defined AGRIPINO_HPP */
