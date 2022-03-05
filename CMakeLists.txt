@@ -56,7 +56,6 @@ set( IOTOOL_SRCS
     #src/jobs/transform_job.cpp
     #src/jobs/transform_job.hpp
 
-    src/shell/command_help.hpp
     src/shell/ConnecedTelnetClient.hpp
     src/shell/ShellFrontend.cpp
     src/shell/ShellFrontend.hpp
