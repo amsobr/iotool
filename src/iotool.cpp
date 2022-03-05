@@ -34,6 +34,7 @@
 #include "shell/TelnetSessionFactory.hpp"
 #include "shell/commands/CmdCd.hpp"
 #include "shell/commands/CmdHelp.hpp"
+#include "shell/commands/CmdShow.hpp"
 
 
 #include "iotool_config.hpp"
@@ -215,6 +216,9 @@ int main(int argc, char **argv)
     cmdTree->addCommand("/",cmdCd);
     auto cmdHelp= make_shared<CmdHelp>(cmdTree,perCmdIndex);
     cmdTree->addCommand("/",cmdHelp);
+    
+    auto cmdShow= make_shared<CmdShow>();
+    cmdTree->addCommand("/",cmdShow);
     
     /* Improve set up of command tree.
      * Dedicated module, "CreateCommandTree", creates the CmdTreePtr,

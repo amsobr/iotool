@@ -152,59 +152,6 @@ void builtin_dup( ContextPtr const& ctx , ArgumentList const& )
     ctx->stack.push( ctx->stack.valueAt(0) );
 }
 
-constexpr auto showHelp =
-    "show - show information about the current context\n"
-    "Usage:\n"
-    "  show WHAT\n"
-    "Arguments:\n"
-    "  WHAT    Selects what to show:\n"
-    "          vars|variables   : show current variables\n"
-    "          consts|constants : show current constants\n"
-    "          stack            : show the stack, from oldest to newest\n"
-    "          all              : show all the above\n";
-
-void builtin_show( ContextPtr const& ctx, ArgumentList const& args )
-{
-    if ( args.size()!=1 ) {
-        throw InvalidArgumentsException{"show needs exactly one argument"};
-    }
-    
-    if ( !args.at(0).isToken() ) {
-        throw InvalidArgumentsException{"show needs exactly one token argument (got one KV pair)"};
-    }
-    
-    auto const& mode    = args.at(0).getToken();
-    
-    if ( mode=="stack" ) {
-        ctx->stream->writeLine("Stack:");
-        auto stack  = ctx->stack.getStack();
-        auto depth  = stack.size() - 1;
-        for ( auto const& v : stack ) {
-            ctx->stream->writeLine(Poco::format("[%02z]: %f",depth,v));
-            depth--;
-        }
-    }
-    else if ( mode=="vars" || mode=="variables" ) {
-        ctx->stream->writeLine("Variables:");
-        for ( auto const& var: ctx->stack.getVariables() ) {
-            ctx->stream->writeLine(Poco::format("  '%12s' = %f\n",var.name(),var.value()));
-        }
-        ctx->stream->writeLine("");
-    }
-    else if ( mode=="consts" || mode=="constants" ) {
-        auto allConsts  = ctx->stack.getConstants();
-        ctx->stream->writeLine("Constants:");
-        for ( auto const& ct : ctx->stack.getConstants() ) {
-            ctx->stream->writeLine(Poco::format("  '%12s' = %f",ct.name(),ct.value()));
-        }
-        ctx->stream->writeLine("\n");
-    }
-    else {
-        throw InvalidArgumentsException{"invalid mode: " + mode};
-    }
-}
-
-
 typedef std::function< void(ContextPtr&,ArgumentList const&) > CommandHandler;
 typedef std::tuple< CommandHandler, std::string , std::string, std::string > CmdDescriptor;
 
@@ -227,7 +174,6 @@ std::vector<AbstractCommandConstPtr> getBuiltinCommands()
         { builtin_push  , "push"    , "push arg (int) to [0]"           , "" } ,
         { builtin_dupN  , "dupn"    , "duplicate [0] N times"           , "" } ,
         { builtin_dup   , "dup"     , "duplicate [0]"                   , "" } ,
-        { builtin_show  , "show"    , "show context information"        , showHelp } ,
     };
     
     std::vector<AbstractCommandConstPtr> allCmds;

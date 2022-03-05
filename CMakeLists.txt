@@ -87,7 +87,6 @@ set( IOTOOL_SRCS
     src/shell/commands/CmdCd.hpp
     src/shell/commands/cmd_adc_isource.hpp
     src/shell/commands/cmd_dac_set_out.hpp
-    src/shell/commands/cmd_device_info.hpp
     src/shell/commands/cmd_exit.hpp
     src/shell/commands/cmd_led_set.hpp
     src/shell/commands/cmd_led_status.hpp
@@ -95,7 +94,7 @@ set( IOTOOL_SRCS
     src/shell/commands/cmd_relay_set.hpp
     src/shell/commands/cmd_relay_status.hpp
 
-    src/shell/commands/CmdHelp.cpp src/shell/commands/CmdHelp.hpp )
+    src/shell/commands/CmdHelp.cpp src/shell/commands/CmdHelp.hpp src/shell/commands/CmdShow.cpp src/shell/commands/CmdShow.hpp )
 
 
 
