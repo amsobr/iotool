@@ -82,15 +82,8 @@ public:
     [[nodiscard]] std::string toString() const
     {
         std::ostringstream oss;
-        bool first  = true;
         for ( auto const&s : myPath ) {
-            if ( first ) {
-                first   = false;
-            }
-            else {
-                oss << "/";
-            }
-            oss << s;
+            oss << "/" << s;
         }
         return oss.str();
     }
