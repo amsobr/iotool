@@ -62,7 +62,7 @@ set( IOTOOL_SRCS
     src/shell/commands/CmdLedSet.hpp
     src/shell/commands/CmdLedStatus.hpp
     src/shell/commands/CmdPmState.hpp
-    src/shell/commands/cmd_relay_set.hpp
+    src/shell/commands/CmdRelaySet.hpp
     src/shell/commands/cmd_relay_status.hpp
 
     src/shell/commands/CmdHelp.cpp src/shell/commands/CmdHelp.hpp src/shell/commands/CmdShow.cpp src/shell/commands/CmdShow.hpp )

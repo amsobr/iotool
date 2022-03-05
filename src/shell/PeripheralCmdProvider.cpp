@@ -5,6 +5,7 @@
 #include "commands/CmdDacSet.hpp"
 #include "commands/CmdLedSet.hpp"
 #include "commands/CmdLedStatus.hpp"
+#include "commands/CmdRelaySet.hpp"
 
 #include "PeripheralCmdProvider.hpp"
 
@@ -20,6 +21,8 @@ PeripheralCmdProvider::PeripheralCmdProvider()
     groups[PeripheralType::DAC].emplace_back(std::make_shared<CmdDacSet>() );
     
     groups[PeripheralType::INDICATOR].emplace_back( std::make_shared<CmdLedSet>() );
+    
+    groups[PeripheralType::RELAY].emplace_back( std::make_shared<CmdRelaySet>() );
 }
 
 
