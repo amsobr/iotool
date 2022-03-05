@@ -15,7 +15,7 @@ enum class PeripheralType
     INDICATOR ,
     RELAY ,
     DIN ,
-    PWR_MON ,
+    PM ,
     DOUT ,
     BASIC ,
 };
@@ -31,7 +31,7 @@ static inline std::string str(PeripheralType t)
         case PeripheralType::INDICATOR: return "INDICATOR";
         case PeripheralType::RELAY:     return "RELAY";
         case PeripheralType::DIN:       return "DIN";
-        case PeripheralType::PWR_MON:   return "PWR_MON";
+        case PeripheralType::PM:        return "PM";
         case PeripheralType::DOUT:      return "DOUT";
         case PeripheralType::BASIC:     return "BASIC";
         default:                        return "????";

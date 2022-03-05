@@ -11,7 +11,7 @@ class PowerMonitor : public Peripheral
 {
 protected:
     PowerMonitor( unsigned int id) :
-    Peripheral(PeripheralType::PWR_MON,id)
+    Peripheral(PeripheralType::PM, id)
     {
 
     }
