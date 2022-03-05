@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include <common/dac.hpp>
+#include <common/Dac.hpp>
 
 
 class EmulatedDac: public Dac
@@ -31,7 +31,10 @@ public:
     virtual std::string getAuthor() const { return "antonio.oliveira@example.com"; }
 
     virtual size_t getNumChannels() const { return myNumChannels; }
-    virtual int setOutput( unsigned int ch , unsigned int level ) { return 0; }
+    
+    std::string const& getUnit() const override { return "1mV"; }
+    
+    virtual int setOutput(unsigned int ch , int level ) { return 0; }
 }; /* class MAX581x */
 
 typedef std::shared_ptr<EmulatedDac> EmulatedDacPtr;

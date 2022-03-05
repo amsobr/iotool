@@ -58,8 +58,8 @@ set( IOTOOL_SRCS
     src/shell/commands/CmdAdcIsource.hpp
     src/shell/commands/CmdCd.cpp
     src/shell/commands/CmdCd.hpp
+    src/shell/commands/CmdDacSet.hpp
     src/shell/commands/CmdPmState.hpp
-    src/shell/commands/cmd_dac_set_out.hpp
     src/shell/commands/cmd_led_set.hpp
     src/shell/commands/cmd_led_status.hpp
     src/shell/commands/cmd_relay_set.hpp

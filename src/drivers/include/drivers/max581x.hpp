@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include <common/dac.hpp>
+#include <common/Dac.hpp>
 
 
 class Max581x: public Dac
@@ -51,7 +51,7 @@ public:
     int init();
     int setPower( unsigned int ch , PowerMode mode );
     virtual size_t getNumChannels() const { return 4; }
-    virtual int setOutput( unsigned int ch , unsigned int level );
+    virtual int setOutput(unsigned int ch , int level );
     int setAutoStandby( bool autoStandBy );
 }; /* class MAX581x */
 

@@ -31,8 +31,15 @@ public:
     virtual std::string getDriverVersion() const = 0;
     
     virtual size_t getNumChannels() const = 0;
+    
+    /**
+     * @brief get the output reference unit.
+     *
+     * @return The reference output unit of the unit.
+     */
+    virtual std::string const& getUnit() const = 0;
 
-    virtual int setOutput( unsigned int ch , unsigned int level ) = 0;
+    virtual int setOutput(unsigned int ch , int level ) = 0;
 
 }; /* class Dac */
 

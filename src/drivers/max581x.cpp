@@ -231,7 +231,7 @@ int Max581x::init()
     return impl->init();
 }
 
-int Max581x::setOutput( unsigned int ch , unsigned int level )
+int Max581x::setOutput(unsigned int ch , int level )
 {
     return impl->setOutput(ch,level);
 }
