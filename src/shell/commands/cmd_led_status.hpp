@@ -8,7 +8,7 @@
 #include <common/cmd_arguments.hpp>
 #include <common/device_applet.hpp>
 #include <common/PeripheralType.hpp>
-#include <common/indicator.hpp>
+#include <common/Indicator.hpp>
 #include <common/data_bucket.hpp>
 
 #include <Poco/Format.h>

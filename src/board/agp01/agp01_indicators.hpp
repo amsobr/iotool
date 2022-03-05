@@ -8,7 +8,7 @@
 
 #include <common/Peripheral.hpp>
 #include <common/PeripheralType.hpp>
-#include <common/indicator.hpp>
+#include <common/Indicator.hpp>
 #include <drivers/sysfs_gpio.hpp>
 
 

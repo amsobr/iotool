@@ -3,6 +3,7 @@
 #include "commands/CmdAdcIsource.hpp"
 #include "commands/CmdPmState.hpp"
 #include "commands/CmdDacSet.hpp"
+#include "commands/CmdLedSet.hpp"
 
 #include "PeripheralCmdProvider.hpp"
 
@@ -16,6 +17,8 @@ PeripheralCmdProvider::PeripheralCmdProvider()
     groups[PeripheralType::PM].emplace_back(std::make_shared<CmdPmState>() );
     
     groups[PeripheralType::DAC].emplace_back(std::make_shared<CmdDacSet>() );
+    
+    groups[PeripheralType::INDICATOR].emplace_back( std::make_shared<CmdLedSet>() );
 }
 
 
