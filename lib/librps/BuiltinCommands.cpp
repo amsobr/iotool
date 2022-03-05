@@ -174,46 +174,8 @@ void builtin_show( ContextPtr const& ctx, ArgumentList const& args )
     }
     
     auto const& mode    = args.at(0).getToken();
-    bool showStack      = false;
-    bool showVars       = false;
-    bool showConsts     = false;
+    
     if ( mode=="stack" ) {
-        showStack   = true;
-    }
-    else if ( mode=="vars" || mode=="variables" ) {
-        showVars    = true;
-    }
-    else if ( mode=="consts" || mode=="constants" ) {
-        showConsts  = true;
-    }
-    else if ( mode=="stack" ) {
-        showStack   = true;
-    }
-    else if ( mode=="all" ) {
-        showStack = showVars = showConsts = true;
-    }
-    else {
-        throw InvalidArgumentsException{"invalid mode: " + mode};
-    }
-    
-    if ( showVars ) {
-        ctx->stream->writeLine("Variables:");
-        for ( auto const& var: ctx->stack.getVariables() ) {
-            ctx->stream->writeLine(Poco::format("  '%12s' = %f\n",var.name(),var.value()));
-        }
-        ctx->stream->writeLine("");
-    }
-    
-    if ( showConsts ) {
-        auto allConsts  = ctx->stack.getConstants();
-        ctx->stream->writeLine("Constants:");
-        for ( auto const& ct : ctx->stack.getConstants() ) {
-            ctx->stream->writeLine(Poco::format("  '%12s' = %f",ct.name(),ct.value()));
-        }
-        ctx->stream->writeLine("\n");
-    }
-    
-    if ( showStack ) {
         ctx->stream->writeLine("Stack:");
         auto stack  = ctx->stack.getStack();
         auto depth  = stack.size() - 1;
@@ -221,6 +183,24 @@ void builtin_show( ContextPtr const& ctx, ArgumentList const& args )
             ctx->stream->writeLine(Poco::format("[%02z]: %f",depth,v));
             depth--;
         }
+    }
+    else if ( mode=="vars" || mode=="variables" ) {
+        ctx->stream->writeLine("Variables:");
+        for ( auto const& var: ctx->stack.getVariables() ) {
+            ctx->stream->writeLine(Poco::format("  '%12s' = %f\n",var.name(),var.value()));
+        }
+        ctx->stream->writeLine("");
+    }
+    else if ( mode=="consts" || mode=="constants" ) {
+        auto allConsts  = ctx->stack.getConstants();
+        ctx->stream->writeLine("Constants:");
+        for ( auto const& ct : ctx->stack.getConstants() ) {
+            ctx->stream->writeLine(Poco::format("  '%12s' = %f",ct.name(),ct.value()));
+        }
+        ctx->stream->writeLine("\n");
+    }
+    else {
+        throw InvalidArgumentsException{"invalid mode: " + mode};
     }
 }
 
