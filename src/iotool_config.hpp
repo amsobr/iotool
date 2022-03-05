@@ -3,7 +3,7 @@
 
 namespace Iotool
 {
-    constexpr char const VERSION[]   = VER_MAJOR "." VER_MINOR "." VER_PATCH "-" VER_EXTRA;
+    constexpr char const VERSION[]   = IOTOOL_VERSION;
     constexpr char const LOG_FILE[]  = "iotool.log";
     constexpr unsigned int TCP_LISTEN_PORT = 1337;
 };

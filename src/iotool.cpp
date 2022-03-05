@@ -58,7 +58,7 @@ static inline std::string pathForPeripheralType( PeripheralType t )
 
 void version()
 {
-    fprintf( stdout , "iotool version %s.%s.%s-%s\n" , VER_MAJOR,VER_MINOR,VER_PATCH,VER_EXTRA);
+    fprintf( stdout , "iotool version %s\n" , IOTOOL_VERSION );
 }
 
 void help()
