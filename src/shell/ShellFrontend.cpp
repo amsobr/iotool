@@ -32,6 +32,10 @@ void ShellFrontend::run()
         myCtx->stream->putc('>');
         string cmdLine;
         cmdLine = myCtx->stream->readLine();
+        if ( cmdLine.empty() ) {
+            continue;
+        }
+        
         if ( cmdLine=="exit" ) {
             logger.information("Shell exiting now.");
             break;
