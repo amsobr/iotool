@@ -1,7 +1,5 @@
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <list>
@@ -13,33 +11,28 @@ using namespace std;
 
 static int echoToFile( string const &fileName , string const &value )
 {
-    cout << "Echoing '" + value + "' into '" + fileName +"'\n";
-    int fd  = open(fileName.c_str(),O_WRONLY);
-    if ( fd<0 ) {
-        perror( "opening file WRONLY" );
-        cerr << "File was " << fileName;
+    try {
+        std::ofstream os{fileName};
+        os << value;
+        os.close();
+        return 0;
+    }
+    catch (...) {
         return -1;
     }
-    
-    write(fd,value.c_str(),value.length());
-    close(fd);
-    return 0;
 }
 
 static string catFromFile( string const &fileName )
 {
-    int fd  = open(fileName.c_str(),O_RDONLY);
-    if ( fd<0 ) {
-        perror( "opening file RDONLY" );
-        cerr << "File was " << fileName;
+    try {
+        std::ifstream is{fileName};
+        std::ostringstream oss;
+        oss << is.rdbuf();
+        return oss.str();
+    }
+    catch (...) {
         return "";
     }
-    char buf[32];
-    read(fd,buf,sizeof(buf));
-    close(fd);
-    /* ensure string is null-terminated */
-    buf[sizeof(buf)-1]  = '\0';
-    return buf;
 }
 
 static inline void exportPin( unsigned int pinId )
