@@ -66,6 +66,26 @@ public:
     {
         return myArgs.empty();
     }
+    
+    [[nodiscard]] auto begin() const
+    {
+        return myArgs.begin();
+    }
+    
+    [[nodiscard]] auto end() const
+    {
+        return myArgs.end();
+    }
+    
+    [[nodiscard]] auto cbegin() const
+    {
+        return myArgs.cbegin();
+    }
+    
+    [[nodiscard]] auto cend() const
+    {
+        return myArgs.cend();
+    }
 
 private:
     std::vector<Argument> myArgs;
