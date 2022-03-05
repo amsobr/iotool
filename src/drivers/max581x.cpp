@@ -236,7 +236,10 @@ int Max581x::setOutput(unsigned int ch , int level )
     return impl->setOutput(ch,level);
 }
 
-
+std::string Max581x::getUnit() const
+{
+    return "1mV";
+}
 
 
 #if 0

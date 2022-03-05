@@ -47,7 +47,9 @@ public:
     virtual std::string getRevision() const;
     virtual std::string getDriverVersion() const ;
     virtual std::string getAuthor() const;
-
+    
+    std::string getUnit() const override;
+    
     int init();
     int setPower( unsigned int ch , PowerMode mode );
     virtual size_t getNumChannels() const { return 4; }

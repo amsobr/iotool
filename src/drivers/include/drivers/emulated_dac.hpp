@@ -32,7 +32,7 @@ public:
 
     virtual size_t getNumChannels() const { return myNumChannels; }
     
-    std::string const& getUnit() const override { return "1mV"; }
+    std::string getUnit() const override { return "1mV"; }
     
     virtual int setOutput(unsigned int ch , int level ) { return 0; }
 }; /* class MAX581x */

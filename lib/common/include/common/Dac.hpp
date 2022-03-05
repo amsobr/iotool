@@ -37,7 +37,7 @@ public:
      *
      * @return The reference output unit of the unit.
      */
-    virtual std::string const& getUnit() const = 0;
+    virtual std::string getUnit() const = 0;
 
     virtual int setOutput(unsigned int ch , int level ) = 0;
 
