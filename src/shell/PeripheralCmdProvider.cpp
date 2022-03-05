@@ -4,6 +4,7 @@
 #include "commands/CmdPmState.hpp"
 #include "commands/CmdDacSet.hpp"
 #include "commands/CmdLedSet.hpp"
+#include "commands/CmdLedStatus.hpp"
 
 #include "PeripheralCmdProvider.hpp"
 
