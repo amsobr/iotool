@@ -55,9 +55,9 @@ set( IOTOOL_SRCS
     src/shell/ParseLine.cpp
     src/shell/TelnetSessionFactory.hpp
     src/shell/TelnetStreamAdapter.cpp
+    src/shell/commands/CmdAdcIsource.hpp
     src/shell/commands/CmdCd.cpp
     src/shell/commands/CmdCd.hpp
-    src/shell/commands/cmd_adc_isource.hpp
     src/shell/commands/cmd_dac_set_out.hpp
     src/shell/commands/cmd_exit.hpp
     src/shell/commands/cmd_led_set.hpp
