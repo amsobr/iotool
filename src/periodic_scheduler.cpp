@@ -7,7 +7,6 @@
 #include <Poco/JSON/Object.h>
 
 #include <common/acquisition_scheduler.hpp>
-#include <shell/shell_script_runner.hpp>
 
 #include "periodic_scheduler.hpp"
 
