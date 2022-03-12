@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.8 )
 
-project( iotool )
+project( iotool LANGUAGES CXX )
 
 set( IOTOOL_VERSION "0.4.0" )
 
@@ -99,4 +99,8 @@ target_link_libraries( iotool PRIVATE ${BOARD_NAME}
     Poco::JSON
     -lpthread -lrt
     )
+
+install( TARGETS iotool
+    RUNTIME DESTINATION /usr/bin
+)
 
