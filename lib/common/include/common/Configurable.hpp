@@ -7,13 +7,13 @@
 #include <string>
 #include "option_help.hpp"
 
-class ConfigurableResource
+class Configurable
 {
 protected:
 public:
-    ConfigurableResource() = default;
+    Configurable() = default;
 
-    virtual ~ConfigurableResource() = default;
+    virtual ~Configurable() = default;
 
     virtual bool setOption( std::string const &optName , std::string const &optValue)
     {

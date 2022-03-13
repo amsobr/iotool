@@ -12,7 +12,7 @@
 #include <rps/Context.hpp>
 
 #include <common/Board.hpp>
-#include <common/power_monitor.hpp>
+#include <common/PowerMonitor.hpp>
 #include <common/result.hpp>
 
 

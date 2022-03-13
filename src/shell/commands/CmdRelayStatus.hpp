@@ -8,7 +8,7 @@
 
 #include <common/result.hpp>
 #include <common/PeripheralType.hpp>
-#include <common/digital_output.hpp>
+#include <common/DigitalOut.hpp>
 #include <common/Board.hpp>
 
 #include <rps/AbstractCommand.hpp>
@@ -33,13 +33,13 @@ public:
     
     void run(rps::ContextPtr& ctx, rps::ArgumentList const& args) const override
     {
-        auto douts  = Board::get()->getPeripheral<DigitalOutput>(ctx->getCwd());
+        auto douts  = Board::get()->getPeripheral<DigitalOut>(ctx->getCwd());
 
         if ( args.size()!=0 ) {
             throw rps::InvalidArgumentsException{"too many arguments"};
         }
 
-        std::list<DigitalOutput::Output> doutStatus = douts->getOutputs();
+        std::list<DigitalOut::Output> doutStatus = douts->getOutputs();
         std::string sOn("on");
         std::string sOff("off");
         ctx->stream->writeLine( "Relay Status:");

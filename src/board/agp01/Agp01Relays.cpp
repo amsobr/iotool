@@ -3,10 +3,10 @@
 
 #include <Poco/Format.h>
 
-#include <common/digital_output.hpp>
+#include <common/DigitalOut.hpp>
 
-#include "agp01_relays.hpp"
-#include "acme-a5.hpp"
+#include "Agp01Relays.hpp"
+#include "Agp01PinMapper.hpp"
 
 using namespace std;
 
@@ -15,8 +15,8 @@ static int const gpio_oh_cl = PIN_B(20);
 static int const gpio_ol_ch = PIN_B(19);
 
 Agp01Relays::Agp01Relays( unsigned int id , SysfsGpioPtr gpio ) :
-DigitalOutput(id) ,
-myGpio(gpio)
+    DigitalOut(id) ,
+    myGpio(gpio)
 {
     /* Populate the relay entries.
      * Note that the very first AGP01 board had a bug that inverted
@@ -47,18 +47,18 @@ myGpio(gpio)
     myGpio->setValue(gpio_ol_ch,false);
 }
 
-list<DigitalOutput::Output> const Agp01Relays::getOutputs() const
+list<DigitalOut::Output> Agp01Relays::getOutputs() const
 {
     list<Output> outs;
-    for ( auto relay : myRelays ) {
-        outs.push_back(Output(relay.name,relay.state));
+    for ( auto const& relay : myRelays ) {
+        outs.emplace_back(relay.name,relay.state);
     }
     return outs;
 }
 
 int Agp01Relays::setOut( string name , bool value )
 {
-    for ( auto relay : myRelays ) {
+    for ( auto const&relay : myRelays ) {
         if ( relay.name==name ) {
             myGpio->setBusValue("relay_sel",relay.id);
             myGpio->setValue(gpio_ol_ch,value);

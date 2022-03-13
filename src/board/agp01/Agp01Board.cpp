@@ -9,9 +9,9 @@
 
 
 #include "Agp01Board.hpp"
-#include "agp01_indicators.hpp"
-#include "agp01_relays.hpp"
-#include "acme-a5.hpp"
+#include "Agp01Leds.hpp"
+#include "Agp01Relays.hpp"
+#include "Agp01PinMapper.hpp"
 
 using namespace std;
 
@@ -45,11 +45,11 @@ Agp01Board::Agp01Board()
     dac->init();
     myPeripherals.push_back(dac);
 
-    PinMapperPtr pinMapper(new AcmeA5PinMapper());
+    PinMapperPtr pinMapper(new Agp01PinMapper());
     SysfsGpioPtr gpios(new SysfsGpio(pinMapper));
-    IndicatorPtr leds(new Agp01Indicators(0,gpios));
+    IndicatorPtr leds(new Agp01Leds(0, gpios));
     myPeripherals.push_back(leds);
-    DigitalOutputPtr outs( new Agp01Relays(0,gpios) );
+    DigitalOutPtr outs(new Agp01Relays(0, gpios) );
     myPeripherals.push_back(outs);
 
     /* Power Monitor 0: System power consumption */

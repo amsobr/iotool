@@ -12,12 +12,11 @@ class PinMapper
 {
 public:
 
-    virtual ~PinMapper() {}
+    virtual ~PinMapper() = default;
 
     virtual std::string nameOf( unsigned int id) {
-        std::cerr << "OOOOOOPS!!! should not enter here.....\n";
+        std::cerr << "FATAL: method not implemented...\n";
         assert(0);
-        return {};
     }
 }; /* class PinMapper */
 

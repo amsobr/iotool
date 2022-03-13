@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <common/pin_mapper.hpp>
+#include <common/PinMapper.hpp>
 
 static inline unsigned int PIN_A( int n) { return n; }
 static inline unsigned int PIN_B( int n) { return 32+n; }
@@ -11,12 +11,18 @@ static inline unsigned int PIN_C( int n) { return 64+n; }
 static inline unsigned int PIN_D( int n) { return 96+n; }
 static inline unsigned int PIN_E( int n) { return 128+n; }
 
-class AcmeA5PinMapper : public PinMapper
+/**
+ * @brief pin mapper for AGP01 board
+ *
+ * This uses an ACQUA-A5 SOM, based on the SAMa5D3 SoC, so it will also be
+ * compatible with other SAMA5D3 based systems.
+ */
+class Agp01PinMapper : public PinMapper
 {
 public:
-    AcmeA5PinMapper() = default;
+    Agp01PinMapper() = default;
 
-    ~AcmeA5PinMapper() override = default;
+    ~Agp01PinMapper() override = default;
 
     std::string nameOf( unsigned int id ) override
     {

@@ -10,7 +10,7 @@
 #include <Poco/NumberParser.h>
 #include <Poco/Format.h>
 
-#include <common/adc.hpp>
+#include <common/Adc.hpp>
 #include <common/Board.hpp>
 #include <common/result.hpp>
 

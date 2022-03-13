@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 
-#include <common/power_monitor.hpp>
+#include <common/PowerMonitor.hpp>
 
 #include <ina21x.hpp>
 

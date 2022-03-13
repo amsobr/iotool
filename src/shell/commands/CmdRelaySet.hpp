@@ -7,7 +7,7 @@
 #include <Poco/String.h>
 
 #include <common/PeripheralType.hpp>
-#include <common/digital_output.hpp>
+#include <common/DigitalOut.hpp>
 #include <common/Board.hpp>
 
 #include <rps/Context.hpp>
@@ -34,7 +34,7 @@ public:
     
     void run(rps::ContextPtr& ctx, rps::ArgumentList const& args) const override
     {
-        auto douts  = Board::get()->getPeripheral<DigitalOutput>(ctx->getCwd());
+        auto douts  = Board::get()->getPeripheral<DigitalOut>(ctx->getCwd());
         assert(douts!=nullptr);
         
         if ( args.size()==0 ) {

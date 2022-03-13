@@ -16,7 +16,7 @@
 
 
 #include <common/result.hpp>
-#include <common/adc.hpp>
+#include <common/Adc.hpp>
 
 /**
  * @brief Confgure one ADC current source

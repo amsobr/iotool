@@ -8,11 +8,11 @@
 
 #include <common/Peripheral.hpp>
 #include <common/PeripheralType.hpp>
-#include <common/digital_output.hpp>
+#include <common/DigitalOut.hpp>
 #include <drivers/sysfs_gpio.hpp>
 
 
-class Agp01Relays : public DigitalOutput
+class Agp01Relays : public DigitalOut
 {
 private:
     struct Relay {
@@ -21,7 +21,7 @@ private:
         int id;
 
         Relay(std::string n, bool s, int i) :
-        name(n) ,
+        name( std::move(n) ) ,
         state(s) ,
         id(i)
         {
@@ -33,18 +33,18 @@ private:
 
 public:
     Agp01Relays( unsigned int id , SysfsGpioPtr gpio );
-    virtual ~Agp01Relays() {}
+    ~Agp01Relays() override = default;
 
-    virtual std::string getVendor() const { return "Yet To Be Named..."; }
+    [[nodiscard]] std::string getVendor() const override { return "Yet To Be Named..."; }
     
-    virtual std::string getModel() const { return "AGP01-RELAYS"; }
+    [[nodiscard]] std::string getModel() const override { return "AGP01-RELAYS"; }
     
-    virtual std::string getRevision() const { return "1.0a"; }
+    [[nodiscard]] std::string getRevision() const override { return "1.0a"; }
     
-    virtual std::string getDriverVersion() const { return "1.0.0"; }
+    [[nodiscard]] std::string getDriverVersion() const override { return "1.0.0"; }
     
-    virtual std::list<DigitalOutput::Output> const getOutputs() const;
-    virtual int setOut( std::string name , bool value );
+    [[nodiscard]] std::list<DigitalOut::Output> getOutputs() const override;
+    int setOut( std::string name , bool value ) override;
 }; /* class Agp01Relays */
 
 typedef std::shared_ptr<Agp01Relays> Agp01RelaysPtr;

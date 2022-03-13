@@ -12,7 +12,7 @@
 #include <drivers/sysfs_gpio.hpp>
 
 
-class Agp01Indicators : public Indicator
+class Agp01Leds : public Indicator
 {
 private:
     SysfsGpioPtr myGpio;
@@ -26,8 +26,8 @@ private:
 
 
 public:
-    Agp01Indicators( unsigned int id , SysfsGpioPtr gpio );
-    virtual ~Agp01Indicators() {}
+    Agp01Leds(unsigned int id , SysfsGpioPtr gpio );
+    virtual ~Agp01Leds() {}
 
     virtual std::string getVendor() const { return "Yet To Be Named..."; }
     
@@ -41,6 +41,6 @@ public:
     virtual int setLed( std::string name , bool value );
 }; /* class Agp01Indicators */
 
-typedef std::shared_ptr<Agp01Indicators> Agp01IndicatorsPtr;
+typedef std::shared_ptr<Agp01Leds> Agp01IndicatorsPtr;
 
 #endif

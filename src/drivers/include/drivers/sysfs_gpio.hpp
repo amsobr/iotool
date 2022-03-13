@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 
-#include <common/pin_mapper.hpp>
+#include <common/PinMapper.hpp>
 
 enum class Direction {
     OUTPUT ,

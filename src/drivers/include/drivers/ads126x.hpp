@@ -5,7 +5,7 @@
 #include <list>
 #include <string>
 
-#include <common/adc.hpp>
+#include <common/Adc.hpp>
 #include <common/Peripheral.hpp>
 
 #include "ads126x_config.hpp"

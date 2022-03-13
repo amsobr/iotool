@@ -7,7 +7,7 @@
 
 #include <Poco/Random.h>
 
-#include <common/adc.hpp>
+#include <common/Adc.hpp>
 
 class EmulatedAdc : public Adc
 {

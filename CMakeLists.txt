@@ -24,28 +24,16 @@ add_subdirectory( src/drivers )
 
 
 set( IOTOOL_SRCS
-
-    #src/jobs/transform_job.cpp
-    #src/jobs/transform_job.hpp
-
     src/shell/ConnecedTelnetClient.hpp
     src/shell/ShellFrontend.cpp
     src/shell/ShellFrontend.hpp
     src/shell/PeripheralCmdProvider.cpp
     src/shell/PeripheralCmdProvider.hpp
-    #src/shell/shell_script_runner.hpp
     src/shell/socket_stream_adapter.hpp
     src/shell/TelnetStreamAdapter.hpp
 
     src/iotool.cpp
-    #src/csv_writer.cpp
-    #src/output_channel_manager.cpp
-    #src/job_manager.cpp
-    #src/io_core.cpp
-    #src/periodic_scheduler.cpp
-    #src/acquisition_scheduler_factory.cpp
     src/board/Board.cpp
-
 
     # Shell + Commands
     src/shell/commands/CmdAdcRead.hpp
@@ -59,13 +47,16 @@ set( IOTOOL_SRCS
     src/shell/commands/CmdCd.cpp
     src/shell/commands/CmdCd.hpp
     src/shell/commands/CmdDacSet.hpp
+    src/shell/commands/CmdHelp.cpp
+    src/shell/commands/CmdHelp.hpp
     src/shell/commands/CmdLedSet.hpp
     src/shell/commands/CmdLedStatus.hpp
     src/shell/commands/CmdPmState.hpp
     src/shell/commands/CmdRelaySet.hpp
     src/shell/commands/CmdRelayStatus.hpp
-
-    src/shell/commands/CmdHelp.cpp src/shell/commands/CmdHelp.hpp src/shell/commands/CmdShow.cpp src/shell/commands/CmdShow.hpp )
+    src/shell/commands/CmdShow.cpp
+    src/shell/commands/CmdShow.hpp
+    )
 
 
 

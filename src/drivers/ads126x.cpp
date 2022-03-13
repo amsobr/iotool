@@ -16,7 +16,7 @@
 #include <Poco/Stopwatch.h>
 
 
-#include <common/adc.hpp>
+#include <common/Adc.hpp>
 #include <common/PeripheralType.hpp>
 #include <common/result.hpp>
 

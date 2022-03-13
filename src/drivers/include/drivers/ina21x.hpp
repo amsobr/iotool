@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include <common/power_monitor.hpp>
+#include <common/PowerMonitor.hpp>
 
 
 class Ina21x: public PowerMonitor

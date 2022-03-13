@@ -1,13 +1,13 @@
 
-#include "agp01_indicators.hpp"
-#include "acme-a5.hpp"
+#include "Agp01Leds.hpp"
+#include "Agp01PinMapper.hpp"
 
 using namespace std;
 
 static int const gpioLE = PIN_B(6);
 static int const gpioOEn= PIN_B(22);
 
-Agp01Indicators::Agp01Indicators( unsigned int id , SysfsGpioPtr gpio ) :
+Agp01Leds::Agp01Leds(unsigned int id , SysfsGpioPtr gpio ) :
 Indicator(id) ,
 myGpio(gpio) ,
 myLedGsm("GSM") ,
@@ -36,12 +36,12 @@ myLedErr3("ERR3")
 
 }
 
-list<Indicator::Led> const Agp01Indicators::getLeds() const
+list<Indicator::Led> const Agp01Leds::getLeds() const
 {
     return list<Indicator::Led>({myLedGsm,myLedChg,myLedBatLow,myLedErr1,myLedErr2,myLedErr3});
 }
 
-int Agp01Indicators::setLed( string name , bool value )
+int Agp01Leds::setLed(string name , bool value )
 {
     int mask;
     if ( name==myLedGsm.name ) {
