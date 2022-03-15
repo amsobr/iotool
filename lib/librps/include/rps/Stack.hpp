@@ -33,7 +33,7 @@ public:
 
     void drop();
 
-    void dropN(size_t count );
+    void dropN(int count );
 
     void assignVariable(std::string const &name , Operand const &value );
 

@@ -54,8 +54,8 @@ public:
             throw InvalidArgumentsException{"argument is KV (not an unsigned): " + myToken };
         }
         size_t cnt=0;
-        auto v = std::stoull(myKey,&cnt);
-        if ( cnt!=myKey.size() ) {
+        auto v = std::stoull(myToken,&cnt);
+        if ( cnt!=myToken.size() ) {
             throw InvalidArgumentsException{"argument is not an unsigned: " + myToken };
         }
         return v;
@@ -67,8 +67,8 @@ public:
             throw InvalidArgumentsException{"argument is a KV (not an integer): " + myToken };
         }
         size_t cnt=0;
-        auto v = std::stoll(myKey,&cnt);
-        if ( cnt!=myKey.size() ) {
+        auto v = std::stoll(myToken,&cnt);
+        if ( cnt!=myToken.size() ) {
             throw InvalidArgumentsException{"argument is not a valid integer: " + myToken };
         }
         return v;

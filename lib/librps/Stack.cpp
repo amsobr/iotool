@@ -45,7 +45,7 @@ void Stack::drop()
     myStack.pop_back();
 }
 
-void Stack::dropN(size_t count)
+void Stack::dropN(int count)
 {
     requireOperands(count);
     for (size_t i = 0; i < count; i++)
