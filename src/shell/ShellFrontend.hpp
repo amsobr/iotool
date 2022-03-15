@@ -26,6 +26,6 @@ private:
     rps::ContextPtr myCtx;
 };
 
-typedef std::shared_ptr<ShellFrontend> ShellFrontendPtr;
+using ShellFrontendPtr  = std::shared_ptr<ShellFrontend>;
 
 #endif /* !defined SHELL_FRONTEND_HPP */

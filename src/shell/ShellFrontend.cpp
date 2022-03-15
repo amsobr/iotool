@@ -50,6 +50,15 @@ void ShellFrontend::run()
             if ( cmd!=nullptr ) {
                 try {
                     cmd->run(myCtx,args);
+                    auto diff   = myCtx->stack.getNewElements();
+                    if ( !diff.empty() ) {
+                        size_t cnt = diff.size()-1;
+                        for ( auto const&o : diff ) {
+                            myCtx->stream->writeLine( Poco::format("%02z: %f",cnt,o) );
+                            cnt--;
+                        }
+                    
+                    }
                 }
                 catch ( rps::Exception const& ex ) {
                     std::string msg{ Poco::format("error: type='%s' msg='%s'",ex.getType(),ex.getText()) };

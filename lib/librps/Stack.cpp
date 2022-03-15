@@ -24,6 +24,7 @@ Operand Stack::pop()
 void Stack::push(Operand const &value)
 {
     myStack.push_back(value);
+    myNewElems++;
 }
 
 size_t Stack::stackSize() const
@@ -36,6 +37,7 @@ void Stack::clear()
     myStack.clear();
     myConstants.clear();
     myVariables.clear();
+    myNewElems  = 0;
 
 }
 
@@ -43,13 +45,26 @@ void Stack::drop()
 {
     requireOperands(1);
     myStack.pop_back();
+    myNewElems--;
+    if ( myNewElems == 0 ) {
+        myNewElems  = 0;
+    }
 }
 
 void Stack::dropN(int count)
 {
+    if ( count<1 ) {
+        throw InvalidArgumentsException{ Poco::format("invalid count: %d (need>=1)",count) };
+    }
+    
     requireOperands(count);
-    for (size_t i = 0; i < count; i++)
+    for (int i=0; i<count; i++) {
         myStack.pop_back();
+    }
+    myNewElems  -= count;
+    if ( myNewElems<0 ) {
+        myNewElems  = 0;
+    }
 }
 
 void Stack::assignVariable(std::string const &name, const Operand &value)
@@ -61,7 +76,7 @@ void Stack::assignVariable(std::string const &name, const Operand &value)
         }
     }
     /* at this point a variable wasn't found... */
-    myVariables.push_back(Variable(name, value));
+    myVariables.emplace_back(name, value);
 }
 
 
@@ -84,7 +99,7 @@ void Stack::assignConstant(std::string const &name, const Operand &value)
         }
     }
     /* at this point a constant wasn't found... */
-    myConstants.push_back(Variable(name, value));
+    myConstants.emplace_back(name, value);
 }
 
 

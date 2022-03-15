@@ -79,11 +79,19 @@ public:
     {
         return myStack;
     }
+    
+    [[nodiscard]] std::vector<Operand> getNewElements()
+    {
+        int x       = myNewElems;
+        myNewElems  = 0;
+        return { myStack.end()-x , myStack.end() };
+    }
 
 private:
     std::vector<Variable> myVariables;
     std::vector<Variable> myConstants;
-    std::vector<Operand> myStack;
+    std::vector<Operand>  myStack;
+    int                   myNewElems{ 0 };
 
     void requireOperands(size_t count) const
     {
@@ -94,8 +102,8 @@ private:
 
 };
 
-typedef std::unique_ptr<Stack> StackUniqPtr;
-typedef std::shared_ptr<Stack> StackPtr;
+using StackUniqPtr  = std::unique_ptr<Stack>;
+using StackPtr      = std::shared_ptr<Stack>;
 
 }
 
