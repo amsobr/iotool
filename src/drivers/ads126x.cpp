@@ -593,14 +593,14 @@ public:
         return myIdacMagnitudes;
     }
 
-    int setCurrentSource(unsigned int srcId, bool enabled, unsigned int ch, std::string mag)
+    int setCurrentSource(unsigned int srcId, bool enabled, unsigned int ch=0, std::string const& mag="off")
     {
         if ( srcId>=2 ) {
             cout << "ERROR srcId>=2\n";
             return -1;
         }
 
-        if ( (ch>0) && ch>=getNumChannels() ) {
+        if ( enabled && ch>=getNumChannels() ) {
             cout << "ERROR ch>=numChannels!!\n";
             cout << "ERROR ch value is " << ch << " numCh is " << getNumChannels() << "\n";
             return -1;
@@ -608,11 +608,11 @@ public:
 
         uint8_t idacCtl[2];
         readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
-        fprintf(stdout,"READ: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
+        //fprintf(stdout,"REG BEFORE: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
 
         uint8_t muxVal;
         uint8_t magVal;
-        if ( enabled==false || mag=="off" ) {
+        if ( !enabled || mag=="off" ) {
             muxVal  = 0x0b;
             magVal  = 0x00;
         }
@@ -667,12 +667,12 @@ public:
             idacCtl[0]  |= (muxVal<<4);
             idacCtl[1]  |= (magVal<<4);
         }
-        fprintf(stdout,"WRITING: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
+        //fprintf(stdout,"WRITING: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
 
         writeRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
 
-        readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
-        fprintf(stdout,"READ(again): mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
+        //readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
+        //fprintf(stdout,"READ(again): mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
         return 0;
 
     }
@@ -937,6 +937,11 @@ list<string> Ads126x::getCurSourceMagnitudes( unsigned int srcId ) const
 int Ads126x::setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag )
 {
     return impl->setCurrentSource(srcId,enabled,ch,mag);
+}
+
+int Ads126x::disableCurrentSource(int srcId)
+{
+    return impl->setCurrentSource(srcId,false);
 }
 
 

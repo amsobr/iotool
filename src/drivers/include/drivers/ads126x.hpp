@@ -74,8 +74,11 @@ public:
 
     virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const;
 
-    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" );
-
+    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag );
+    
+    int disableCurrentSource(int srcId) override;
+    
+    
 }; /* class Ads126x */
 
 typedef std::shared_ptr<Ads126x> Ads126xPtr;

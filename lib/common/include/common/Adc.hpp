@@ -59,7 +59,14 @@ public:
      * @param mag Magnitude of the current source. Possible values are device dependent.
      * @return int 0 on success. Error codes TBD
      */
-    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" ) = 0;
+    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag ) = 0;
+    
+    /**
+     * @brief disable a current source
+     * @param srcId the ID of the source
+     * @return 0 or TBD
+     */
+    virtual int disableCurrentSource(int srcId ) = 0;
 
 
 protected:

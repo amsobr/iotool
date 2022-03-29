@@ -88,7 +88,7 @@ public:
 
     static Result executeDisable( AdcPtr const& adc , int source )
     {
-        adc->setCurrentSource(source,false);
+        adc->disableCurrentSource(source);
         return Result::OK;
     }
 
@@ -117,7 +117,7 @@ public:
         }
         else if ( mode=="set" ) {
             int source  = (int)args.get("source").getValueAsUnsigned();
-            int ch      = (int)args.get("source").getValueAsUnsigned();
+            int ch      = (int)args.get("ch").getValueAsUnsigned();
             std::string mag = args.get("mag").getValue();
             executeSet(adc,source,ch,mag);
         }
