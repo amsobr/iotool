@@ -26,7 +26,12 @@ public:
         std::getline(std::cin,s);
         return s;
     }
-
+    
+    [[nodiscard]] bool isEof() const override
+    {
+        return std::cin.eof();
+    }
+    
     char readChar() override
     {
         char c;

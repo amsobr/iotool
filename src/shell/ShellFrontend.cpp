@@ -31,7 +31,17 @@ void ShellFrontend::run()
     while( true ) {
         myCtx->stream->putc('>');
         string cmdLine;
-        cmdLine = myCtx->stream->readLine();
+        try {
+            if ( myCtx->stream->isEof() ) {
+                std::cerr << "lost connection. exit shell.\n";
+                return;
+            }
+            cmdLine = myCtx->stream->readLine();
+        }
+        catch ( std::exception const& ex ) {
+            std::cerr << "Exception: " << ex.what() << "\n";
+            exit(1);
+        }
         if ( cmdLine.empty() ) {
             continue;
         }

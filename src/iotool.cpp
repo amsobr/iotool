@@ -3,14 +3,9 @@
 #include <string>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-#include <cstdint>
 #include <unistd.h>
-#include <fcntl.h>
+#include <csignal>
 
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
@@ -75,6 +70,13 @@ void help()
 
     version();
     fprintf( stdout , "%s\n" , msg );
+}
+
+
+void signalHandler( int sig )
+{
+    std::cerr << "Caught signal: " << sig << "\n";
+    exit(0);
 }
 
 
@@ -159,6 +161,14 @@ int main(int argc, char **argv)
         fprintf( stderr , "Nothing to do.\n" );
         return 0;
     }
+    
+    
+    struct sigaction sa{};
+    sa.sa_handler   = &signalHandler;
+    sigaction(SIGINT,&sa,nullptr);
+    sigaction(SIGTERM,&sa,nullptr);
+    sigaction(SIGHUP,&sa,nullptr);
+
 
     /* We don't care much about memory management for the loggers as, these will
      * live for the lifetime of the process...

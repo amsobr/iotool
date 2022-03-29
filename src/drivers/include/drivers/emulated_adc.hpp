@@ -30,19 +30,19 @@ public:
     ~EmulatedAdc() override = default;
 
 
-    virtual std::string getVendor() const { return "SYNAPSENSE"; }
+    [[nodiscard]] std::string getVendor() const override { return "SYNAPSENSE"; }
     
-    virtual std::string getModel() const { return "EMU-ADC-01"; }
+    [[nodiscard]] std::string getModel() const override { return "EMU-ADC-01"; }
     
-    virtual std::string getRevision() const { return "1"; }
+    [[nodiscard]] std::string getRevision() const override { return "1"; }
     
-    virtual std::string getDriverVersion() const { return "1"; }
+    [[nodiscard]] std::string getDriverVersion() const override { return "1"; }
 
     
-    virtual size_t getNumChannels() const { return myNumChannels; }
-    virtual double readAnalog( unsigned int ch);
-    virtual long int readDigital(unsigned int ch);
-    virtual std::string getUnits() const { return "V"; }
+    [[nodiscard]] size_t getNumChannels() const override { return myNumChannels; }
+    [[nodiscard]] double readAnalog( unsigned int ch) override;
+    [[nodiscard]] long int readDigital(unsigned int ch) override;
+    [[nodiscard]] std::string getUnits() const override { return "V"; }
 
     /**
      * @brief Read a differential input
@@ -53,14 +53,14 @@ public:
      * @note On early versions, this method returns 0, leavind up to the
      *      client code to make sure that differential read is supported.
      */
-    virtual double readDifferential( unsigned int chp , unsigned int chn );
+    [[nodiscard]] double readDifferential( unsigned int chp , unsigned int chn ) override;
 
     /**
      * @brief Get the Number of current sources
      * 
      * @return The number of current sources. By default returns 0;
      */
-    virtual size_t getNumCurrentSources() const { return myNumCurrentSources; }
+    [[nodiscard]] size_t getNumCurrentSources() const override { return myNumCurrentSources; }
 
     /**
      * @brief Get the list of supported magnitudes for a current source.
@@ -69,7 +69,7 @@ public:
      * @return A list of the valid magnitudes for use with @a setCurrentSource().
      * By default returns an empty list.
      */
-    virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const;
+    [[nodiscard]] std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const override;
     
     /**
      * @brief Configure a current source.
@@ -83,7 +83,15 @@ public:
      * @param mag Magnitude of the current source. Possible values are device dependent.
      * @return int 0 on success. Error codes TBD
      */
-    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" ) { return 0; }
+    [[nodiscard]] int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" ) override
+    {
+        return 0;
+    }
+    
+    int disableCurrentSource(int srcId) override
+    {
+        return 0;
+    }
 }; /* class EmulatedAdc */
 
 typedef std::shared_ptr<EmulatedAdc> EmulatedAdcPtr;

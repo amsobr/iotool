@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include <Poco/Logger.h>
 #include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/DialogSocket.h>
 
@@ -12,7 +13,8 @@ class TelnetStreamAdapter : public rps::StreamAdapter
 {
 public:
     explicit TelnetStreamAdapter( Poco::Net::StreamSocket& stream ) :
-    myStream{ stream }
+    myStream{ stream } ,
+    myEof{ false }
     {
     }
 
@@ -21,10 +23,22 @@ public:
     std::string readLine() override
     {
         std::string s;
-        myStream.receiveMessage(s);
+        try {
+            myStream.receiveMessage(s);
+        }
+        catch ( Poco::Exception const& e ) {
+            auto& logger    = Poco::Logger::get("telnet");
+            poco_notice(logger,Poco::format("exception reading from socket: code=%d msg='%s'",e.code(),e.displayText()));
+            myEof           = true;
+        }
         return s;
     }
-
+    
+    [[nodiscard]] bool isEof() const override
+    {
+        return myEof;
+    }
+    
     char readChar() override
     {
         return (char) myStream.get();
@@ -42,6 +56,7 @@ public:
 
 private:
     Poco::Net::DialogSocket myStream;
+    bool                    myEof;
 
 }; /* class TelnetStreamAdapter */
 
