@@ -13,7 +13,6 @@ enum class PeripheralType
     DAC ,
     GPIO ,
     INDICATOR ,
-    RELAY ,
     DIN ,
     PM ,
     DOUT ,
@@ -29,7 +28,7 @@ static inline std::string str(PeripheralType t)
         case PeripheralType::DAC:       return "DAC";
         case PeripheralType::GPIO:      return "GPIO";
         case PeripheralType::INDICATOR: return "INDICATOR";
-        case PeripheralType::RELAY:     return "RELAY";
+//        case PeripheralType::RELAY:     return "RELAY";
         case PeripheralType::DIN:       return "DIN";
         case PeripheralType::PM:        return "PM";
         case PeripheralType::DOUT:      return "DOUT";
