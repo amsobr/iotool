@@ -44,7 +44,7 @@ public:
         std::string sOff("off");
         ctx->stream->writeLine( "Relay Status:");
         for ( auto const& o : doutStatus ) {
-            ctx->stream->writeLine( Poco::format("  %12s : %s",o.name,o.value?"on":"off"));
+            ctx->stream->writeLine( Poco::format("  %12s : %s",o.name,o.value?sOn:sOff));
         }
     }
 }; /* class CmdRelayStatus */

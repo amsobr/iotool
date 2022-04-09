@@ -13,7 +13,7 @@
 
 #include <common/PeripheralType.hpp>
 
-#include "max581x.hpp"
+#include <drivers/max581x.hpp>
 
 using namespace std;
 

@@ -39,7 +39,7 @@ public:
             throw rps::InvalidArgumentsException{"too many arguments"};
         }
 
-        std::list<Indicator::Led> ledStatus = leds->getLeds();
+        auto ledStatus  = leds->getLeds();
         std::string sOn("on");
         std::string sOff("off");
         ctx->stream->writeLine("Indicator Status:");

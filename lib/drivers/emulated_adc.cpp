@@ -2,7 +2,7 @@
 
 #include <Poco/Random.h>
 
-#include <emulated_adc.hpp>
+#include <drivers/emulated_adc.hpp>
 
 static double ADC_FULL_SCALE = 5.0;
 static long int ADC_MAX_CODE = 0x7fffffff;

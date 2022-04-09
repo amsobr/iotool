@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
-
+#include <sstream>
 #include <string>
 #include <iostream>
 
@@ -20,10 +20,11 @@
 #include <common/PeripheralType.hpp>
 #include <common/result.hpp>
 
-#include <ads126x.hpp>
-#include <ads126x_config.hpp>
-#include <ads126x_defs.hpp>
-#include <sstream>
+#include <drivers/ads126x.hpp>
+#include <drivers/ads126x_config.hpp>
+
+
+#include "ads126x_defs.hpp"
 
 
 using namespace std;

@@ -23,8 +23,8 @@ PeripheralCmdProvider::PeripheralCmdProvider()
     
     groups[PeripheralType::INDICATOR].emplace_back( std::make_shared<CmdLedSet>() );
     
-    groups[PeripheralType::RELAY].emplace_back( std::make_shared<CmdRelaySet>() );
-    groups[PeripheralType::RELAY].emplace_back( std::make_shared<CmdRelayStatus>() );
+    groups[PeripheralType::DOUT].emplace_back( std::make_shared<CmdRelaySet>() );
+    groups[PeripheralType::DOUT].emplace_back( std::make_shared<CmdRelayStatus>() );
 }
 
 

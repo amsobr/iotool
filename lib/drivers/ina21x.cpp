@@ -14,7 +14,7 @@
 
 #include <common/PowerMonitor.hpp>
 
-#include <ina21x.hpp>
+#include <drivers/ina21x.hpp>
 
 using namespace std;
 

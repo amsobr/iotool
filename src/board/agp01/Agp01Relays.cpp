@@ -1,22 +1,21 @@
 
-#include <unistd.h>
+#include <thread>
 
 #include <Poco/Format.h>
 
 #include <common/DigitalOut.hpp>
 
 #include "Agp01Relays.hpp"
-#include "Agp01PinMapper.hpp"
 
 using namespace std;
 
-static int const gpioEN_n = PIN_B(21);
-static int const gpio_oh_cl = PIN_B(20);
-static int const gpio_ol_ch = PIN_B(19);
 
-Agp01Relays::Agp01Relays( unsigned int id , SysfsGpioPtr gpio ) :
+Agp01Relays::Agp01Relays( int id ) :
     DigitalOut(id) ,
-    myGpio(gpio)
+    myEN{gpiod::find_line("pioB21") } ,
+    myOHCL{ gpiod::find_line("pioB20") } ,
+    myOLCH{ gpiod::find_line("pioB19") } ,
+    mySel{ "relaySel" , {"pioB16","pioB17","pioB18"} , GpioBus::Direction::OUTPUT , 0 }
 {
     /* Populate the relay entries.
      * Note that the very first AGP01 board had a bug that inverted
@@ -26,25 +25,24 @@ Agp01Relays::Agp01Relays( unsigned int id , SysfsGpioPtr gpio ) :
      * which is most likely seen below in '7-i'.
      * With no bug the line should simply have 'i'
      */
+    myRelays.reserve(8);
     for ( int i=0 ; i<8 ; i++ ) {
-         myRelays.push_back(Relay(Poco::format("Y%d",i+1),false,7-i));
+         myRelays.emplace_back(Poco::format("Y%d",i+1),false,7-i);
     }
+    
+    gpiod::line_request req;
+    req.request_type    = gpiod::line_request::DIRECTION_OUTPUT;
 
-    myGpio->addPin(gpioEN_n);
-    myGpio->addPin(gpio_oh_cl);
-    myGpio->addPin(gpio_ol_ch);
+    req.consumer        = "agp01/relays/en";
+    myEN.request(req,1);
+    
+    req.consumer        = "agp01/relays/ol_ch";
+    myOLCH.request(req,0);
 
-    myGpio->configureBus( "relay_sel" , {PIN_B(16),PIN_B(17),PIN_B(18)} , Direction::OUTPUT );
-    myGpio->setBusValue("relay_sel",0);
+    req.consumer        = "agp01/relays/oh_cl";
+    myOHCL.request(req,0);
 
-    myGpio->setDirection(gpioEN_n,Direction::OUTPUT);
-    myGpio->setValue(gpioEN_n,true); /* NB: active low... */
-
-    myGpio->setDirection(gpio_oh_cl,Direction::OUTPUT);
-    myGpio->setValue(gpio_oh_cl,false);
-
-    myGpio->setDirection(gpio_ol_ch,Direction::OUTPUT);
-    myGpio->setValue(gpio_ol_ch,false);
+    mySel.setValue(0);
 }
 
 list<DigitalOut::Output> Agp01Relays::getOutputs() const
@@ -60,13 +58,13 @@ int Agp01Relays::setOut( string name , bool value )
 {
     for ( auto const&relay : myRelays ) {
         if ( relay.name==name ) {
-            myGpio->setBusValue("relay_sel",relay.id);
-            myGpio->setValue(gpio_ol_ch,value);
-            myGpio->setValue(gpio_oh_cl,!value);
-            myGpio->setValue(gpioEN_n,false);
-            usleep(100000);
-            myGpio->setValue(gpioEN_n,true);
-            return 0;
+            mySel.setValue(relay.id);
+            myOLCH.set_value(value?1:0);
+            myOHCL.set_value(value?0:1);
+            myEN.set_value(0);
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
+            myEN.set_value(1);
+            
         }
     }
     return -1;

@@ -1,20 +1,22 @@
-#ifndef AGP01_RELAYS_HPP
-#define AGP01_RELAYS_HPP
+
+#pragma once
 
 
 #include <string>
 #include <list>
 #include <memory>
+#include <gpiod.hpp>
 
 #include <common/Peripheral.hpp>
 #include <common/PeripheralType.hpp>
 #include <common/DigitalOut.hpp>
-#include <drivers/sysfs_gpio.hpp>
+
+#include <drivers/GpioBus.hpp>
 
 
 class Agp01Relays : public DigitalOut
 {
-private:
+public:
     struct Relay {
         std::string name;
         bool state;
@@ -28,11 +30,7 @@ private:
         }
     };
 
-    SysfsGpioPtr myGpio;
-    std::list<Relay> myRelays;
-
-public:
-    Agp01Relays( unsigned int id , SysfsGpioPtr gpio );
+    explicit Agp01Relays( int id );
     ~Agp01Relays() override = default;
 
     [[nodiscard]] std::string getVendor() const override { return "Yet To Be Named..."; }
@@ -45,8 +43,16 @@ public:
     
     [[nodiscard]] std::list<DigitalOut::Output> getOutputs() const override;
     int setOut( std::string name , bool value ) override;
+    
+
+private:
+    std::vector<Relay> myRelays;
+    
+    gpiod::line myEN; ///< Latch Enable (Active low)
+    gpiod::line myOHCL; ///< High for Open, Low for Close
+    gpiod::line myOLCH; ///< Low for Open, High for Close
+    GpioBus     mySel;
 }; /* class Agp01Relays */
 
 typedef std::shared_ptr<Agp01Relays> Agp01RelaysPtr;
 
-#endif

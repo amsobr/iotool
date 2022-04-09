@@ -14,13 +14,18 @@ add_compile_options( -Wall -Wextra -Wno-psabi -Wno-unused-parameter )
 
 find_package( Poco REQUIRED Foundation Util Net XML Crypto JSON )
 
+find_package( PkgConfig REQUIRED )
+
+pkg_check_modules( gpiodcxx REQUIRED )
+
 add_subdirectory( lib/librps )
 add_subdirectory( lib/common )
-
-add_subdirectory( src/drivers )
-
+add_subdirectory( lib/drivers )
 
 
+message("gpiod cflags is ${gpiodcxx_CFLAGS}" )
+message("gpiod ldlags is ${gpiodcxx_LDLAGS}" )
+message("gpiod libs is ${gpiodcxx_LIBRARIES}" )
 
 
 set( IOTOOL_SRCS
@@ -88,6 +93,8 @@ target_link_libraries( iotool PRIVATE ${BOARD_NAME}
     Poco::Util
     Poco::XML
     Poco::JSON
+    gpiodcxx
+#    ${gpiodcxx_LIBRARIES}
     -lpthread -lrt
     )
 

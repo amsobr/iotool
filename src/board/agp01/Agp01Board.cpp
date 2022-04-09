@@ -1,17 +1,17 @@
 #include <iostream>
+#include <gpiod.hpp>
 
 #include <drivers/ads126x.hpp>
 #include <drivers/ads126x_config.hpp>
 #include <drivers/max581x.hpp>
-#include <drivers/sysfs_gpio.hpp>
 #include <drivers/ina21x.hpp>
+#include <drivers/GpioBus.hpp>
 
 
 
 #include "Agp01Board.hpp"
 #include "Agp01Leds.hpp"
 #include "Agp01Relays.hpp"
-#include "Agp01PinMapper.hpp"
 
 using namespace std;
 
@@ -45,11 +45,11 @@ Agp01Board::Agp01Board()
     dac->init();
     myPeripherals.push_back(dac);
 
-    PinMapperPtr pinMapper(new Agp01PinMapper());
-    SysfsGpioPtr gpios(new SysfsGpio(pinMapper));
-    IndicatorPtr leds(new Agp01Leds(0, gpios));
+    cout << "Creating LEDs...\n";
+    IndicatorPtr leds{ std::make_shared<Agp01Leds>(0) };
     myPeripherals.push_back(leds);
-    DigitalOutPtr outs(new Agp01Relays(0, gpios) );
+    cout << "Creating Relays...\n";
+    DigitalOutPtr outs{ std::make_shared<Agp01Relays>(0) };
     myPeripherals.push_back(outs);
 
     /* Power Monitor 0: System power consumption */
