@@ -29,7 +29,7 @@ void ShellFrontend::run()
     myCtx->stream->writeLine(greeter);
 
     while( true ) {
-        myCtx->stream->putc('>');
+        myCtx->stream->write( Poco::format("%s> ",myCtx->getCwd()));
         string cmdLine;
         try {
             if ( myCtx->stream->isEof() ) {

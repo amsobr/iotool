@@ -52,7 +52,6 @@ public:
     {
         if ( myCliTree->pathExists(newPath) ) {
             myCurPath   = newPath;
-            stream->writeLine(newPath.toString() + " >" );
         }
         else {
             stream->writeLine(Poco::format("path not found: '%s'\n", newPath.toString()) );
