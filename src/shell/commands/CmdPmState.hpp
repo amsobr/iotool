@@ -27,8 +27,9 @@ public:
         rps::AbstractCommand{ "state","Read current Power Monitor state" }
     {
         setHelp(    "Usage:\n"
-                    "  state            : Show current state (current,voltate,power)\n"
-                    "\n"
+                    "  state   : Show current state\n"
+                    "             Output 1: measured current /A\n"
+                    "             Output 0: measured voltage /V\n"
                     "Arguments: This command takes no arguments\n"
         );
     }
