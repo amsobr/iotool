@@ -43,6 +43,11 @@ public:
     {
         std::cout << s << "\n";
     }
+    
+    void write(std::string const &s) override
+    {
+        std::cout << s;
+    }
 
 
     void putc(char c) override

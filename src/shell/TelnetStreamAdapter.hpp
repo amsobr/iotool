@@ -49,6 +49,11 @@ public:
         myStream.sendMessage(s);
     }
 
+    void write(std::string const &s) override
+    {
+        myStream.sendString(s);
+    }
+
     void putc(char c) override
     {
         myStream.sendByte(c);
