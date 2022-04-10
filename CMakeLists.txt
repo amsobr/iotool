@@ -2,7 +2,7 @@ cmake_minimum_required( VERSION 3.8 )
 
 project( iotool LANGUAGES CXX )
 
-set( IOTOOL_VERSION "0.4.0" )
+set( IOTOOL_VERSION "0.5.0" )
 
 option( BOARD_NAME "Target board. Possible values are \"agp01\" (default) , emulator" "agp01" )
 message( STATUS "Configuring iotool for board: ${BOARD_NAME}" )
