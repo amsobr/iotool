@@ -6,8 +6,7 @@
 #include <drivers/max581x.hpp>
 #include <drivers/ina21x.hpp>
 #include <drivers/GpioBus.hpp>
-
-
+#include <drivers/BasicDout.hpp>
 
 #include "Agp01Board.hpp"
 #include "Agp01Leds.hpp"
@@ -48,9 +47,18 @@ Agp01Board::Agp01Board()
     cout << "Creating LEDs...\n";
     IndicatorPtr leds{ std::make_shared<Agp01Leds>(0) };
     myPeripherals.push_back(leds);
+    
     cout << "Creating Relays...\n";
     DigitalOutPtr outs{ std::make_shared<Agp01Relays>(0) };
     myPeripherals.push_back(outs);
+    
+    cout << "Creating LED OE...\n";
+    BasicDout::Config boardPinsCfg{
+        { "LEDS_OE", "pioB22", false }
+    };
+    auto boardPins{ std::make_shared<BasicDout>(1,boardPinsCfg) };
+    myPeripherals.push_back(boardPins);
+    
 
     /* Power Monitor 0: System power consumption */
     Ina21x::Config pm0Config;

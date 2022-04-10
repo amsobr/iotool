@@ -44,7 +44,7 @@ public:
         std::string sOff("off");
         ctx->stream->writeLine("Indicator Status:");
         for ( auto const& led : ledStatus ) {
-            ctx->stream->writeLine(Poco::format("  %-10s : %s",led.name,led.value?"on":"off"));
+            ctx->stream->writeLine(Poco::format("  %-10s : %s",led.name,led.value?sOn:sOff));
         }
     }
 }; /* class CmdLedStatus */

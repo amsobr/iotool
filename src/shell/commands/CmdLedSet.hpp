@@ -21,10 +21,10 @@ public:
         rps::AbstractCommand{ "set","Set one LED state" }
     {
         setHelp(    "Usage:\n"
-                    "  set led=ARG on|off\n"
+                    "  set LED1=on|off [LED2=on|off ...]\n"
                     "\n"
                     "Arguments:\n"
-                    "led       ID of the LED\n"
+                    "LEDn      Name of the LED (check available LEDs with status)\n"
                     "on|off    Desired LED state (case insensitive)\n"
         );
     }
@@ -35,19 +35,24 @@ public:
     {
         auto leds   = Board::get()->getPeripheral<Indicator>(ctx->getCwd());
         
-        if ( args.size()!=2 ) {
-            throw rps::InvalidArgumentsException{"need exactly two parameters"};
+        if ( args.size()<1 ) {
+            throw rps::InvalidArgumentsException{"need at least one parameter"};
         }
+        
+        for ( auto const& arg : args ) {
+            if ( !arg.isKvPair() ) {
+                throw rps::InvalidArgumentsException{"arguments must be LED=on|off pairs"};
+            }
+            auto led    = arg.getKey();
+            auto val    = Poco::toLower(arg.getValue());
     
-        auto led    = args.at(0).getToken();
-        auto val    = Poco::toLower(args.at(1).getToken());
-    
-        if ( val!="on" && val!="off" ) {
-            throw rps::InvalidArgumentsException{"mode must be ON or OFF"};
-        }
+            if ( val!="on" && val!="off" ) {
+                throw rps::InvalidArgumentsException{"mode must be ON or OFF"};
+            }
 
-        bool state  = (val=="on");
-        leds->setLed(led,state);
+            bool state  = (val=="on");
+            leds->setLed(led,state);
+        }
     }
 }; /* class CmdLedSet */
 

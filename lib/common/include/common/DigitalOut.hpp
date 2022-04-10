@@ -16,13 +16,13 @@ public:
         bool value;
 
         explicit Output( std::string n , bool v=false) : name{ std::move(n) } , value(v) {}
-        Output( Output const &o ) = default;
     };
 
     ~DigitalOut() override = default;
 
     
-    [[nodiscard]] virtual std::list<Output> getOutputs() const = 0;
+    [[nodiscard]] virtual std::vector<Output> getOutputs() const = 0;
+    
     virtual int setOut( std::string name , bool value ) = 0;
 
 protected:

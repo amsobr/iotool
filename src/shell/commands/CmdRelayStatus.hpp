@@ -39,7 +39,7 @@ public:
             throw rps::InvalidArgumentsException{"too many arguments"};
         }
 
-        std::list<DigitalOut::Output> doutStatus = douts->getOutputs();
+        auto doutStatus = douts->getOutputs();
         std::string sOn("on");
         std::string sOff("off");
         ctx->stream->writeLine( "Relay Status:");

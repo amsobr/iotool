@@ -48,7 +48,6 @@ private:
     };
     
     gpiod::line     myLE; ///< Latch Enable, active high
-    gpiod::line     myOE; ///< Output Enable, active low
     std::vector<LedHolder> myLeds;
 }; /* class Agp01Indicators */
 

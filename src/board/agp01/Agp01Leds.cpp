@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "Agp01Leds.hpp"
 
@@ -5,7 +6,6 @@
 Agp01Leds::Agp01Leds( int id ) :
 Indicator(id) ,
 myLE{ gpiod::find_line("pioB6") } ,
-myOE{ gpiod::find_line("pioB22") } ,
 myLeds{ {"ERR3","pioB0"} ,
         {"ERR2","pioB1"} ,
         {"ERR1","pioB2"} ,
@@ -18,8 +18,6 @@ myLeds{ {"ERR3","pioB0"} ,
     req.consumer        = "agp01/leds/LE";
     myLE.request(req,0);
     
-    req.consumer        = "agp01/leds/nOE";
-    myOE.request(req,1);
 }
 
 std::vector<Indicator::Led> Agp01Leds::getLeds() const

@@ -22,6 +22,7 @@ PeripheralCmdProvider::PeripheralCmdProvider()
     groups[PeripheralType::DAC].emplace_back(std::make_shared<CmdDacSet>() );
     
     groups[PeripheralType::INDICATOR].emplace_back( std::make_shared<CmdLedSet>() );
+    groups[PeripheralType::INDICATOR].emplace_back( std::make_shared<CmdLedStatus>() );
     
     groups[PeripheralType::DOUT].emplace_back( std::make_shared<CmdRelaySet>() );
     groups[PeripheralType::DOUT].emplace_back( std::make_shared<CmdRelayStatus>() );

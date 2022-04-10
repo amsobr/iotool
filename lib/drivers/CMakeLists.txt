@@ -1,9 +1,11 @@
 
 add_library( drivers STATIC
 
+    include/drivers/BasicDout.hpp
     include/drivers/GpioBus.hpp
 
     ads126x.cpp
+    BasicDout.cpp
     GpioBus.cpp
     max581x.cpp
     ina21x.cpp

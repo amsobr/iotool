@@ -41,7 +41,8 @@ public:
     
     [[nodiscard]] std::string getDriverVersion() const override { return "1.0.0"; }
     
-    [[nodiscard]] std::list<DigitalOut::Output> getOutputs() const override;
+    [[nodiscard]] std::vector<Output> getOutputs() const override;
+    
     int setOut( std::string name , bool value ) override;
     
 

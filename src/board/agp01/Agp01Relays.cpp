@@ -45,9 +45,10 @@ Agp01Relays::Agp01Relays( int id ) :
     mySel.setValue(0);
 }
 
-list<DigitalOut::Output> Agp01Relays::getOutputs() const
+std::vector<DigitalOut::Output> Agp01Relays::getOutputs() const
 {
-    list<Output> outs;
+    std::vector<Output> outs;
+    outs.reserve(myRelays.size());
     for ( auto const& relay : myRelays ) {
         outs.emplace_back(relay.name,relay.state);
     }
