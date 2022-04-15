@@ -40,7 +40,7 @@ public:
             CommandTreeConstPtr cliTree ,
             std::any priv=std::any{} ) :
         stream{std::move(stream) } ,
-        myCliTree{ std::move(cliTree) } ,
+        myCmdTree{std::move(cliTree) } ,
         myCurPath{ {"/"} } ,
         myPrivData{ std::move(priv) }
     {
@@ -50,7 +50,7 @@ public:
 
     void changePath( CliPath const& newPath )
     {
-        if ( myCliTree->pathExists(newPath) ) {
+        if ( myCmdTree->pathExists(newPath) ) {
             myCurPath   = newPath;
         }
         else {
@@ -80,7 +80,7 @@ public:
 
     AbstractCommandConstPtr findCommand(std::string const& command )
     {
-        return myCliTree->lookupCmd(myCurPath,command);
+        return myCmdTree->lookupCmd(myCurPath, command);
     }
     
     /**
@@ -91,7 +91,7 @@ public:
      */
     [[nodiscard]] auto listAll() const
     {
-        return myCliTree->showPath(myCurPath);
+        return myCmdTree->showPath(myCurPath);
     }
     
 
@@ -99,7 +99,7 @@ public:
     std::shared_ptr<StreamAdapter> const stream;
 
 private:
-    CommandTreeConstPtr myCliTree;
+    CommandTreeConstPtr myCmdTree;
     CliPath         myCurPath;
 
     std::any        myPrivData;
