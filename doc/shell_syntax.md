@@ -113,6 +113,37 @@ a different ADC will be selected due to the working path.
 Attempting to run the `read` command from the `/adc` path will fail because
 no peripheral exists at that location.
 
+## Shell Syntax
+
+To run command _mycmd_ on path _/my/path/_ there are two possibilities:
+1. Set the working path with `cd` and then invoke the command:
+```text
+cd /my/path
+mycmd
+```
+
+2. or invoke the command directly on the path by including the latter in the 
+command line:
+```text
+/my/path mycmd
+```
+When the command is invoked with the explicit indication of the path, the
+command is looked up and executed within the scope of the provided path. On the
+other hand, the working path after the command completes is not changed, ie,
+remains the same as before the invocation of the command.
+
+### Command arguments
+
+Both invocation syntaxes allow the usage of parameters:
+```text
+/my/path mycmd key1=value1 token2 key3=value3
+```
+Is equivalent to
+```text
+cd /my/path
+mycmd key1=value1 token2 key3=value3
+```
+
 ## Online help
 To obtain help on the shell, use the following commands:
 * *help* shows available commands and peripherals on the current working path

@@ -193,14 +193,20 @@ std::tuple<
         children.push_back(c.first);
     }
     
-    if ( node->decoder!=nullptr ) {
-        return { node->decoder->listCmds() ,
-                 node->decoder->listScriptS() ,
-                 children };
+    std::vector<AbstractCommandConstPtr> cmds;
+    std::vector<ScriptConstPtr> scripts;
+    
+    while ( node!=nullptr ) {
+        if ( node->decoder!=nullptr ) {
+            auto c  = node->decoder->listCmds();
+            auto s  = node->decoder->listScriptS();
+            cmds.insert(end(cmds),begin(c),end(c));
+            scripts.insert(end(scripts),begin(s),end(s));
+        }
+        node    = node->parent;
     }
-    else {
-        return { {},{},children };
-    }
+    
+    return { cmds,scripts ,children };
 }
 
 CommandTree::Node const* CommandTree::gotoPath(CliPath const& path)
