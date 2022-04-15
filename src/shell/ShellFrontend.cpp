@@ -2,10 +2,10 @@
 #include <thread>
 #include <string>
 #include <vector>
-#include <sstream>
 
 #include <Poco/Logger.h>
 #include <Poco/Format.h>
+#include <Poco/String.h>
 
 #include <rps/ArgumentList.hpp>
 
@@ -46,16 +46,27 @@ void ShellFrontend::run()
             continue;
         }
         
-        if ( cmdLine=="exit" ) {
+        auto [ path, cmdName , args ] = parseLine( Poco::trim(cmdLine) );
+        if ( !path.empty() && cmdName.empty() ) {
+            /* possible user mistake: input a path but not a command.
+             * In this case, print a friendly reminder about the syntax...
+             */
+            myCtx->stream->writeLine(
+                "No command given.\n"
+                "Usage: \n"
+                "CMD [ARGS...]              run CMD+ARGS on current workdir\n"
+                "/some/path CMD [ARGS...]   run CMD+ARGS on /some/path\n"
+                );
+        }
+        else if ( cmdName=="exit" ) {
             logger.information("Shell exiting now.");
             break;
         }
-
-        auto [ cmdName , args ] = parseLine(cmdLine);
-        if ( cmdName=="exit" ) {
-            break;
-        }
         else {
+            rps::CliPath oldPath    = myCtx->getCurPath();
+            if ( !path.empty() ) {
+                myCtx->changePath( path );
+            }
             rps::AbstractCommandConstPtr cmd = myCtx->findCommand(cmdName);
             if ( cmd!=nullptr ) {
                 try {
@@ -83,6 +94,9 @@ void ShellFrontend::run()
             }
             else {
                 myCtx->stream->writeLine( "Command not found: " + cmdName );
+            }
+            if ( !path.empty() ) {
+                myCtx->changePath(oldPath);
             }
         }
     }
