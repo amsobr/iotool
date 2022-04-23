@@ -1,10 +1,13 @@
 
 add_library( common STATIC
     include/common/Board.hpp
+    include/common/DeviceMapper.hpp
+    include/common/DigitalIn.hpp
+    include/common/DigitalOut.hpp
     include/common/Strings.hpp
     Strings.cpp
     result.cpp
-    include/common/DeviceMapper.hpp )
+    )
 
 target_link_libraries( common PUBLIC Poco::Foundation Poco::Util )
 

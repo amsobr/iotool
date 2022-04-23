@@ -52,6 +52,7 @@ set( IOTOOL_SRCS
     src/shell/commands/CmdCd.cpp
     src/shell/commands/CmdCd.hpp
     src/shell/commands/CmdDacSet.hpp
+    src/shell/commands/CmdDinRead.hpp
     src/shell/commands/CmdHelp.cpp
     src/shell/commands/CmdHelp.hpp
     src/shell/commands/CmdLedSet.hpp

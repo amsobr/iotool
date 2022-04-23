@@ -10,6 +10,7 @@ add_library( rps STATIC
     include/rps/ArgumentList.hpp
     include/rps/AbstractCommand.hpp
     include/rps/CommandTree.hpp
+    include/rps/Exception.hpp
     include/rps/NoCopy.hpp
     include/rps/NullStreamAdapter.hpp
     include/rps/Stack.hpp
