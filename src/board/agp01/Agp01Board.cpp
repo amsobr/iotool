@@ -5,8 +5,8 @@
 #include <drivers/ads126x_config.hpp>
 #include <drivers/max581x.hpp>
 #include <drivers/ina21x.hpp>
-#include <drivers/GpioBus.hpp>
 #include <drivers/BasicDout.hpp>
+#include <drivers/BasicDin.hpp>
 
 #include "Agp01Board.hpp"
 #include "Agp01Leds.hpp"
@@ -79,7 +79,20 @@ Agp01Board::Agp01Board()
     pm1Config.shuntResistance = 20000;
     Ina21xPtr pm1Ptr(new Ina21x(1,pm1Config));
     myPeripherals.push_back(pm1Ptr);
-    
+
+    unsigned const DIN_FLAGS   = BasicDin::DinFlag::INVERTED;
+    BasicDin::Config dinConfig {
+        { "x1" , "pioB23", DIN_FLAGS } ,
+        { "x2" , "pioB24", DIN_FLAGS } ,
+        { "x3" , "pioB25", DIN_FLAGS } ,
+        { "x4" , "pioB26", DIN_FLAGS } ,
+        { "x5" , "pioB27", DIN_FLAGS } ,
+        { "x6" , "pioB28", DIN_FLAGS } ,
+        { "x7" , "pioB29", DIN_FLAGS } ,
+        { "x8" , "pioB30", DIN_FLAGS } ,
+    };
+    auto din    = std::make_shared<BasicDin>(0,dinConfig);
+    myPeripherals.push_back(din);
 }
 
 

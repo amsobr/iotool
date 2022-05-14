@@ -35,6 +35,17 @@ public:
         return myPeripherals;
     }
 
+    /**
+     * @brief Get a peripheral by name
+     * @tparam T The type of peripheral. Must match the class of the object or
+     *           any of its base classes
+     * @param alias The name of the peripheral. Usually it is CWD from the
+     *              context
+     * @return A shared pointer to the peripheral by the given name
+     * @throws runtime_error in case the peripheral
+     * @throws may throw if given T is incompatible with the class of the
+     *          peripheral
+     */
     template< typename T>
     [[nodiscard]] std::shared_ptr<T> getPeripheral(std::string const& alias ) const
     {
