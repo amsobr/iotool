@@ -4,7 +4,7 @@
 #include <drivers/ads126x.hpp>
 #include <drivers/ads126x_config.hpp>
 #include <drivers/Max518x.hpp>
-#include <drivers/ina21x.hpp>
+#include <drivers/Ina21x.hpp>
 #include <drivers/BasicDout.hpp>
 #include <drivers/BasicDin.hpp>
 

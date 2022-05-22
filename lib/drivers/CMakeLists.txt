@@ -10,7 +10,7 @@ add_library( drivers STATIC
     BasicDout.cpp
     GpioBus.cpp
     Max518x.cpp
-    ina21x.cpp
+    Ina21x.cpp
     emulated_adc.cpp
 )
 
