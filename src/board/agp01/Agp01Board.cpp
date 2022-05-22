@@ -3,7 +3,7 @@
 
 #include <drivers/ads126x.hpp>
 #include <drivers/ads126x_config.hpp>
-#include <drivers/max581x.hpp>
+#include <drivers/Max518x.hpp>
 #include <drivers/ina21x.hpp>
 #include <drivers/BasicDout.hpp>
 #include <drivers/BasicDin.hpp>
@@ -41,7 +41,6 @@ Agp01Board::Agp01Board()
     dacConfig.fullScale = 5000;
     dacConfig.outputGain= 2.47;
     Max581xPtr dac(new Max581x(0,dacConfig));
-    dac->init();
     myPeripherals.push_back(dac);
 
     cout << "Creating LEDs...\n";

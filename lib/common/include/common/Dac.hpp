@@ -9,38 +9,27 @@
 
 class Dac : public Peripheral
 {
-protected:
-    Dac( unsigned int id) :
-    Peripheral(PeripheralType::DAC,id)
-    {
-
-    }
-
 public:
-    virtual ~Dac()
-    {
+    ~Dac() override  = default;
 
-    }   
-
-    virtual std::string getVendor() const = 0;
-    
-    virtual std::string getModel() const = 0;
-    
-    virtual std::string getRevision() const = 0;
-    
-    virtual std::string getDriverVersion() const = 0;
-    
-    virtual size_t getNumChannels() const = 0;
+    [[nodiscard]] virtual size_t getNumChannels() const = 0;
     
     /**
      * @brief get the output reference unit.
      *
      * @return The reference output unit of the unit.
      */
-    virtual std::string getUnit() const = 0;
+    [[nodiscard]] virtual std::string getUnit() const = 0;
 
     virtual int setOutput(unsigned int ch , int level ) = 0;
 
+protected:
+    explicit Dac( int id) :
+        Peripheral(PeripheralType::DAC,id)
+    {
+    }
+    
+    
 }; /* class Dac */
 
 typedef std::shared_ptr<Dac> DacPtr;

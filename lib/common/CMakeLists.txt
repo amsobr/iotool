@@ -4,7 +4,9 @@ add_library( common STATIC
     include/common/DeviceMapper.hpp
     include/common/DigitalIn.hpp
     include/common/DigitalOut.hpp
+    include/common/I2cTransaction.hpp
     include/common/Strings.hpp
+    I2cTransaction.cpp
     Strings.cpp
     result.cpp
     )
