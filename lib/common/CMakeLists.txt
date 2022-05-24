@@ -5,8 +5,10 @@ add_library( common STATIC
     include/common/DigitalIn.hpp
     include/common/DigitalOut.hpp
     include/common/I2cTransaction.hpp
+    include/common/SpiTransaction.hpp
     include/common/Strings.hpp
     I2cTransaction.cpp
+    SpiTransaction.cpp
     Strings.cpp
     result.cpp
     )
@@ -21,6 +23,7 @@ target_compile_options( common PRIVATE
     -Warray-bounds
     -Wno-psabi
     -Werror
+    -Wno-trigraphs
     )
 
 
