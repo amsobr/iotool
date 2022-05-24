@@ -7,7 +7,7 @@
 #include <shell-common/cmd_result.hpp>
 #include <shell-common/cmd_arguments.hpp>
 #include <shell-common/cmd_handler.hpp>
-#include "ads126x.hpp"
+#include "Ads126x.hpp"
 
 class CmdAds126xCal : public CmdHandler
 {

@@ -39,7 +39,7 @@ public:
     [[nodiscard]] std::string getDriverVersion() const override { return "1"; }
 
     
-    [[nodiscard]] size_t getNumChannels() const override { return myNumChannels; }
+    [[nodiscard]] int getNumChannels() const override { return myNumChannels; }
     [[nodiscard]] double readAnalog( unsigned int ch) override;
     [[nodiscard]] long int readDigital(unsigned int ch) override;
     [[nodiscard]] std::string getUnits() const override { return "V"; }
@@ -83,7 +83,7 @@ public:
      * @param mag Magnitude of the current source. Possible values are device dependent.
      * @return int 0 on success. Error codes TBD
      */
-    [[nodiscard]] int setCurrentSource( unsigned int srcId , bool enabled , int ch=-1 , std::string mag="off" ) override
+    [[nodiscard]] int setCurrentSource(int srcId , bool enabled , int ch , std::string const& mag ) override
     {
         return 0;
     }

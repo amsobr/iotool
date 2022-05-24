@@ -5,7 +5,7 @@ add_library( drivers STATIC
     include/drivers/BasicDout.hpp
     include/drivers/GpioBus.hpp
 
-    ads126x.cpp
+    Ads126x.cpp
     BasicDin.cpp
     BasicDout.cpp
     GpioBus.cpp

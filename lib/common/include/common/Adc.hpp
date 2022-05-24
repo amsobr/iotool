@@ -13,7 +13,7 @@ class Adc : public Peripheral
 public:
     ~Adc() override = default;
 
-    [[nodiscard]] virtual size_t getNumChannels() const = 0;
+    [[nodiscard]] virtual int getNumChannels() const = 0;
     [[nodiscard]] virtual double readAnalog( unsigned int ch) = 0;
 
     virtual long int readDigital(unsigned int ch) = 0;
@@ -59,7 +59,7 @@ public:
      * @param mag Magnitude of the current source. Possible values are device dependent.
      * @return int 0 on success. Error codes TBD
      */
-    virtual int setCurrentSource( unsigned int srcId , bool enabled , int ch , std::string mag ) = 0;
+    virtual int setCurrentSource(int srcId , bool enabled , int ch , std::string const& mag ) = 0;
     
     /**
      * @brief disable a current source

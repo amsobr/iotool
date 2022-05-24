@@ -18,8 +18,6 @@
 #include <rps/AbstractCommand.hpp>
 #include <rps/Context.hpp>
 
-#include <drivers/ads126x.hpp>
-
 /**
  * @brief Read one ADC channel
  * 

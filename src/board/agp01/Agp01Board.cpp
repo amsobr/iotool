@@ -1,7 +1,7 @@
 #include <iostream>
 #include <gpiod.hpp>
 
-#include <drivers/ads126x.hpp>
+#include <drivers/Ads126x.hpp>
 #include <drivers/ads126x_config.hpp>
 #include <drivers/Max518x.hpp>
 #include <drivers/Ina21x.hpp>

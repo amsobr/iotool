@@ -1,7 +1,10 @@
 #ifndef ADS126X_DEFS_HPP
 #define ADS126X_DEFS_HPP
 
-typedef enum {
+#include <cstdint>
+
+enum Ads126xRegister
+{
     ADS126X_REG_ID          = 0x00 ,
     ADS126X_REG_POWER       = 0x01 ,
     ADS126X_REG_INTERFACE   = 0x02 ,
@@ -29,35 +32,37 @@ typedef enum {
     ADS126X_REG_ADC2OFC1    = 0x18 ,
     ADS126X_REG_ADC2FSC0    = 0x19 ,
     ADS126X_REG_ADC2FSC1    = 0x1a ,
-} Ads126xRegister;
+};
 
-typedef enum {
-    ADS126X_CMD_NOP         = 0x00 ,
-    ADS126X_CMD_RESET       = 0x06 ,
-    ADS126X_CMD_START1      = 0x08 ,
-    ADS126X_CMD_STOP1       = 0x0a ,
-    ADS126X_CMD_START2      = 0x0c ,
-    ADS126X_CMD_STOP2       = 0x0e ,
-    ADS126X_CMD_RDATA1      = 0x12 ,
-    ADS126X_CMD_RDATA2      = 0x14 ,
-    ADS126X_CMD_SYOCAL1     = 0x16 ,
-    ADS126X_CMD_SYGCAL1     = 0x17 ,
-    ADS126X_CMD_SFOCAL1     = 0x19 ,
-    ADS126X_CMD_SYOCAL2     = 0x1b ,
-    ADS126X_CMD_SYGCAL2     = 0x1c ,
-    ADS126X_CMD_SFOCAL2     = 0x1e ,
-    ADS126X_CMD_RREG        = 0x20 ,
-    ADS126X_CMD_WREG        = 0x40 ,
-} Ads126xCommand;
+enum class Ads126xCmd : uint8_t
+{
+    NOP         = 0x00 ,
+    RESET       = 0x06 ,
+    START1      = 0x08 ,
+    STOP1       = 0x0a ,
+    START2      = 0x0c ,
+    STOP2       = 0x0e ,
+    RDATA1      = 0x12 ,
+    RDATA2      = 0x14 ,
+    SYOCAL1     = 0x16 ,
+    SYGCAL1     = 0x17 ,
+    SFOCAL1     = 0x19 ,
+    SYOCAL2     = 0x1b ,
+    SYGCAL2     = 0x1c ,
+    SFOCAL2     = 0x1e ,
+    RREG        = 0x20 ,
+    WREG        = 0x40 ,
+};
 
-typedef enum {
+enum Ads126xGain
+{
     ADS126X_GAIN_1          = 0x00 ,
     ADS126X_GAIN_2          = 0x01 ,
     ADS126X_GAIN_4          = 0x02 ,
     ADS126X_GAIN_8          = 0x03 ,
     ADS126X_GAIN_16         = 0x04 ,
     ADS126X_GAIN_32         = 0x05 ,
-} Ads126xGain;
+};
 
 
 enum {
