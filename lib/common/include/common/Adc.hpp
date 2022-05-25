@@ -36,7 +36,7 @@ public:
      * 
      * @return The number of current sources. By default returns 0;
      */
-    virtual size_t getNumCurrentSources() const { return 0; }
+    [[nodiscard]] virtual size_t getNumCurrentSources() const { return 0; }
 
     /**
      * @brief Get the list of supported magnitudes for a current source.
@@ -45,7 +45,7 @@ public:
      * @return A list of the valid magnitudes for use with @a setCurrentSource().
      * By default returns an empty list.
      */
-    virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const { return std::list<std::string>(); }
+    [[nodiscard]] virtual std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const { return {}; }
     
     /**
      * @brief Configure a current source.
