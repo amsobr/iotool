@@ -46,7 +46,7 @@ void Stack::drop()
     requireOperands(1);
     myStack.pop_back();
     myNewElems--;
-    if ( myNewElems == 0 ) {
+    if ( myNewElems < 0 ) {
         myNewElems  = 0;
     }
 }
