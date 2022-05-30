@@ -33,6 +33,71 @@ static inline void builtin_dropN( ContextPtr const& ctx , ArgumentList const&arg
     ctx->stack.dropN(count);
 }
 
+static inline void builtin_mean( ContextPtr const& ctx, ArgumentList const& args )
+{
+    if ( args.size()!=1 ) {
+        throw rps::InvalidArgumentsException{"MEAN needs 1 positive integer argument"};
+    }
+    size_t count   = (int)args.at(0).getAsInteger();
+    if ( count<1 ) {
+        throw rps::InvalidArgumentsException{"count must be positive"};
+    }
+    if ( ctx->stack.stackSize()<count ) {
+        throw rps::NotEnoughElementsException{};
+    }
+    
+    double acc  = 0;
+    auto& stack = ctx->stack;
+    for ( size_t cnt=0 ; cnt<count ; cnt++ ) {
+        acc += stack.valueAt((int)cnt);
+    }
+    ctx->stack.push( acc/count );
+}
+
+static inline void builtin_min( ContextPtr const& ctx, ArgumentList const& args )
+{
+    if ( args.size()!=1 ) {
+        throw rps::InvalidArgumentsException{"MIN needs 1 positive integer argument"};
+    }
+    size_t count   = (int)args.at(0).getAsInteger();
+    if ( count<1 ) {
+        throw rps::InvalidArgumentsException{"count must be positive"};
+    }
+    if ( ctx->stack.stackSize()<count ) {
+        throw rps::NotEnoughElementsException{};
+    }
+    
+    double minVal  = std::numeric_limits<double>::max();
+    auto& stack = ctx->stack;
+    for ( size_t cnt=0 ; cnt<count ; cnt++ ) {
+        double v= stack.valueAt((int)cnt);
+        if (v<minVal ) minVal = v;
+    }
+    ctx->stack.push(minVal );
+}
+
+static inline void builtin_max( ContextPtr const& ctx, ArgumentList const& args )
+{
+    if ( args.size()!=1 ) {
+        throw rps::InvalidArgumentsException{"MAX needs 1 positive integer argument"};
+    }
+    size_t count   = (int)args.at(0).getAsInteger();
+    if ( count<1 ) {
+        throw rps::InvalidArgumentsException{"count must be positive"};
+    }
+    if ( ctx->stack.stackSize()<count ) {
+        throw rps::NotEnoughElementsException{};
+    }
+    
+    double maxVal  = std::numeric_limits<double>::min();
+    auto& stack = ctx->stack;
+    for ( size_t cnt=0 ; cnt<count ; cnt++ ) {
+        double v    = stack.valueAt((int)cnt);
+        if ( v>maxVal ) maxVal  = v;
+    }
+    ctx->stack.push( maxVal );
+}
+
 static inline void builtin_setVar( ContextPtr const& ctx , ArgumentList const&args )
 {
     if ( args.size()!=1 ) {
@@ -174,6 +239,9 @@ std::vector<AbstractCommandConstPtr> getBuiltinCommands()
         { builtin_push  , "push"    , "push arg (int) to [0]"           , "" } ,
         { builtin_dupN  , "dupn"    , "duplicate [0] N times"           , "" } ,
         { builtin_dup   , "dup"     , "duplicate [0]"                   , "" } ,
+        { builtin_mean  , "mean"    , "mean[0:ARG1] -> [0]"             , "" } ,
+        { builtin_min   , "min"     , "min[0:ARG1] -> [0]"              , "" } ,
+        { builtin_max   , "max"     , "max[0:ARG1] -> [0]"              , "" } ,
     };
     
     std::vector<AbstractCommandConstPtr> allCmds;
