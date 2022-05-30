@@ -75,7 +75,7 @@ void ShellFrontend::run()
                     if ( !diff.empty() ) {
                         size_t cnt = diff.size()-1;
                         for ( auto const&o : diff ) {
-                            myCtx->stream->writeLine( Poco::format("%02z: %f",cnt,o) );
+                            myCtx->stream->writeLine( Poco::format("%02z: %12.8f",cnt,o) );
                             cnt--;
                         }
                     
