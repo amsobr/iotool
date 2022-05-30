@@ -8,14 +8,14 @@ static double ADC_FULL_SCALE = 5.0;
 static long int ADC_MAX_CODE = 0x7fffffff;
 
 
-double EmulatedAdc::readAnalog( unsigned int ch)
+double EmulatedAdc::readAnalog(int ch)
 {
     if ( ch>=myNumChannels ) { return 0.0; }
 
     return myRandom.nextDouble()*ADC_FULL_SCALE;
 }
 
-long int EmulatedAdc::readDigital(unsigned int ch)
+int32_t EmulatedAdc::read(int ch)
 {
     if ( ch!=myNumChannels ) {
         return 0;
@@ -25,7 +25,7 @@ long int EmulatedAdc::readDigital(unsigned int ch)
 }
 
 
-double EmulatedAdc::readDifferential( unsigned int chp , unsigned int chn )
+double EmulatedAdc::readDifferential(int chp , int chn )
 {
     return readAnalog(chp)-readAnalog(chn);
 }

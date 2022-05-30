@@ -31,6 +31,9 @@ using SpiMode   = SpiTransaction::SpiMode;
 static constexpr SpiMode ADS126X_SPI_MODE   = SpiMode::MODE_1;
 static constexpr int     ADS126X_SPI_SPEED  = 25000000;
 
+static constexpr int ADS126X_INPUT_AINCOM   = 10;
+static constexpr int ADS126X_INPUT_FLOAT    = 15;
+
 static constexpr auto ADS1262_DRIVER_VERSION= "1.0.0";
 
 
@@ -134,27 +137,13 @@ enum ads1262_filter_t {
 } /* namespace Adc1 */
 
 
-inline static Ads126x::Input getChInput( unsigned int chId )
+static inline void throwIfInvalidInput(int idx )
 {
-    static Ads126x::Input channel[10] {
-        Ads126x::Input::AIN0    ,
-        Ads126x::Input::AIN1    ,
-        Ads126x::Input::AIN2    ,
-        Ads126x::Input::AIN3    ,
-        Ads126x::Input::AIN4    ,
-        Ads126x::Input::AIN5    ,
-        Ads126x::Input::AIN6    ,
-        Ads126x::Input::AIN7    ,
-        Ads126x::Input::AIN8    ,
-        Ads126x::Input::AIN9    ,
-    };
-    
-    if ( chId<10 ) {
-        return channel[chId];
+    if ( idx<0 || idx>ADS126X_INPUT_AINCOM ) {
+        throw std::runtime_error{"invalid input index"};
     }
-    throw std::runtime_error{Poco::format("input not found: %u",chId)};
 }
-    
+
 
 static inline void doCommand(SpiTransaction& spi , Ads126xCmd cmd )
 {
@@ -211,16 +200,15 @@ static inline void writeSingleReg( SpiTransaction& spi, Ads126xRegister reg , un
 }
 
 
-static inline void setInput( SpiTransaction& spi, Ads126x::Input input )
+static inline void setInput(SpiTransaction& spi, int idxP , int idxN )
 {
-    writeSingleReg(spi, ADS126X_REG_INPMUX , ((int)input<<4)|(int)Ads126x::Input::AINCOM );
+    writeSingleReg( spi, ADS126X_REG_INPMUX , (idxP<<4) | idxN );
 }
 
 
-static inline void setInput(SpiTransaction& spi, Ads126x::Input inputPos , Ads126x::Input inputNeg )
+static inline void setInput( SpiTransaction& spi, int idx )
 {
-    uint8_t inpmux  = ((int)inputPos<<4) | (int)inputNeg;
-    writeSingleReg( spi, ADS126X_REG_INPMUX , inpmux );
+    setInput(spi,idx,ADS126X_INPUT_AINCOM );
 }
 
 
@@ -262,7 +250,8 @@ static inline void setAdc1Sps( SpiTransaction& spi, int spsRegVal )
 Ads126x::Ads126x( int id , Ads126xConfig const &cfg ) :
     Adc{ id } ,
     logger{ Poco::Logger::get("ads126x") } ,
-    mySpiDev{ cfg.spiDevice } ,
+    mySpiCharDev{cfg.spiDevice } ,
+    mySpi{mySpiCharDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED},
     myVref{2.5} ,
     myInpGain{ cfg.inpGain } ,
     myIdacMagnitudes{"50u" ,"100u","250u","500u","750u","1000u","1500u","2000u","3000u" } ,
@@ -275,31 +264,23 @@ Ads126x::Ads126x( int id , Ads126xConfig const &cfg ) :
      */
     assert( cfg.inpGain.size()==10 );
 
-
-    cout << 1 << "\n";
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
-    cout << 11 << "\n";
-
     uint8_t value;
 
-    doCommand(spi,Ads126xCmd::RESET);
-    cout << 1111 << "\n";
+    doCommand(mySpi, Ads126xCmd::RESET);
     std::this_thread::sleep_for( MICROS{200000} );
 
     value    = ADS126X_INTERFACE_STATUS_INCLUDED
                | ADS126X_INTERFACE_CKSUM;
-    writeSingleReg(spi,ADS126X_REG_INTERFACE,value);
-    cout << 2 << "\n";
+    writeSingleReg(mySpi, ADS126X_REG_INTERFACE, value);
 
     uint8_t u8=0;
-    readRegisters(spi,ADS126X_REG_INTERFACE,1,&u8);
-    cout << 21 << "\n";
+    readRegisters(mySpi, ADS126X_REG_INTERFACE, 1, &u8);
     if ( u8!=value ) {
         cerr << "Mismatching values in INTERFACE register: written=" << value << " readback=" << u8 << "\n";
     }
 
 
-    readRegisters(spi,ADS126X_REG_ID,1,&value);
+    readRegisters(mySpi, ADS126X_REG_ID, 1, &value);
     if ( (value&0xe0)==0x00 ) {
         myModel = "ADS1262";
     }
@@ -315,40 +296,41 @@ Ads126x::Ads126x( int id , Ads126xConfig const &cfg ) :
     //std::cerr << "Detected ADC: " << myModel << " rev. " << myRevision << "\n";
 
     value   = ADS126X_POWER_VBIAS_OFF | ADS126X_POWER_INTREF_ON;
-    writeSingleReg(spi,ADS126X_REG_POWER,value);
-    readRegisters(spi,ADS126X_REG_POWER,1,&u8);
+    writeSingleReg(mySpi, ADS126X_REG_POWER, value);
+    readRegisters(mySpi, ADS126X_REG_POWER, 1, &u8);
     if ( u8!=value ) {
         throw std::runtime_error{ Poco::format("failed setting POWER mode: wr=%02?x rd=%02?",value,u8) };
     }
 
     /* several configs mostly for testing..... */
-    writeSingleReg(spi,ADS126X_REG_MODE0,0x00);
+    writeSingleReg(mySpi, ADS126X_REG_MODE0, 0x00);
 
     /* MODE1 set to SINC1 */
     myCurFilterId   = Adc1::getFilterId("sinc1");
     myOptFilter     = "sinc1";
-    writeSingleReg(spi,ADS126X_REG_MODE1,0x00);
+    writeSingleReg(mySpi, ADS126X_REG_MODE1, 0x00);
 
     /* MODE2 set to 2400 sps */
     myCurSpsId      = Adc1::getSpsId("2400");
     myOptSps        = "2400";
-    writeSingleReg(spi,ADS126X_REG_MODE2,0x0a);
-    writeSingleReg(spi,ADS126X_REG_IDACMUX,0xbb);
-    writeSingleReg(spi,ADS126X_REG_IDACMAG,0x00);
-    writeSingleReg(spi,ADS126X_REG_REFMUX,0x00);
-    writeSingleReg(spi,ADS126X_REG_TDACP,0x00);
-    writeSingleReg(spi,ADS126X_REG_TDACN,0x00);
-    writeSingleReg(spi,ADS126X_REG_GPIOCON,0x00);
-    writeSingleReg(spi,ADS126X_REG_FSCAL0,0x00);
-    writeSingleReg(spi,ADS126X_REG_FSCAL1,0x00);
-    writeSingleReg(spi,ADS126X_REG_FSCAL2,0x40);
-
+    writeSingleReg(mySpi, ADS126X_REG_MODE2, 0x0a);
+    writeSingleReg(mySpi, ADS126X_REG_IDACMUX, 0xbb);
+    writeSingleReg(mySpi, ADS126X_REG_IDACMAG, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_REFMUX, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_TDACP, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_TDACN, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_GPIOCON, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_FSCAL0, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_FSCAL1, 0x00);
+    writeSingleReg(mySpi, ADS126X_REG_FSCAL2, 0x40);
+   
+    setSps("2400");
     recalculateDelays();
-
-    uint8_t rd[3];
-    rd[0] = rd[1] = rd[2] = 0;
-
-    readRegisters(spi,ADS126X_REG_FSCAL0,3,rd);
+    
+    calibrate();
+    
+    uint8_t rd[3] { 0 };
+    readRegisters(mySpi, ADS126X_REG_FSCAL0, 3, rd);
     logger.information( Poco::format("fscal0=0x%02?x\nfscal1=0x%02?x\nfscal2=0x%02?x\n",rd[0],rd[1],rd[2]) );
 }
     
@@ -357,9 +339,8 @@ Ads126x::~Ads126x()  = default;
 
 void Ads126x::dumpRegisters( std::ostream& os )
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
     uint8_t regDump[0x1b];
-    readRegisters(spi,ADS126X_REG_ID,0x1b,regDump);
+    readRegisters(mySpi, ADS126X_REG_ID, 0x1b, regDump);
     stringstream ss;
     ss << "ADS126x Register dump:\n";
     for (int k = 0; k < 0x1b; k++) {
@@ -371,8 +352,6 @@ void Ads126x::dumpRegisters( std::ostream& os )
 
 int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
 {
-    Stopwatch stopwatch;
-
     logger.debug( format("ADS126x: reading data from ADC%d...",adcId) );
     Ads126xCmd cmd;
     uint8_t doneMask;
@@ -396,31 +375,31 @@ int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
 
     bool adcDone    = false;
     /* perform one first wait, to allow conversion to proceed */
-    std::this_thread::sleep_for( MICROS{myCurConvTime} );
+    //std::this_thread::sleep_for( MICROS{myCurConvTime} );
     int iteration  = 0;
+    Stopwatch stopwatch;
     do {
         iteration++;
-        memset(rd,0,7);
+        bzero(rd,sizeof(rd));
         spi.clear()
             .transfer8(wr,rd,7)
             .execute();
             
-        if ( logger.debug() ) {
-            logger.debug( format("ADS126x: transfer completed. iteration=%d elapsed=%dus",iteration,stopwatch.elapsed()) );
-            stopwatch.restart();
-        }
         if ( rd[1]&doneMask ) {
+            logger.debug( format("ADS126x: transfer completed. iteration=%d  status=0x%02?x elapsed=%?dus",iteration,rd[1],stopwatch.elapsed()) );
             adcDone = true;
         }
         else {
             if ( rd[1]!=0x00 ) {
                 logger.error(format("ADS126x: ADC STATUS is %x\n",rd[1]));
             }
-            if ( iteration>=100*Adc1::NUM_POLL_ITERATIONS ) {
+            if (stopwatch.elapsed() >= 10*myCurConvTime ) {
                 logger.error( format("ADS126x: Number of iterations (%d) to read() was exceeded. Giving up.\n",Adc1::NUM_POLL_ITERATIONS*100) );
                 break;
             }
-            std::this_thread::sleep_for( MICROS{myCurConvPoll} );
+            if ( myCurConvPoll>500 ) {
+                std::this_thread::sleep_for( MICROS{myCurConvPoll} );
+            }
         }
     } while ( !adcDone );
     if ( iteration>Adc1::NUM_POLL_ITERATIONS ) {
@@ -435,8 +414,10 @@ int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
         std::string msg = Poco::format("ADC%d - cksum mismatch: expect=0x%02?x read=0x%02?x", adcId,cksum,rd[6]);
         throw std::runtime_error{msg};
     }
-
-    return (rd[2]<<24) | (rd[3]<<16) | (rd[4]<<8) | rd[5] ;
+    
+    int32_t v   = ((int32_t)rd[2]<<24) | ((int32_t)rd[3]<<16) | ((int32_t)rd[4]<<8) | rd[5];
+    logger.information(Poco::format("conversion result: 0x%08?x",v));
+    return v;
 }
     
 
@@ -463,14 +444,13 @@ void Ads126x::recalculateDelays()
 
 void Ads126x::calibrate()
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
+    setInput(mySpi, ADS126X_INPUT_FLOAT, ADS126X_INPUT_FLOAT);
+    doCommand(mySpi, Ads126xCmd::SFOCAL1);
+    std::this_thread::sleep_for(MICROS{20000});
     //printf( "Performing self-calibration...\n");
-    setInput(spi,Input::AINCOM,Input::AINCOM);
-    doCommand(spi,Ads126xCmd::SYOCAL1);
-    std::this_thread::sleep_for(SECONDS{1});
-    setInput(spi,Input::FLOAT,Input::FLOAT);
-    doCommand(spi,Ads126xCmd::SFOCAL1);
-    std::this_thread::sleep_for(SECONDS{1});
+    setInput(mySpi, ADS126X_INPUT_AINCOM, ADS126X_INPUT_AINCOM);
+    doCommand(mySpi, Ads126xCmd::SYOCAL1);
+    std::this_thread::sleep_for(MICROS{20000});
 //    ads126x_sygcal1(adc);
 //    sleep(2);
 }
@@ -505,18 +485,16 @@ double Ads126x::getResolution() const
     return myVref/0x7fffffff;
 }
    
-void Ads126x::startConversion( SpiTransaction& spi, unsigned int chId ) const
+void Ads126x::startConversion(int ch)
 {
-    setInput( spi, getChInput(chId) );
-    doCommand( spi, Ads126xCmd::START1);
-    std::this_thread::sleep_for( MICROS{myCurConvTime} );
+    setInput( mySpi, ch);
+    doCommand( mySpi, Ads126xCmd::START1);
 }
 
-void Ads126x::startConversion( SpiTransaction& spi, unsigned int chp, unsigned int chn ) const
+void Ads126x::startConversion(int chp, int chn)
 {
-    setInput(spi, getChInput(chp) , getChInput(chn) );
-    doCommand(spi,Ads126xCmd::START1);
-    std::this_thread::sleep_for( MICROS{myCurConvTime} );
+    setInput( mySpi, chp, chn);
+    doCommand(mySpi,Ads126xCmd::START1);
 }
 
 
@@ -526,32 +504,29 @@ int Ads126x::getNumChannels() const
 }
 
 
-long int Ads126x::readDigital( unsigned int ch )
+int32_t Ads126x::read(int ch )
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
-    startConversion(spi,ch);
-    return readData(spi,1);
+    throwIfInvalidInput(ch);
+    startConversion(ch);
+    return readData(mySpi, 1);
 }
 
 
-double Ads126x::readAnalog( unsigned int ch )
+double Ads126x::readAnalog(int ch )
 {
-    return readDigital(ch)*getResolution();
+    throwIfInvalidInput(ch);
+    return read(ch) * getResolution()/myInpGain[ch];
 }
 
 
-double Ads126x::readDifferential( unsigned int chp , unsigned int chn )
+double Ads126x::readDifferential(int chp , int chn )
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
-    startConversion(spi,chp,chn);
-    return readData(spi,1)*getResolution();
+    throwIfInvalidInput(chp);
+    throwIfInvalidInput(chn);
+    startConversion(chp, chn);
+    return readData(mySpi, 1) * getResolution() / myInpGain[chp];
 }
 
-unsigned int Ads126x::setSampleRate( unsigned int sampleRate )
-{
-    // WTF????
-    return sampleRate;
-}
 
 size_t Ads126x::getNumCurrentSources() const
 {
@@ -575,13 +550,12 @@ int Ads126x::setCurrentSource(int srcId, bool enabled, int ch, string const& mag
         throw std::runtime_error{"out of bounds: isource ID"};
     }
     
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
-    if ( enabled && ch>=getNumChannels() ) {
-        throw std::runtime_error{"out of bounds: channel ID"};
+    if ( enabled ) {
+        throwIfInvalidInput(ch);
     }
 
     uint8_t idacCtl[2];
-    readRegisters(spi,ADS126X_REG_IDACMUX,2,idacCtl);
+    readRegisters(mySpi, ADS126X_REG_IDACMUX, 2, idacCtl);
 
     uint8_t muxVal;
     uint8_t magVal;
@@ -642,7 +616,7 @@ int Ads126x::setCurrentSource(int srcId, bool enabled, int ch, string const& mag
     }
     //fprintf(stdout,"WRITING: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
 
-    writeRegisters(spi,ADS126X_REG_IDACMUX,2,idacCtl);
+    writeRegisters(mySpi, ADS126X_REG_IDACMUX, 2, idacCtl);
 
     //readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
     //fprintf(stdout,"READ(again): mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
@@ -652,7 +626,6 @@ int Ads126x::setCurrentSource(int srcId, bool enabled, int ch, string const& mag
 
 void Ads126x::setSps( std::string const &value )
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
     
     int spsId = Adc1::getSpsId(value);
     if ( spsId==-1 ) {
@@ -684,19 +657,18 @@ void Ads126x::setSps( std::string const &value )
         else {
             myOptFilter     = "sinc1";
             myCurFilterId   = Adc1::getFilterId("sinc1");
-            setAdc1Filter(spi, Adc1::FILTER_REG_VAL[myCurFilterId] );
+            setAdc1Filter(mySpi, Adc1::FILTER_REG_VAL[myCurFilterId] );
             logger.information( format("ADS126x: selected sps=%s and filter=%s",value,myOptFilter));
         }
     }
     myOptSps    = value;
     myCurSpsId  = spsId;
-    setAdc1Sps(spi, Adc1::SPS_REG_VAL[myCurSpsId] );
+    setAdc1Sps(mySpi, Adc1::SPS_REG_VAL[myCurSpsId] );
     recalculateDelays();
 }
 
 void Ads126x::setFilter(std::string const& value)
 {
-    SpiTransaction spi{mySpiDev,ADS126X_SPI_MODE,ADS126X_SPI_SPEED};
     int filterId = Adc1::getFilterId(value);
     if ( filterId == -1 ) {
         throw std::runtime_error{"bad filter name"};
@@ -707,7 +679,7 @@ void Ads126x::setFilter(std::string const& value)
         throw std::runtime_error{"filter not supported with current SPS"};
     }
 
-    setAdc1Filter(spi, Adc1::FILTER_REG_VAL[filterId] );
+    setAdc1Filter(mySpi, Adc1::FILTER_REG_VAL[filterId] );
     myCurFilterId   = filterId;
     myOptFilter     = value;
     recalculateDelays();
@@ -762,6 +734,32 @@ vector<OptionHelpPtr> Ads126x::getOptionHelp()
 int Ads126x::disableCurrentSource(int srcId)
 {
     return setCurrentSource(srcId,false,0,"");
+}
+
+std::string Ads126x::getInputName(int idx) const
+{
+    if (idx<0 || idx>=getNumChannels() ) {
+        throw std::runtime_error{"input index out of bounds"};
+    }
+    static std::vector<std::string> channelNames {
+            "AIN0",
+            "AIN1",
+            "AIN2",
+            "AIN3",
+            "AIN4",
+            "AIN5",
+            "AIN6",
+            "AIN7",
+            "AIN8",
+            "AIN9",
+            "AINCOM",
+            "TSENS",
+            "AVCC",
+            "DVCC",
+            "TDAC",
+            "FLOAT"
+    };
+    return channelNames[idx];
 }
 
 

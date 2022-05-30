@@ -4,7 +4,7 @@
 namespace Iotool
 {
     constexpr char const VERSION[]   = IOTOOL_VERSION;
-    constexpr char const LOG_FILE[]  = "iotool.log";
+    constexpr char const LOG_FILE[]  = "/var/log/iotool.log";
     constexpr unsigned int TCP_LISTEN_PORT = 1337;
 };
 

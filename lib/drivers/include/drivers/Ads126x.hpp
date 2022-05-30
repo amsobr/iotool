@@ -9,6 +9,7 @@
 
 #include <common/Adc.hpp>
 #include <common/Peripheral.hpp>
+#include <common/SpiTransaction.hpp>
 
 #include "ads126x_config.hpp"
 
@@ -17,25 +18,6 @@ class SpiTransaction;
 class Ads126x : public Adc
 {
 public:
-    enum class Input {
-        AIN0    = 0 ,
-        AIN1    = 1 ,
-        AIN2    = 2 ,
-        AIN3    = 3 ,
-        AIN4    = 4 ,
-        AIN5    = 5 ,
-        AIN6    = 6 ,
-        AIN7    = 7 ,
-        AIN8    = 8 ,
-        AIN9    = 9 ,
-        AINCOM  = 10 ,
-        TSENS   = 11 ,
-        AVCC    = 12 ,
-        DVCC    = 13 ,
-        TDAC    = 14 ,
-        FLOAT   = 15 ,
-    };
-    
     
     Ads126x( int id , Ads126xConfig const &cfg );
     
@@ -50,23 +32,31 @@ public:
     [[nodiscard]] std::string getAuthor() const override;
     [[nodiscard]] int getNumChannels() const override;
     
+    /**
+     * @brief get the name of an input
+     * @param idx index of the input, from 0 to getNumChannels()-1, inclusive
+     * @return the name of the input
+     * @throws runtime_error - index out of bounds
+     */
+    [[nodiscard]] std::string getInputName( int idx ) const;
+    
+    
     /** \brief Read one channel, as digital
      * \param ch  ID of the channel: 0 to 9
      */
-    long int readDigital( unsigned int ch ) override;
+    int32_t read(int ch ) override;
 
-    double readDifferential( unsigned int chP , unsigned int chN ) override;
+    double readDifferential(int chp , int chn ) override;
 
     /** \brief Read one channel, as real value
      * \details Read and convert the channel, referenced to
      * board input, considering PGA, and board gain.
      * \paran ch Channel to convert: 0 to 9
      */
-    double readAnalog( unsigned int ch ) override;
+    double readAnalog(int ch ) override;
 
     [[nodiscard]] std::string getUnits() const override;
 
-    unsigned int setSampleRate( unsigned int sampleRate );
 
     [[nodiscard]] size_t getNumCurrentSources() const override;
 
@@ -98,9 +88,9 @@ private:
     
     [[nodiscard]] double getResolution() const;
     
-    void startConversion( SpiTransaction& spi, unsigned int chId ) const;
+    void startConversion(int ch);
     
-    void startConversion( SpiTransaction& spi, unsigned int chp, unsigned int chn ) const;
+    void startConversion(int chp, int chn);
     
     void setSps( std::string const &value );
     
@@ -108,7 +98,8 @@ private:
     
     
     Poco::Logger&       logger;
-    std::string         mySpiDev;
+    std::string         mySpiCharDev;
+    SpiTransaction      mySpi;
     double              myVref;
     std::vector<double> myInpGain;
     std::list<std::string>  myIdacMagnitudes;

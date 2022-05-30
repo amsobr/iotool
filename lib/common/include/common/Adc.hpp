@@ -14,9 +14,9 @@ public:
     ~Adc() override = default;
 
     [[nodiscard]] virtual int getNumChannels() const = 0;
-    [[nodiscard]] virtual double readAnalog( unsigned int ch) = 0;
+    [[nodiscard]] virtual double readAnalog(int ch) = 0;
 
-    virtual long int readDigital(unsigned int ch) = 0;
+    virtual int32_t read(int ch) = 0;
 
     [[nodiscard]] virtual std::string getUnits() const = 0;
 
@@ -29,7 +29,7 @@ public:
      * @note On early versions, this method returns 0, leavind up to the
      *      client code to make sure that differential read is supported.
      */
-    virtual double readDifferential( unsigned int chp , unsigned int chn ) { return 0; }
+    virtual double readDifferential(int chp , int chn ) { return 0; }
 
     /**
      * @brief Get the Number of current sources

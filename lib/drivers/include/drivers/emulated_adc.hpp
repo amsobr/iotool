@@ -12,8 +12,8 @@
 class EmulatedAdc : public Adc
 {
 private:
-    unsigned int myNumChannels;
-    unsigned int myNumCurrentSources;
+    int myNumChannels;
+    int myNumCurrentSources;
     Poco::Random myRandom;
 
 public:
@@ -40,8 +40,8 @@ public:
 
     
     [[nodiscard]] int getNumChannels() const override { return myNumChannels; }
-    [[nodiscard]] double readAnalog( unsigned int ch) override;
-    [[nodiscard]] long int readDigital(unsigned int ch) override;
+    [[nodiscard]] double readAnalog(int ch) override;
+    [[nodiscard]] int32_t read(int ch) override;
     [[nodiscard]] std::string getUnits() const override { return "V"; }
 
     /**
@@ -53,7 +53,7 @@ public:
      * @note On early versions, this method returns 0, leavind up to the
      *      client code to make sure that differential read is supported.
      */
-    [[nodiscard]] double readDifferential( unsigned int chp , unsigned int chn ) override;
+    [[nodiscard]] double readDifferential(int chp , int chn ) override;
 
     /**
      * @brief Get the Number of current sources
