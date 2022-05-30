@@ -67,7 +67,6 @@ myDevice{ std::move(device) }
         int e = errno;
         throw std::runtime_error{ Poco::format("opening '%s': errno %d - %s",myDevice,e,Strings::fromErrno(e))};
     }
-    std::cout << "opened " + myDevice << " on fd " << myFd << "\n";
     
     uint32_t tmp   = (uint32_t)mode;
     int res         = ioctl(myFd,SPI_IOC_WR_MODE32,&tmp);
@@ -76,7 +75,6 @@ myDevice{ std::move(device) }
         close(myFd);
         throw std::runtime_error{ Poco::format("setting %s on '%s': errno %d - %s",str(mode),myDevice,e,Strings::fromErrno(e))};
     }
-    std::cout << "set mode=" << tmp << "\n";
     
     tmp = speed;
     res = ioctl(myFd,SPI_IOC_WR_MAX_SPEED_HZ,&tmp);
@@ -85,8 +83,7 @@ myDevice{ std::move(device) }
         close(myFd);
         throw std::runtime_error{ Poco::format("setting speed to %d on '%s': errno %d - %s",speed,myDevice,e,Strings::fromErrno(e))};
     }
-    std::cout << "set speed=" << tmp << "\n";
-    spi_dumpstat(myDevice.c_str(),myFd);
+    //spi_dumpstat(myDevice.c_str(),myFd);
 }
 
 SpiTransaction::~SpiTransaction()
@@ -124,7 +121,7 @@ SpiTransaction& SpiTransaction::execute()
         xfer[cnt].rx_buf    = (__u64) step.rdBuf;
         xfer[cnt].len       = step.len;
         xfer[cnt].bits_per_word = step.bitsPerWord;
-        xfer[cnt].speed_hz  = 25000000;
+        //xfer[cnt].speed_hz  = 25000000;
         cnt++;
     }
     
