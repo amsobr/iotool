@@ -8,6 +8,7 @@
 #include "commands/CmdLedStatus.hpp"
 #include "commands/CmdRelaySet.hpp"
 #include "commands/CmdRelayStatus.hpp"
+#include "commands/CmdDinList.hpp"
 
 #include "PeripheralCmdProvider.hpp"
 
@@ -29,6 +30,7 @@ PeripheralCmdProvider::PeripheralCmdProvider()
     groups[PeripheralType::DOUT].emplace_back( std::make_shared<CmdRelayStatus>() );
     
     groups[PeripheralType::DIN].emplace_back( std::make_shared<CmdDinRead>() );
+    groups[PeripheralType::DIN].emplace_back( std::make_shared<CmdDinList>() );
 }
 
 

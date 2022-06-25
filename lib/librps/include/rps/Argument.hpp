@@ -40,6 +40,13 @@ public:
     }
 
 
+    /**
+     * @brief get the argument as a string
+     *
+     * Checks if the argument is an actual token before returning.
+     * @return The whole token. Throws an exception if the argument is of
+     *          Key-Value type
+     */
     [[nodiscard]] std::string const& getAsString() const
     {
         if ( isKvPair() ) {

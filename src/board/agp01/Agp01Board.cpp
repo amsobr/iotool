@@ -11,6 +11,8 @@
 #include "Agp01Board.hpp"
 #include "Agp01Leds.hpp"
 #include "Agp01Relays.hpp"
+#include "common/Board.hpp"
+
 
 using namespace std;
 
@@ -30,11 +32,9 @@ Agp01Board::Agp01Board()
         0.5,
         0.5
         };
-    cout << "Creating ADC...\n";
     Ads126xPtr adc(new Ads126x(0,adcConfig));
     myPeripherals.push_back(adc);
 
-    cout << "Creating DAC...\n";
     Max581x::Config dacConfig;
     dacConfig.i2cAddr   = 0x1a;
     dacConfig.i2cDev    = "/dev/i2c-0";
@@ -43,15 +43,12 @@ Agp01Board::Agp01Board()
     Max581xPtr dac(new Max581x(0,dacConfig));
     myPeripherals.push_back(dac);
 
-    cout << "Creating LEDs...\n";
     IndicatorPtr leds{ std::make_shared<Agp01Leds>(0) };
     myPeripherals.push_back(leds);
     
-    cout << "Creating Relays...\n";
     DigitalOutPtr outs{ std::make_shared<Agp01Relays>(0) };
     myPeripherals.push_back(outs);
     
-    cout << "Creating LED OE...\n";
     BasicDout::Config boardPinsCfg{
         { "LEDS_OE", "pioB22", false }
     };

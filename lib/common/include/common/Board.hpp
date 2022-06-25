@@ -34,6 +34,23 @@ public:
     {
         return myPeripherals;
     }
+    
+    /**
+     * @brief find all peripherals of a given type
+     * @param t The type of peripheral to look for
+     * @return A vector with all peripherals of given type. Will be empty of
+     *          there is no peripheral that matches.
+     */
+    [[nodiscard]] std::vector<PeripheralPtr> findPeripherals( PeripheralType t ) const
+    {
+        std::vector<PeripheralPtr> result;
+        for ( auto const& p : myPeripherals ) {
+            if ( p->getType()==t ) {
+                result.emplace_back(p);
+            }
+        }
+        return result;
+    }
 
     /**
      * @brief Get a peripheral by name
