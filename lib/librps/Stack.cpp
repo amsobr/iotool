@@ -120,4 +120,10 @@ Operand Stack::valueAt(int pos) const
     return myStack[myStack.size()-pos-1];
 }
 
+void Stack::push(std::vector<Operand> const& values)
+{
+    myStack.insert(myStack.end(),std::begin(values),std::end(values));
+    myNewElems += (int)values.size();
+}
+
 }; /* namespace Rpn */

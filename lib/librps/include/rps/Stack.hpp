@@ -26,6 +26,8 @@ public:
     Operand pop();
 
     void push(Operand const &value );
+    
+    void push( std::vector<Operand> const& values );
 
     [[nodiscard]] size_t stackSize() const;
 

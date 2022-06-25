@@ -72,13 +72,15 @@ void ShellFrontend::run()
                 try {
                     cmd->run(myCtx,args);
                     auto diff   = myCtx->stack.getNewElements();
-                    if ( !diff.empty() ) {
+                    if ( diff.size()>25 ) {
+                        myCtx->stream->writeLine( Poco::format("stack: +%z entries",diff.size()));
+                    }
+                    else if ( !diff.empty() ) {
                         size_t cnt = diff.size()-1;
                         for ( auto const&o : diff ) {
                             myCtx->stream->writeLine( Poco::format("%02z: %12.8f",cnt,o) );
                             cnt--;
                         }
-                    
                     }
                 }
                 catch ( rps::Exception const& ex ) {
