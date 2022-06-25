@@ -36,3 +36,8 @@ std::list<std::string> EmulatedAdc::getCurSourceMagnitudes( unsigned int srcId )
     return { "1u" , "2u" , "5u" , "10u" , "20u" , "50u" , "100u" , "200u" , "500u" , "1m" , "2m" , "5m" };
 }
 
+double EmulatedAdc::getResolution(int ch) const
+{
+    return 1;
+}
+

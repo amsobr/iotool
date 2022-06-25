@@ -192,11 +192,13 @@ static inline void writeRegisters(SpiTransaction& spi , Ads126xRegister reg , in
 static inline void writeSingleReg( SpiTransaction& spi, Ads126xRegister reg , unsigned char value )
 {
     writeRegisters(spi,reg,1,&value);
+#if defined(IOTOOL_DEBUG)
     uint8_t u8 = 0;
     readRegisters(spi,reg,1,&u8);
     if ( value!=u8 ) {
         throw std::runtime_error{ Poco::format("REG 0x%02x: wrote 0x%02x but read 0x%02x",reg,value,u8) };
     }
+#endif
 }
 
 
@@ -311,8 +313,6 @@ Ads126x::Ads126x( int id , Ads126xConfig const &cfg ) :
     writeSingleReg(mySpi, ADS126X_REG_MODE1, 0x00);
 
     /* MODE2 set to 2400 sps */
-    myCurSpsId      = Adc1::getSpsId("2400");
-    myOptSps        = "2400";
     writeSingleReg(mySpi, ADS126X_REG_MODE2, 0x0a);
     writeSingleReg(mySpi, ADS126X_REG_IDACMUX, 0xbb);
     writeSingleReg(mySpi, ADS126X_REG_IDACMAG, 0x00);
@@ -324,7 +324,7 @@ Ads126x::Ads126x( int id , Ads126xConfig const &cfg ) :
     writeSingleReg(mySpi, ADS126X_REG_FSCAL1, 0x00);
     writeSingleReg(mySpi, ADS126X_REG_FSCAL2, 0x40);
    
-    setSps("2400");
+    setSps("4800");
     recalculateDelays();
     
     calibrate();
@@ -352,7 +352,7 @@ void Ads126x::dumpRegisters( std::ostream& os )
 
 int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
 {
-    logger.debug( format("ADS126x: reading data from ADC%d...",adcId) );
+    poco_debug(logger,Poco::format("ADS126x: reading data from ADC%d...",adcId) );
     Ads126xCmd cmd;
     uint8_t doneMask;
     if ( adcId==1 ) {
@@ -377,37 +377,28 @@ int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
     /* perform one first wait, to allow conversion to proceed */
     //std::this_thread::sleep_for( MICROS{myCurConvTime} );
     int iteration  = 0;
-    Stopwatch stopwatch;
-    do {
+    while ( !adcDone ) {
         iteration++;
         bzero(rd,sizeof(rd));
         spi.clear()
             .transfer8(wr,rd,7)
             .execute();
-            
+        myReadCount++;
+        
         if ( rd[1]&doneMask ) {
-            logger.debug( format("ADS126x: transfer completed. iteration=%d  status=0x%02?x elapsed=%?dus",iteration,rd[1],stopwatch.elapsed()) );
+            poco_debug(logger,format("ADS126x: transfer completed. iteration=%d  status=0x%02?x",iteration,rd[1]));
             adcDone = true;
         }
         else {
             if ( rd[1]!=0x00 ) {
-                logger.error(format("ADS126x: ADC STATUS is %x\n",rd[1]));
+                poco_error(logger,format("ADS126x: ADC STATUS is 0x%?x",rd[1]));
             }
-            if (stopwatch.elapsed() >= 10*myCurConvTime ) {
-                logger.error( format("ADS126x: Number of iterations (%d) to read() was exceeded. Giving up.\n",Adc1::NUM_POLL_ITERATIONS*100) );
-                break;
-            }
-            if ( myCurConvPoll>500 ) {
+            if ( myCurConvPoll>1000 ) {
                 std::this_thread::sleep_for( MICROS{myCurConvPoll} );
             }
         }
-    } while ( !adcDone );
-    if ( iteration>Adc1::NUM_POLL_ITERATIONS ) {
-        logger.warning( format("ADS126x: read from ADC%d took longer than expected. iterarions=%d expected=%d",adcId,iteration,Adc1::NUM_POLL_ITERATIONS) );
     }
-    else {
-        logger.debug( format("ADS126x: read from ADC%d complete!",adcId) );
-    }
+    poco_debug(logger,Poco::format("ADS126x: read from ADC%d complete!",adcId) );
 
     uint8_t cksum   = rd[2]+rd[3]+rd[4]+rd[5]+0x9b;
     if ( cksum!=rd[6] ) {
@@ -416,7 +407,7 @@ int32_t Ads126x::readData(SpiTransaction& spi, int adcId)
     }
     
     int32_t v   = ((int32_t)rd[2]<<24) | ((int32_t)rd[3]<<16) | ((int32_t)rd[4]<<8) | rd[5];
-    logger.information(Poco::format("conversion result: 0x%08?x",v));
+    poco_trace(logger,Poco::format("conversion result: 0x%08?x",v));
     return v;
 }
     
@@ -436,8 +427,10 @@ void Ads126x::recalculateDelays()
     if ( myCurConvPoll<50 ) {
         myCurConvPoll   = 50;
     }
-    logger.information(
+    poco_information(logger,
         format("ADS126x: recalculated ADC1 times for sps=%s\nconversion time : %d us\npoll time  : %d us",myOptSps,myCurConvTime,myCurConvPoll) );
+    myCurConvTime   = 0;
+    myCurConvPoll   = 0;
 }
 
     
@@ -447,7 +440,6 @@ void Ads126x::calibrate()
     setInput(mySpi, ADS126X_INPUT_FLOAT, ADS126X_INPUT_FLOAT);
     doCommand(mySpi, Ads126xCmd::SFOCAL1);
     std::this_thread::sleep_for(MICROS{20000});
-    //printf( "Performing self-calibration...\n");
     setInput(mySpi, ADS126X_INPUT_AINCOM, ADS126X_INPUT_AINCOM);
     doCommand(mySpi, Ads126xCmd::SYOCAL1);
     std::this_thread::sleep_for(MICROS{20000});
@@ -482,18 +474,35 @@ std::string Ads126x::getAuthor() const
 
 double Ads126x::getResolution() const
 {
-    return myVref/0x7fffffff;
+    return myVref/0x80000000ll;
 }
-   
+
+
+double Ads126x::getResolution(int ch) const
+{
+    throwIfInvalidInput(ch);
+    return (myVref/myInpGain[ch])/0x80000000ll;
+}
+
+
+
 void Ads126x::startConversion(int ch)
 {
-    setInput( mySpi, ch);
+    if ( myCurChp!=ch || myCurChn!=-1 ) {
+        setInput( mySpi, ch);
+        myCurChp    = ch;
+        myCurChn    = -1;
+    }
     doCommand( mySpi, Ads126xCmd::START1);
 }
 
 void Ads126x::startConversion(int chp, int chn)
 {
-    setInput( mySpi, chp, chn);
+    if ( myCurChp!=chp || myCurChn!=chn) {
+        setInput( mySpi, chp, chn);
+        myCurChp    = chp;
+        myCurChn    = chn;
+    }
     doCommand(mySpi,Ads126xCmd::START1);
 }
 
@@ -614,12 +623,9 @@ int Ads126x::setCurrentSource(int srcId, bool enabled, int ch, string const& mag
         idacCtl[0]  |= (muxVal<<4);
         idacCtl[1]  |= (magVal<<4);
     }
-    //fprintf(stdout,"WRITING: mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
 
     writeRegisters(mySpi, ADS126X_REG_IDACMUX, 2, idacCtl);
 
-    //readRegisters(ADS126X_REG_IDACMUX,2,idacCtl);
-    //fprintf(stdout,"READ(again): mux=0x%02x mag=0x%02x\n",idacCtl[0],idacCtl[1]);
     return 0;
 
 }
@@ -656,13 +662,13 @@ void Ads126x::setSps( std::string const &value )
         }
         else {
             myOptFilter     = "sinc1";
-            myCurFilterId   = Adc1::getFilterId("sinc1");
-            setAdc1Filter(mySpi, Adc1::FILTER_REG_VAL[myCurFilterId] );
-            logger.information( format("ADS126x: selected sps=%s and filter=%s",value,myOptFilter));
+            myCurFilterId   = filterId;
         }
     }
     myOptSps    = value;
     myCurSpsId  = spsId;
+    setAdc1Filter(mySpi, Adc1::FILTER_REG_VAL[myCurFilterId] );
+    poco_information( logger, format("ADS126x: selected sps=%s and filter=%s",value,myOptFilter));
     setAdc1Sps(mySpi, Adc1::SPS_REG_VAL[myCurSpsId] );
     recalculateDelays();
 }
@@ -760,6 +766,25 @@ std::string Ads126x::getInputName(int idx) const
             "FLOAT"
     };
     return channelNames[idx];
+}
+
+void Ads126x::read(int ch, int count, vector<int32_t>& values)
+{
+    throwIfInvalidInput(ch);
+    startConversion(ch);
+    values.clear();
+    values.reserve(count);
+    int numAssured  = 0;
+    int totalReads  = 0;
+    for ( int i=0 ; i<count ; i++ ) {
+        myReadCount = 0;
+        values.push_back(readData(mySpi,1));
+        if ( myReadCount>1 ) {
+            numAssured++;
+        }
+        totalReads += myReadCount;
+    }
+    logger.information(Poco::format("reads=%d consecutive=%d trf/sample=%f",count,numAssured,(double)totalReads/count));
 }
 
 

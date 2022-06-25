@@ -17,8 +17,43 @@ public:
     [[nodiscard]] virtual double readAnalog(int ch) = 0;
 
     virtual int32_t read(int ch) = 0;
+    
+    /**
+     * @brief read multiple values
+     *
+     * Reads the requested number of samples from the given channel.
+     *
+     * By default, iterates count times to fill the values vector. The default
+     * implementation is quite simple; derived classes may override this to
+     * provide optimized behaviour.
+     *
+     * @param ch The channel to read
+     * @param count Number of samples to read
+     * @param values A vector where samples will be saved. Its contents will be
+     *              replaced with the samples actually read. Samples are stored
+     *              in the same order as they are read.
+     */
+    virtual void read( int ch, int count, std::vector<int32_t>& values)
+    {
+        values.clear();
+        values.reserve(count);
+        for ( int i=0 ; i<count ; i++ ) {
+            values.push_back(read(ch));
+        }
+    }
 
     [[nodiscard]] virtual std::string getUnits() const = 0;
+    
+    /**
+     * @brief get the resolution of a channel
+     *
+     * Gets the resolution of the ADC channel. To calculate the actual analog
+     * value of a channel, multiply the result of read by the resolution.
+     *
+     * @param ch the channel
+     * @return The resolution of the channel
+     */
+    [[nodiscard]] virtual double getResolution( int ch) const = 0;
 
     /**
      * @brief Read a differential input

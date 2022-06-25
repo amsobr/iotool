@@ -17,7 +17,7 @@
 #include <common/SpiTransaction.hpp>
 
 
-static void spi_dumpstat(const char *name, int fd)
+[[maybe_unused]] static void spi_dumpstat(const char *name, int fd)
 {
     __u8    lsb, bits;
     __u32   mode, speed;

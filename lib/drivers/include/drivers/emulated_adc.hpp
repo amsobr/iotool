@@ -43,7 +43,9 @@ public:
     [[nodiscard]] double readAnalog(int ch) override;
     [[nodiscard]] int32_t read(int ch) override;
     [[nodiscard]] std::string getUnits() const override { return "V"; }
-
+    
+    double getResolution(int ch) const override;
+    
     /**
      * @brief Read a differential input
      * 

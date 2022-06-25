@@ -56,8 +56,12 @@ public:
     double readAnalog(int ch ) override;
 
     [[nodiscard]] std::string getUnits() const override;
-
-
+    
+    void read(int ch, int count, std::vector<int32_t>& values) override;
+    
+    double getResolution(int ch) const override;
+    
+    
     [[nodiscard]] size_t getNumCurrentSources() const override;
 
     [[nodiscard]] std::list<std::string> getCurSourceMagnitudes( unsigned int srcId ) const override;
@@ -105,6 +109,7 @@ private:
     std::list<std::string>  myIdacMagnitudes;
     std::list<std::string>  mySpsValues;
     std::list<std::string>  myFilterValues;
+    int                 myReadCount{ 0 };
     
     std::string     myModel;
     std::string     myRevision;
@@ -114,6 +119,8 @@ private:
     std::string     myOptFilter; /*< Filter */
     int             myCurSpsId;
     int             myCurFilterId;
+    int             myCurChp{ -1 };
+    int             myCurChn{ -1 };
     int             myCurConvTime{};
     int             myCurConvPoll{};
 }; /* class Ads126x */
