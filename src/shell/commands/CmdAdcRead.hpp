@@ -7,6 +7,7 @@
 
 #include <Poco/Format.h>
 #include <Poco/String.h>
+#include <Poco/Stopwatch.h>
 #include <Poco/NumberParser.h>
 #include <Poco/Format.h>
 
@@ -48,32 +49,52 @@ public:
     {
         auto adc  = Board::get()->getPeripheral<Adc>(ctx->getCwd());
 
-        unsigned int count(1);
+        int count(1);
         if ( args.has("count") ) {
-            count   = args.get("count").getValueAsUnsigned();
+            count   = (int)args.get("count").getValueAsInteger();
+        }
+        
+        if ( count<1 ) {
+            throw std::runtime_error{"count must be positive integer (>=1)"};
         }
 
+        Poco::Stopwatch stopwatch;
+        stopwatch.start();
         if ( args.has("ch") ) {
             if ( args.has("chp") || args.has("chn") ) {
                 throw std::runtime_error{"Cannot mix single ended and differential reads."};
             }
 
-            unsigned int ch = args.get("ch").getValueAsUnsigned();
-
-            for ( unsigned int i=0 ; i<count ; i++ ) {
-                double val      = adc->readAnalog(ch);
-                ctx->stack.push(val);
+            int ch = (int)args.get("ch").getValueAsInteger();
+            
+            if ( count==1 ) {
+                ctx->stack.push( adc->readAnalog(ch) );
+            }
+            else {
+                std::vector<int32_t> digVal;
+                adc->read(ch, count, digVal);
+                std::vector<double> anVal(digVal.size());
+                double const res    = adc->getResolution(ch);
+                //poco_debug( logger, Poco::format("resolution=%.5e full_scale=%f\n",res,0x100000000ll*res));
+                for (size_t i=0 ; i<digVal.size() ; i++ ) {
+                    anVal[i]   = digVal[i]*res;
+                }
+                ctx->stack.push( anVal );
+                //std::cout << Poco::format("ADS126x: %d reads took %?ums\n",count,stopwatch.elapsed()/1000);
             }
             return;
         }
         else if ( args.has("chp") && args.has("chn") ) {
-            unsigned int chp = args.get("chp").getValueAsUnsigned();
-            unsigned int chn = args.get("chn").getValueAsUnsigned();
+            int chp = (int)args.get("chp").getValueAsInteger();
+            int chn = (int)args.get("chn").getValueAsInteger();
 
-            for ( unsigned int i=0 ; i<count ; i++ ) {
+            for ( int i=0 ; i<count ; i++ ) {
                 double val  = adc->readDifferential(chp,chn);
                 ctx->stack.push(val);
             }
+            //if ( count>1 ) {
+            //    std::cout << Poco::format("ADS126x: %d reads took %?ums\n",count,stopwatch.elapsed()/1000);
+            //}
             return;
         }
         else {
